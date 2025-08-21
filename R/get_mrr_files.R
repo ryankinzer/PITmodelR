@@ -1,0 +1,50 @@
+#' Download file information associated with a project MRR code and year.
+#' @param code A single PTAGIS project code (3 characters), e.g. "LGR".
+#' @param year A four digit year as an integer.
+#' @return A character vector with file names.
+#' @export
+#' @examples
+#' \dontrun{ get_mrr_files("LGR") }
+get_mrr_files <- function(code,
+                          year = NULL,
+                          page = 1,
+                          page_size = 1000,
+                          all_pages = TRUE) {
+
+  # validate code
+  if (missing(code) || length(code) != 1 || !is.character(code) || is.na(code))
+    stop("`code` must be a single, non-missing character string.", call. = FALSE)
+  code <- toupper(trimws(code))
+  if (nchar(code) != 3)
+    stop("`code` must be exactly 3 characters (e.g., 'LGR').", call. = FALSE)
+
+  # validate year
+  if (!is.null(year)) {
+    if (!is.numeric(year) || length(year) != 1L || is.na(year) || nchar(as.character(as.integer(year))) != 4) {
+      stop("`year` must be a single four-digit integer (e.g., 2024) or NULL.", call. = FALSE)
+    }
+    year <- as.integer(year)
+  }
+
+  # validate paging controls
+  if (!is.logical(all_pages) || length(all_pages) != 1L || is.na(all_pages)) {
+    stop("`all_pages` must be TRUE/FALSE.", call. = FALSE)
+  }
+  if (!is.numeric(page) || length(page) != 1L || is.na(page) || page < 1) {
+    stop("`page` must be a single positive integer.", call. = FALSE)
+  }
+  if (!is.numeric(page_size) || length(page_size) != 1L || is.na(page_size) || page_size < 1) {
+    stop("`page_size` must be a single positive integer.", call. = FALSE)
+  }
+
+  message("Downloading tag file information for project ", code, " and year ", year," from PTAGIS...")
+  url <- paste0("files/mrr/sites/", code,"/year/",year)
+  params <- list(pageSize = page_size,
+                 pageNumber = page)
+
+  content <- ptagis_GET(url, params)
+
+  tmp <- as_tibble_safely(content$model)
+
+  return(tmp)
+}

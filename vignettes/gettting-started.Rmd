@@ -1,0 +1,334 @@
+---
+title: "Getting Started with PITmodelR"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with PITmodelR}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7, fig.height = 4,
+  message = TRUE, warning = TRUE
+)
+```
+
+# Overview
+
+`PITmodelR` streamlines access to [PTAGIS](https://www.ptagis.org/) data through API endpoints and provides helper tools for PIT-tag data workflows, including project discovery, site metadata, tag observations, and survival/migration modeling.
+
+This vignette shows how to:
+- Install the package
+- Configure API authentication
+- Retrieve project codes and available years of data
+- Explore MRR and interrogation site metadata
+- Download mark-recapture-recovery (MRR) and observation PIT-tag data
+- Retrieve tag event histories
+
+> **Note:** Network calls and API-key examples are set to `eval = FALSE` to keep this vignette runnable on CRAN. Try them locally after setting your API key.
+
+---
+
+# Installation
+
+The `PITmodelR` package can be installed from GitHub using the install function from the package `remotes`.
+
+```{r eval=FALSE}
+# install.packages("remotes")
+remotes::install_github("ryankinzer/PITmodelR")
+```
+
+As for any R package, it must be loaded into the session environment before the functions will operate.
+
+```{r}
+library(PITmodelR)
+```
+
+---
+
+# Authentication (API key)
+
+Some PTAGIS endpoints require an API key. You can pass it directly to functions as a character string using the argument "PTAGIS_API_KEY" or set it once as a session environment variable.
+
+```{r eval=FALSE}
+Sys.setenv(PTAGIS_API_KEY = "YOUR-PTAGIS-API-KEY")
+```
+
+Another option is to add `PTAGIS_API_KEY` permanently to your `~/.Renviron` file for persistent use. The proper method and steps to complete this action are not included in this tutorial.  
+
+---
+
+# Project  Data
+
+PTAGIS files are organized into projects with a three character code. In the past, these project codes were called "Coordinator IDs". A project code is appended to the name of every data file uploaded to PTAGIS. The function `get_project_codes()` returns a vector of all project codes that have data associated with them in PTAGIS.
+
+```{r eval=FALSE}
+codes <- get_project_codes()
+```
+
+Package users may need to check the number of years a specific project has submitted PIT-tag data. This task is easily completed with `get_project_years()`. 
+
+```{r eval=FALSE}
+yrs <- get_project_years(code = "CDR")
+```
+
+
+Individual mark-recapture-recovery (MRR) files submitted for a given project and year can be obtained with `get_mrr_files()`. The function returns a small data frame containing metadata about the file uploads. 
+
+```{r eval=FALSE}
+files <- get_mrr_files(code = "CDR", year = 2024)
+files$name
+```
+
+After we know which files are available we can then download all uploaded data submitted with the file using `get_file_data()`. The function returns a list with four objects; session, events, session_pdv_fields, and detail_pdv_fields. The list can then be collapsed into a simple data frame using `flatten_mrr_file()` for easier manipulation. 
+
+```{r eval=FALSE}
+mrr_file <- get_file_data(files$name[1])
+mrr_file$session
+mrr_file$events
+mrr_file$session_pdv_fields
+mrr_file$detail_pdv_fields
+
+df <- flatten_mrr_file(mrr_file)
+```
+Or, you can download data from multiple MRR files in a single step using the batch function `get_batch_file_data()`. Because uploaded MRR files may not have standardized PDV fields, the function also contains arguments for how the output is returned based on label consistency. The function returns a list with three objects: "files", "combined", and "issues". The "files" object is a nested list with individual objects for each file name supplied to the function. The second object, "combined", is a single data frame with the data flattened across all the files. The final object, "issues", displays discrepancies between user defined field labels (SPDV and PDV).
+
+> **Note:** User defined fields may contain dates, numbers, or character strings, as such, all data in those fields are returned as a character string. Additional data formatting may be necessary if user defined fields require a specific format.
+
+```{r eval=FALSE, message=FALSE}
+filenames <- files$name[grepl('SCT', files$name)]
+
+# Batch workflow:
+all_data <- get_batch_file_data(
+  filenames,
+  check_labels = "warn",         # checks if user defined fields have the same labels, can use "error" to stop on mismatches
+  keep_code_cols = FALSE,         # should we keep PDV/SPDV code columns and the user defined labels
+  label_conflict = "suffix",     # behavior for file label column collisions
+  use_codes_on_conflict = TRUE   # prefer consistent code columns across files
+)
+
+# list of all individual files
+names(all_data$files)
+
+# look at data for a single file
+all_data$files$`CDR-2024-101-JCT.xml`
+
+# combined session and event data into a single dataset
+df <- all_data$combined
+
+# label mismatch issues
+all_data$issues
+```
+---
+# Survival Studies
+
+Survival studies begin with a list of tags that represent the population of interest and will later be recaptured or observed. The above functions allow us to download all the data associated with a MRR file (in this case a mark or tagging file) uploaded to PTAGIS. To create a list of tags suitable for a survival study, we first need to clean the MRR data and filter for tags that best represent our group of interest. This can easily be completed with functions from the `tidyverse` packages.
+
+
+## Mark List
+
+```{r eval=FALSE}
+library(tidyverse)
+
+mark_group <- df %>%
+  filter(species_run_rear_type == '12W',
+         migration_year == 2025,
+         between(release_date, ymd(20240901), ymd(20241231)),
+         release_site == 'SECTRP',
+         pittag != "..........",
+         !grepl('RE', text_comments),
+         !grepl('Y', conditional_comments)
+  )
+```
+
+---
+
+## Pit-Tag Histories
+
+
+```{r eval=FALSE}
+pittag <- mark_group$pittag[1]
+tag_history <- get_tag_history(tag_code = pittag)
+```
+
+```{r eval=FALSE}
+pittags <- mark_group$pittag
+tag_history <- get_batch_tag_histories(tag_codes = pittags)
+```
+
+## Recapture Observations
+
+We first need to define our survival reaches by identify locations of potential recaptures. We can start by looking at a table with all the locations that the tag group was observed.
+
+```{r eval=FALSE}
+table(tag_history$event_type)
+table(tag_history$site_code)
+```
+
+All the locations look good with the exception of "CWR".  To build my capture history I will first remove "CWR" and then select the sites that I need for survivals, SECTRP, ZEN, SFG, and Lower Granite Dam (GRJ and GRS), all other locations are downstream of Lower Granite (LGR) and can be used to calculate a detection efficiency at LGR. 
+
+```{r eval=FALSE}
+
+locs <- c("SECTRP","ZEN","SFG","LGR","Down")
+
+locs <- list(
+  SECTRP = "SECTRP",
+  ZEN    = "ZEN",
+  SFG    = "SFG",
+  LGR    = c("GRJ","GRS"),
+  Down   = c("LMN","MCN","BON", "B2J", "BCC", "GOJ", "ICH", "JDJ", "LMJ", "MCJ", "PD7", "PD8", "PDW", "TWX")
+)
+
+res <- build_mark_histories(
+  tag_history  = tag_history,
+  locs_def     = locs,
+  site_col     = "site_code",
+  tag_col      = "tag_code",
+  time_col     = "event_time",  # optional but helps order ties/revisits
+  enforce_order = TRUE,
+  keep_unknown  = FALSE
+)
+
+ch_data <- res$ch_data      # tag_code, ch
+ch_freq <- res$ch_freq      # ch, freq
+res$dropped_summary         # any sites removed because not in `locs`
+res$mapping                 # site -> occasion index
+```
+
+
+```{r eval=TRUE}
+# Fit CJS model
+library(marked)
+
+fit <- fit_marked_cjs(res$ch_data,
+                      phi_formula = ~ time,
+                      p_formula   = ~ time,
+                      conf_level  = 0.95)
+
+# Peek tables
+head(fit$phi)
+head(fit$p)
+
+# Show plots
+if (inherits(fit$plots$phi, "ggplot")) {
+  print(fit$plots$phi)
+  print(fit$plots$p)
+} else if (is.function(fit$plots$phi)) {
+  fit$plots$phi()  # base plot
+  fit$plots$p()
+}
+
+# Full model summary if needed
+summary(fit$model)
+
+fit$cum_phi         # cumulative survival with CIs
+fit$covariance_mode # "full" if covariance used, otherwise "independence_fallback"
+
+# Plot
+if (inherits(fit$plots$cum_phi, "ggplot")) {
+  print(fit$plots$cum_phi)
+} else {
+  fit$plots$cum_phi()
+}
+
+```
+
+```{r eval=TRUE}
+proc <- process.data(res$ch_data, model = "CJS")
+ddl  <- make.design.data(proc)
+
+Phi.time <- list(formula = ~ time)
+p.time   <- list(formula = ~ time)
+
+mod <- crm(proc, ddl, model.parameters = list(Phi = Phi.time, p = p.time))
+summary(mod)
+
+mod$results
+mod$results$reals$Phi
+
+est_preds = predict(mod) %>% 
+      map(.f = as_tibble)
+```
+
+
+---
+
+# Interrogation Sites
+
+## List interrogation sites (metadata)
+
+```{r eval=FALSE}
+sites_active <- list_interrogation_sites()
+sites_all <- list_interrogation_sites(active_only = FALSE)
+sites_min <- list_interrogation_sites(fields = c("site_code", "site_name", "status"))
+```
+
+## Get metadata for a single site
+
+```{r eval=FALSE}
+md <- get_site_metadata("LGR")
+md
+```
+
+---
+
+# Observations
+
+## Get site observations (with auto-pagination)
+
+```{r eval=FALSE}
+obs1 <- get_site_observations(site_code = "LGR")
+obs2 <- get_site_observations(site_code = "LGR", year = 2023)
+obs_page1 <- get_site_observations(site_code = "LGR", page = 1, page_size = 1000, all_pages = FALSE)
+obs_small <- get_site_observations(
+  site_code = "LGR", year = 2023,
+  fields = c("event_time", "tag_code", "antenna", "site_code")
+)
+```
+
+---
+
+# Tag Event History
+
+## Get observations for a single PIT tag
+
+```{r eval=FALSE}
+tag_events <- get_tag_history(tag_code = "384.1B79726A98")
+tag_events_min <- get_tag_history(
+  tag_code = "384.1B79726A98",
+  fields = c("event_time", "site_code", "antenna", "direction")
+)
+```
+
+---
+
+# Error handling & best practices
+
+- Functions use a resilient HTTP layer with retries and helpful error messages.
+- When nothing is returned, functions **warn** (instead of stopping) and return an empty tibble or vector.
+- Common transformations:
+  - Names normalized to `snake_case`
+  - Returns standardized to **tibble** for downstream use
+- For long queries or production code, consider:
+  - Caching responses (e.g., `memoise` package)
+  - Rate limiting / backoff on large downloads
+  - Filtering by time windows when available
+
+---
+
+# Session info
+
+```{r}
+sessionInfo()
+```
+
+---
+
+# Appendix: Troubleshooting
+
+- **HTTP 4xx** errors: verify your API key, parameters, and endpoint paths.
+- **Empty results**: confirm `site_code`, `tag_code`, date/year filters, and that the site/tag actually has records.
+- **Name mismatches**: after `snake_case` normalization, field names may differ slightly from raw API (e.g., `SiteCode` → `site_code`).

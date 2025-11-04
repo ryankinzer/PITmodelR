@@ -43,7 +43,7 @@ remotes::install_github("ryankinzer/PITmodelR")
 
 As for any R package, it must be loaded into the session environment before the functions will operate.
 
-```{r}
+```{r eval=FALSE}
 library(PITmodelR)
 ```
 

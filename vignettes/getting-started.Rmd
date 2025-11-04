@@ -30,8 +30,6 @@ This vignette shows how to:
 
 > **Note:** Network calls and API-key examples are set to `eval = FALSE` to keep this vignette runnable on CRAN. Try them locally after setting your API key.
 
----
-
 # Installation
 
 The `PITmodelR` package can be installed from GitHub using the install function from the package `remotes`.
@@ -47,8 +45,6 @@ As for any R package, it must be loaded into the session environment before the 
 library(PITmodelR)
 ```
 
----
-
 # Authentication (API key)
 
 Some PTAGIS endpoints require an API key. You can pass it directly to functions as a character string using the argument "PTAGIS_API_KEY" or set it once as a session environment variable.
@@ -58,8 +54,6 @@ Sys.setenv(PTAGIS_API_KEY = "YOUR-PTAGIS-API-KEY")
 ```
 
 Another option is to add `PTAGIS_API_KEY` permanently to your `~/.Renviron` file for persistent use. The proper method and steps to complete this action are not included in this tutorial.  
-
----
 
 # Project  Data
 
@@ -122,7 +116,7 @@ df <- all_data$combined
 # label mismatch issues
 all_data$issues
 ```
----
+
 # Survival Studies
 
 Survival studies begin with a list of tags that represent the population of interest and will later be recaptured or observed. The above functions allow us to download all the data associated with a MRR file (in this case a mark or tagging file) uploaded to PTAGIS. To create a list of tags suitable for a survival study, we first need to clean the MRR data and filter for tags that best represent our group of interest. This can easily be completed with functions from the `tidyverse` packages.
@@ -144,7 +138,6 @@ mark_group <- df %>%
   )
 ```
 
----
 
 ## Pit-Tag Histories
 
@@ -254,8 +247,6 @@ est_preds = predict(mod) %>%
 ```
 
 
----
-
 # Interrogation Sites
 
 ## List interrogation sites (metadata)
@@ -273,7 +264,6 @@ md <- get_site_metadata("LGR")
 md
 ```
 
----
 
 # Observations
 
@@ -289,7 +279,6 @@ obs_small <- get_site_observations(
 )
 ```
 
----
 
 # Tag Event History
 
@@ -303,7 +292,6 @@ tag_events_min <- get_tag_history(
 )
 ```
 
----
 
 # Error handling & best practices
 
@@ -317,7 +305,6 @@ tag_events_min <- get_tag_history(
   - Rate limiting / backoff on large downloads
   - Filtering by time windows when available
 
----
 
 # Session info
 
@@ -325,7 +312,6 @@ tag_events_min <- get_tag_history(
 sessionInfo()
 ```
 
----
 
 # Appendix: Troubleshooting
 

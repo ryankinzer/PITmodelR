@@ -199,7 +199,7 @@ res$mapping                 # site -> occasion index
 ```
 
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 # Fit CJS model
 library(marked)
 
@@ -236,7 +236,7 @@ if (inherits(fit$plots$cum_phi, "ggplot")) {
 
 ```
 
-```{r eval=TRUE}
+```{r eval=FALSE}
 proc <- process.data(res$ch_data, model = "CJS")
 ddl  <- make.design.data(proc)
 

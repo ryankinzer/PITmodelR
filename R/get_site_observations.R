@@ -58,7 +58,8 @@ get_site_observations <- function(api_key = NULL,
 
   # ---- endpoint & base query ----
   # Confirm the exact path/params in PTAGIS Swagger.
-  path <- paste0("interrogation/sites/", site_code, "/observations")
+  #path <- paste0("interrogation/sites/", site_code, "/observations")
+  path <- paste0("sites/interrogation/", site_code, "/observations")
 
   base_query <- list(
     apiKey   = api_key,   # PTAGIS commonly allows apiKey as query

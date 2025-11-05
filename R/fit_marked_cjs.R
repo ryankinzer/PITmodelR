@@ -1,11 +1,19 @@
-#' Fit a CJS model with `marked` and return tidy results + cumulative survival with covariance-aware CIs
+#' @title Fit a CJS Model with `marked`
+#'
+#' @description Fit a Cormack-Jolly-Seber (CJS) model using the `marked` package
+#' and return tidy results + cumulative survival with covariance-aware CIs
 #'
 #' @param ch_data data frame with columns `tag_code` and `ch`
 #' @param phi_formula formula for survival (Phi), default `~ time`
 #' @param p_formula   formula for detection (p), default `~ time`
 #' @param conf_level  confidence level (default 0.95)
+#'
 #' @return list(model, phi, cum_phi, p, plots)
+#'
+#' @author Ryan Kinzer
+#'
 #' @export
+
 fit_marked_cjs <- function(ch_data,
                            phi_formula = ~ time,
                            p_formula   = ~ time,
@@ -190,21 +198,4 @@ fit_marked_cjs <- function(ch_data,
     plots   = plots,
     covariance_mode = if (used_full_cov) "full" else "independence_fallback"
   )
-}
-
-
-
-#' Quick printer for fit_marked_cjs output
-#' @param x object returned by fit_marked_cjs
-#' @export
-print.fit_marked_cjs <- function(x, ...) {
-  cat("CJS model (marked::crm)\n")
-  if (!is.null(x$model) && !is.null(x$model$model.name)) {
-    cat("Model:", x$model$model.name, "\n")
-  }
-  cat("\nPhi (survival) estimates:\n")
-  print(utils::head(x$phi, 10))
-  cat("\n p (detection) estimates:\n")
-  print(utils::head(x$p, 10))
-  invisible(x)
 }

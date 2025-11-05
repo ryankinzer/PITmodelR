@@ -2,18 +2,22 @@
 % Please edit documentation in R/get_file_data.R
 \name{get_file_data}
 \alias{get_file_data}
-\title{Download and parse a PTAGIS MRR XML file}
+\title{Download and Parse a MRR File}
 \usage{
 get_file_data(filename, return = c("list", "xml", "session", "events"))
 }
 \arguments{
-\item{filename}{e.g. "CDR-2024-072-JCT.xml"}
+\item{filename}{name of the file to be downloaded as character
+e.g. "CDR-2024-072-JCT.xml".}
 
-\item{return}{"list" (default), "xml", "session", or "events"}
+\item{return}{the format of the object to be returned:
+"list" (default), "xml", "session", or "events"}
 }
 \value{
-if "list", a list with tibbles: session, events, session_pdv_fields, detail_pdv_fields
+if "list", a list with tibbles: session, events, session_pdv_fields,
+detail_pdv_fields
 }
 \description{
-Download and parse a PTAGIS MRR XML file
+Download and parse data within a single PTAGIS mark-recapture-recovery
+(MRR) .xml file.
 }

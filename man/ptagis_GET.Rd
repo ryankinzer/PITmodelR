@@ -2,11 +2,25 @@
 % Please edit documentation in R/ptagis_GET.R
 \name{ptagis_GET}
 \alias{ptagis_GET}
-\title{Internal: HTTP GET with retries for PTAGIS}
+\title{Internal: HTTP GET with retries for PTAGIS API}
 \usage{
 ptagis_GET(path, query = list(), base_url = "https://api.ptagis.org", ...)
 }
+\arguments{
+\item{path}{Character; endpoint path (e.g., "data/events").}
+
+\item{query}{Named list of query parameters (default empty list).}
+
+\item{base_url}{Base URL for PTAGIS API (default: "https://api.ptagis.org").}
+
+\item{...}{Additional arguments passed to \code{httr::RETRY}.}
+}
+\value{
+Parsed JSON content if successful, otherwise raw text content.
+}
 \description{
-Internal: HTTP GET with retries for PTAGIS
+Performs a GET request to the PTAGIS API with retries and user-agent handling.
+Automatically stops on common client errors (400, 401, 403, 404) and attempts
+to parse JSON, falling back to raw text if parsing fails.
 }
 \keyword{internal}

@@ -2,16 +2,22 @@
 % Please edit documentation in R/get_interrogation_sites.R
 \name{get_interrogation_sites}
 \alias{get_interrogation_sites}
-\title{List interrogation sites (metadata)}
+\title{List Interrogation Sites}
 \usage{
 get_interrogation_sites(active_only = TRUE)
 }
 \arguments{
-\item{active_only}{logical; return only active/currently reporting sites.}
+\item{active_only}{Logical; if \code{TRUE} (default), return only active or currently
+reporting interrogation sites. If \code{FALSE}, return all interrogation sites.}
 }
 \value{
-A tibble of site metadata.
+A tibble containing interrogation site metadata.
 }
 \description{
-List interrogation sites (metadata)
+Retrieves metadata for PTAGIS interrogation sites. The function can return either
+all known sites or only those currently active/reporting, depending on the value
+of \code{active_only}.
+}
+\author{
+Ryan Kinzer
 }

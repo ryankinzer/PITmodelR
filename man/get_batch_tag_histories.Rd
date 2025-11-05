@@ -2,26 +2,34 @@
 % Please edit documentation in R/get_batch_tag_histories.R
 \name{get_batch_tag_histories}
 \alias{get_batch_tag_histories}
-\title{Download & parse multiple tag histories}
+\title{Download and Combine Multiple Tag Histories}
 \usage{
 get_batch_tag_histories(tag_codes, api_key = NULL, fields = NULL)
 }
 \arguments{
-\item{tag_codes}{Character vector of PIT tag codes.}
+\item{tag_codes}{Character vector of PIT tag codes to retrieve.}
 
-\item{api_key}{Optional PTAGIS API key (default: reads from env).}
+\item{api_key}{Optional PTAGIS API key. If not supplied, the function will attempt
+to read the key from the session environment.}
 
-\item{fields}{Optional character vector of column names to keep (after cleaning).}
+\item{fields}{Optional character vector of column names to retain after cleaning.}
 }
 \value{
-A tibble of combined tag histories with \code{tag_code} column.
+A tibble containing the combined tag histories for all requested tag codes,
+including an added \code{tag_code} column.
 }
 \description{
-Fetches PIT tag observation histories for multiple tag codes and
-returns them in a single tibble with an added \code{tag_code} column.
+Retrieves PIT tag observation histories for a set of tag codes and combines them
+into a single tibble. Each tag’s history is downloaded individually using
+\code{get_tag_history()}, and a \code{tag_code} column is added to identify
+the originating tag.
 }
 \examples{
 \dontrun{
 get_batch_tag_histories(c("384.1B79726A98", "384.1B79726B01"))
 }
+
+}
+\author{
+Ryan Kinzer
 }

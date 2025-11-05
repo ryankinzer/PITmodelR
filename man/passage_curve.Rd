@@ -2,16 +2,23 @@
 % Please edit documentation in R/passage_curve.R
 \name{passage_curve}
 \alias{passage_curve}
-\title{Generate cumulative passage curve data}
+\title{Generate Cumulative Passage Curve Data}
 \usage{
 passage_curve(timing)
 }
 \arguments{
-\item{timing}{list returned by \code{fit_timing()}.}
+\item{timing}{A list returned by \code{fit_timing()} containing a
+\code{daily} component with date-level passage information.}
 }
 \value{
-data.frame with date and cumulative proportion.
+A data frame with two columns:
+\describe{
+\item{\code{date}}{Aggregation date (typically daily).}
+\item{\code{prop}}{Cumulative proportion of total events through that date.}
+}
 }
 \description{
-Generate cumulative passage curve data
+Extracts the cumulative passage curve from the output of \code{fit_timing()}.
+The curve consists of the aggregation date and cumulative proportion of total
+observations up to that date.
 }

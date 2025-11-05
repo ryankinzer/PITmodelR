@@ -2,13 +2,22 @@
 % Please edit documentation in R/plot_timing.R
 \name{plot_timing}
 \alias{plot_timing}
-\title{Plot cumulative passage over time (base graphics placeholder)}
+\title{Plot Cumulative Passage Over Time}
 \usage{
 plot_timing(timing)
 }
 \arguments{
-\item{timing}{list from \code{fit_timing()} or data.frame from \code{passage_curve()}.}
+\item{timing}{A list from \code{fit_timing()} or a data frame from
+\code{passage_curve()} containing at minimum columns \code{date} and \code{prop}.}
+}
+\value{
+Invisibly returns \code{NULL}.
 }
 \description{
-Plot cumulative passage over time (base graphics placeholder)
+Creates a base R line plot of cumulative passage through a site over time.
+Accepts either a list returned by \code{fit_timing()} or a data frame produced
+by \code{passage_curve()}.
+}
+\author{
+Ryan Kinzer
 }

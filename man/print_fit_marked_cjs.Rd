@@ -2,15 +2,20 @@
 % Please edit documentation in R/print_fit_marked_cjs.R
 \name{print_fit_marked_cjs}
 \alias{print_fit_marked_cjs}
-\title{Quick printer for fit_marked_cjs output}
+\title{Print CJS Model Summary}
 \usage{
 print_fit_marked_cjs(x, ...)
 }
 \arguments{
-\item{x}{object returned by fit_marked_cjs}
+\item{x}{An object returned by \code{fit_marked_cjs()}.}
 
-\item{...}{additional arguments (unused)}
+\item{...}{Additional arguments (currently unused).}
+}
+\value{
+Invisibly returns the input object \code{x}.
 }
 \description{
-Quick printer for fit_marked_cjs output
+Provides a concise display of results from \code{fit_marked_cjs()}, including
+the model name, the first several survival (\code{phi}) estimates, and the
+first several detection (\code{p}) estimates.
 }

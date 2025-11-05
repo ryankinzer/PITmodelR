@@ -21,3 +21,6 @@ detail_pdv_fields
 Download and parse data within a single PTAGIS mark-recapture-recovery
 (MRR) .xml file.
 }
+\author{
+Ryan Kinzer
+}

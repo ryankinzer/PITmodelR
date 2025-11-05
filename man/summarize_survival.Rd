@@ -2,18 +2,29 @@
 % Please edit documentation in R/summarize_survival.R
 \name{summarize_survival}
 \alias{summarize_survival}
-\title{Summarize survival fit (placeholder)}
+\title{Summarize Reach-Level Survival Estimates}
 \usage{
 summarize_survival(fit, level = 0.95)
 }
 \arguments{
-\item{fit}{object returned by \code{fit_survival()}.}
+\item{fit}{List returned by \code{fit_survival()}.}
 
-\item{level}{confidence level for intervals (currently informational; CIs computed inside fit).}
+\item{level}{Numeric; confidence level for intervals (currently informational;
+intervals are already computed inside \code{fit_survival()}).}
 }
 \value{
-data.frame with reach-level survival and CIs.
+A data.frame of reach-level survival estimates with columns:
+\describe{
+\item{\code{reach}}{Reach or interval identifier.}
+\item{\code{phi}}{Apparent survival estimate for the reach.}
+\item{\code{lcl}}{Lower confidence limit.}
+\item{\code{ucl}}{Upper confidence limit.}
+}
 }
 \description{
-Summarize survival fit (placeholder)
+Extracts interval survival estimates and confidence intervals from a fitted
+survival object returned by \code{fit_survival()}.
+}
+\author{
+Ryan Kinzer
 }

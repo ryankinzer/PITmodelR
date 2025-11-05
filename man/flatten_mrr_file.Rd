@@ -11,26 +11,31 @@ flatten_mrr_file(
 )
 }
 \arguments{
-\item{mrr}{A list from get_file_data(..., return = "list")}
+\item{mrr}{A list returned by \code{get_file_data(..., return = "list")}, containing
+\code{session}, \code{events}, and PDV/SPDV mapping tables.}
 
-\item{keep_code_cols}{logical; keep original SPDV*/PDV* code columns? (default FALSE)}
+\item{keep_code_cols}{Logical; if \code{TRUE}, retain the original PDV*/SPDV* code
+columns in addition to the new label-named columns. Default is \code{FALSE}.}
 
-\item{label_conflict}{What to do if a label name already exists:
-"suffix" (default) -> append "_label" to the new name,
-"overwrite" -> overwrite the existing column,
-"skip" -> don’t create the labeled column if there’s a conflict.}
+\item{label_conflict}{Character indicating how to handle name conflicts when creating
+label-named columns. Options:
+\describe{
+\item{\code{"suffix"}}{Append \code{"_label"}, \code{"_label2"}, etc. (default).}
+\item{\code{"overwrite"}}{Overwrite the existing column.}
+\item{\code{"skip"}}{Do not create the label column if the name already exists.}
+}}
 }
 \value{
-A tibble with session+event fields in wide form.
+A tibble containing event-level rows with all session fields and
+labeled PDV/SPDV fields merged in.
 }
 \description{
-Flatten a parsed MRR list into a single tibble.
-
-Function takes the output of \verb{get_file_data(..., return = "list)} and:
+Converts the parsed output of \code{get_file_data(..., return = "list")} into a single
+tidy tibble by:
 \enumerate{
-\item replicates session columns onto every events row, and
-\item replaces SPDV/PDV code columns with their labeled columns using the
-session/detail PDV mapping tables.
+\item Replicating all session-level fields onto each event row.
+\item Converting PDV/SPDV code columns (e.g., \code{pdv1}, \code{spdv2}) into
+human-readable label columns using the session and detail PDV mapping tables.
 }
 }
 \author{

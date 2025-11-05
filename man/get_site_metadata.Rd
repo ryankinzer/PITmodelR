@@ -2,21 +2,22 @@
 % Please edit documentation in R/get_site_metadata.R
 \name{get_site_metadata}
 \alias{get_site_metadata}
-\title{Get interrogation site metadata}
+\title{Get Metadata for a Single Interrogation Site}
 \usage{
 get_site_metadata(site_code)
 }
 \arguments{
-\item{site_code}{PTAGIS site code as a single string (e.g., "LGR").}
+\item{site_code}{Character string giving the PTAGIS site code to query. Must be
+a single, non-empty value (e.g., \code{"LGR"}).}
 }
 \value{
-A tibble (usually one row) with site metadata.
+A tibble containing interrogation site metadata, typically one row.
 }
 \description{
-Fetch metadata for a single PTAGIS interrogation site.
+Retrieves PTAGIS metadata for a single interrogation site identified by its
+PTAGIS site code (e.g., \code{"LGR"}). Returns a tibble containing site-level
+information as provided by the PTAGIS API.
 }
-\examples{
-\dontrun{
-get_site_metadata("LGR")
-}
+\author{
+Ryan Kinzer
 }

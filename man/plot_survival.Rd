@@ -2,13 +2,23 @@
 % Please edit documentation in R/plot_survival.R
 \name{plot_survival}
 \alias{plot_survival}
-\title{Plot survival by reach (base graphics placeholder)}
+\title{Plot Apparent Survival by Reach}
 \usage{
 plot_survival(surv_tbl)
 }
 \arguments{
-\item{surv_tbl}{table returned by \code{summarize_survival()}.}
+\item{surv_tbl}{A data frame returned by \code{summarize_survival()}, containing
+at minimum the columns \code{reach} and \code{phi}. Optional columns
+\code{lcl} and \code{ucl} are used for error bars.}
+}
+\value{
+Invisibly returns \code{NULL}.
 }
 \description{
-Plot survival by reach (base graphics placeholder)
+Creates a base R plot of apparent survival estimates (\code{phi}) by reach.
+Error bars are drawn if lower and upper confidence limits (\code{lcl}, \code{ucl})
+are available in the input table.
+}
+\author{
+Ryan Kinzer
 }

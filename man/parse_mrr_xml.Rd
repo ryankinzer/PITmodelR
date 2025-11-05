@@ -2,11 +2,27 @@
 % Please edit documentation in R/parse_mrr_xml.R
 \name{parse_mrr_xml}
 \alias{parse_mrr_xml}
-\title{Parse a PTAGIS MRR xml_document into tidy tibbles}
+\title{Parse a PTAGIS MRR XML Document}
 \usage{
 parse_mrr_xml(doc)
 }
+\arguments{
+\item{doc}{An \code{xml2::xml_document} representing a PTAGIS MRR XML file.}
+}
+\value{
+A named list containing:
+\describe{
+\item{\code{session}}{Tibble of session-level metadata (one row).}
+\item{\code{events}}{Tibble of event-level records.}
+\item{\code{session_pdv_fields}}{Mapping table for session-level PDV fields.}
+\item{\code{detail_pdv_fields}}{Mapping table for event-level PDV fields.}
+}
+}
 \description{
-Parse a PTAGIS MRR xml_document into tidy tibbles
+Converts a raw PTAGIS MRR XML document into structured tibbles. The function
+strips XML namespaces, extracts session-level metadata, detail-level
+project-defined field (PDV) mappings, and event records, and performs basic
+type coercion (datetime and numeric). This is a low-level helper used by
+higher-level MRR import functions.
 }
 \keyword{internal}

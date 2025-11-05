@@ -25,7 +25,7 @@ A list with components:
 Computes simple apparent survival estimates between consecutive sites along a route.
 This is a placeholder "CJS-style" approach: for reach i (site i → site i+1),
 the survival estimate is calculated as
-\eqn{\hat{\phi}_i = \frac{\text{# tags detected at site } i+1}{\text{# tags detected at site } i}}.
+\eqn{\hat{\phi}_i = \frac{\text{\# tags detected at site }\, i+1}{\text{\# tags detected at site }\, i}}.
 Wald confidence intervals are approximated using a binomial assumption on the logit scale.
 }
 \author{

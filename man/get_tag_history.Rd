@@ -2,26 +2,29 @@
 % Please edit documentation in R/get_tag_history.R
 \name{get_tag_history}
 \alias{get_tag_history}
-\title{Get PTAGIS observation events for a single PIT tag}
+\title{Get Observation Events for a Single PIT Tag}
 \usage{
 get_tag_history(api_key = NULL, tag_code, fields = NULL)
 }
 \arguments{
-\item{api_key}{Optional. PTAGIS API key as a single string. If omitted, the
-function will use \code{Sys.getenv("PTAGIS_API_KEY")}. The key is never
-printed or logged.}
+\item{api_key}{Optional PTAGIS API key. If omitted, the function attempts to use
+the \code{PTAGIS_API_KEY} environment variable. Must be a single non-empty string.}
 
-\item{tag_code}{PIT tag code as a single string (e.g., "384.1B79726A98").
-Case-insensitive; leading/trailing spaces are trimmed.}
+\item{tag_code}{Character string containing a single PIT tag code (e.g.,
+\code{"384.1B79726A98"}). Case-insensitive; leading/trailing whitespace is trimmed.}
 
-\item{fields}{Optional character vector of column names to keep (after
-name-cleaning to snake_case). Useful to reduce payload.}
+\item{fields}{Optional character vector of column names to retain after name
+cleaning. If provided, only matching columns are returned.}
 }
 \value{
-A tibble of observation events (may be zero rows).
+A tibble of observation events for the requested PIT tag. May be zero rows
+if no events are available.
 }
 \description{
-Fetches the observation (event) history for a PIT tag from the PTAGIS API.
+Retrieves the full PTAGIS observation (event) history for a single PIT tag.
+The request uses the PTAGIS Events API endpoint and returns a cleaned
+tibble with snake_case column names. Optional field selection can be used
+to reduce the returned payload.
 }
 \examples{
 \dontrun{
@@ -33,4 +36,8 @@ get_tag_history(tag_code = "384.1B79726A98")
 get_tag_history(api_key = "YOUR-KEY-HERE", tag_code = "384.1B79726A98",
                 fields = c("event_time", "site_code", "antenna"))
 }
+
+}
+\author{
+Ryan Kinzer
 }

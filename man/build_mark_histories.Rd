@@ -2,7 +2,7 @@
 % Please edit documentation in R/build_mark_histories.R
 \name{build_mark_histories}
 \alias{build_mark_histories}
-\title{Build MARK capture histories from tag events using a flexible survival map}
+\title{Build MARK Capture Histories from Tag Events}
 \usage{
 build_mark_histories(
   tag_history,
@@ -15,27 +15,45 @@ build_mark_histories(
 )
 }
 \arguments{
-\item{tag_history}{data.frame/tibble with at least tag_code and site_code; event_time optional for ordering}
+\item{tag_history}{A data.frame or tibble of tag observations. Must contain
+columns for tag codes and site codes. A time column is optional for ordering events.}
 
-\item{locs_def}{either a character vector of occasion labels in downstream order
-OR a named list: names = occasion labels, each element = vector of site codes in that occasion}
+\item{locs_def}{Either a character vector of occasion labels in downstream order,
+or a named list where names are occasion labels and each element is a vector of site codes
+included in that occasion.}
 
-\item{site_col}{column name with site codes (default "site_code")}
+\item{site_col}{Character; column name in \code{tag_history} containing site codes.
+Default is \code{"site_code"}.}
 
-\item{tag_col}{column name with tag codes  (default "tag_code")}
+\item{tag_col}{Character; column name in \code{tag_history} containing PIT tag codes.
+Default is \code{"tag_code"}.}
 
-\item{time_col}{optional time column to order within tag (POSIXct or parseable)}
+\item{time_col}{Character; optional column name in \code{tag_history} containing
+event timestamps (POSIXct or parseable) used to order events within tag.}
 
-\item{enforce_order}{logical; if TRUE keep first occurrence of each \emph{increasing} occasion per tag}
+\item{enforce_order}{Logical; if TRUE, only the first occurrence of each
+strictly increasing occasion per tag is kept. Default is TRUE.}
 
-\item{keep_unknown}{logical; if FALSE drop events whose site isn't in the survival map}
+\item{keep_unknown}{Logical; if FALSE, drop events with sites not in the survival map.
+Default is FALSE.}
 }
 \value{
-list(ch_data = tibble(tag_code, ch),
-ch_freq = tibble(ch, freq),
-mapping = tibble(site_code, occasion, occ_idx),
-dropped_summary = tibble(site_code, n))
+A list with four elements:
+\itemize{
+\item \code{ch_data} – tibble with one row per tag and a \code{ch} column for
+encounter history, plus 0/1 columns per occasion.
+\item \code{ch_freq} – tibble of encounter history strings and their frequencies.
+\item \code{mapping} – tibble mapping \code{site_code} to \code{occasion} and numeric
+\code{occ_idx}.
+\item \code{dropped_summary} – tibble summarizing the number of events dropped because
+their site was not in the survival map.
+}
 }
 \description{
-Build MARK capture histories from tag events using a flexible survival map
+Converts tag-level observation events into capture histories compatible with
+MARK/Program MARK analyses using a flexible survival map. Can handle multiple
+sites per occasion, enforce downstream order, and optionally drop unknown sites.
+}
+\author{
+Ryan Kinzer
 }

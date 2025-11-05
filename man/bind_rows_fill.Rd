@@ -7,7 +7,7 @@
 bind_rows_fill(lst, id_name = "file")
 }
 \arguments{
-\item{lst}{A list of data frames to bind}
+\item{lst}{A list of data frames to bind.}
 
 \item{id_name}{Name of the identifier column to add to the output tibble.}
 }
@@ -15,7 +15,6 @@ bind_rows_fill(lst, id_name = "file")
 A tibble with missing columns filled and an .id column added.
 }
 \description{
-Bind rows while filling missing columns; adds .id column name
-supplied
+Bind rows while filling missing columns; adds .id column name supplied
 }
 \keyword{internal}

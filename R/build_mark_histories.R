@@ -1,17 +1,41 @@
-#' Build MARK capture histories from tag events using a flexible survival map
+#' @title Build MARK Capture Histories from Tag Events
 #'
-#' @param tag_history  data.frame/tibble with at least tag_code and site_code; event_time optional for ordering
-#' @param locs_def     either a character vector of occasion labels in downstream order
-#'                     OR a named list: names = occasion labels, each element = vector of site codes in that occasion
-#' @param site_col     column name with site codes (default "site_code")
-#' @param tag_col      column name with tag codes  (default "tag_code")
-#' @param time_col     optional time column to order within tag (POSIXct or parseable)
-#' @param enforce_order logical; if TRUE keep first occurrence of each *increasing* occasion per tag
-#' @param keep_unknown  logical; if FALSE drop events whose site isn't in the survival map
-#' @return list(ch_data = tibble(tag_code, ch),
-#'              ch_freq = tibble(ch, freq),
-#'              mapping = tibble(site_code, occasion, occ_idx),
-#'              dropped_summary = tibble(site_code, n))
+#' @description
+#' Converts tag-level observation events into capture histories compatible with
+#' MARK/Program MARK analyses using a flexible survival map. Can handle multiple
+#' sites per occasion, enforce downstream order, and optionally drop unknown sites.
+#'
+#' @param tag_history A data.frame or tibble of tag observations. Must contain
+#'   columns for tag codes and site codes. A time column is optional for ordering events.
+#' @param locs_def Either a character vector of occasion labels in downstream order,
+#'   or a named list where names are occasion labels and each element is a vector of site codes
+#'   included in that occasion.
+#' @param site_col Character; column name in \code{tag_history} containing site codes.
+#'   Default is \code{"site_code"}.
+#' @param tag_col Character; column name in \code{tag_history} containing PIT tag codes.
+#'   Default is \code{"tag_code"}.
+#' @param time_col Character; optional column name in \code{tag_history} containing
+#'   event timestamps (POSIXct or parseable) used to order events within tag.
+#' @param enforce_order Logical; if TRUE, only the first occurrence of each
+#'   strictly increasing occasion per tag is kept. Default is TRUE.
+#' @param keep_unknown Logical; if FALSE, drop events with sites not in the survival map.
+#'   Default is FALSE.
+#'
+#' @return A list with four elements:
+#' \itemize{
+#'   \item \code{ch_data} – tibble with one row per tag and a \code{ch} column for
+#'     encounter history, plus 0/1 columns per occasion.
+#'   \item \code{ch_freq} – tibble of encounter history strings and their frequencies.
+#'   \item \code{mapping} – tibble mapping \code{site_code} to \code{occasion} and numeric
+#'     \code{occ_idx}.
+#'   \item \code{dropped_summary} – tibble summarizing the number of events dropped because
+#'     their site was not in the survival map.
+#' }
+#'
+#' @author Ryan Kinzer
+#'
+#' @export
+
 build_mark_histories <- function(tag_history,
                                  locs_def,
                                  site_col = "site_code",
@@ -22,9 +46,9 @@ build_mark_histories <- function(tag_history,
   stopifnot(is.data.frame(tag_history))
   stopifnot(all(c(site_col, tag_col) %in% names(tag_history)))
 
-  # ---- 1) Build mapping: site_code -> (occasion, occ_idx) ----
+  # 1) build mapping: site_code -> (occasion, occ_idx)
   if (is.list(locs_def)) {
-    # Named list: each name is an occasion label; values are site codes
+    # named list: each name is an occasion label; values are site codes
     if (is.null(names(locs_def)) || any(!nzchar(names(locs_def)))) {
       stop("locs_def named list must have non-empty names (occasion labels).", call. = FALSE)
     }
@@ -38,7 +62,7 @@ build_mark_histories <- function(tag_history,
     })
     mapping <- do.call(rbind, map)
   } else if (is.character(locs_def)) {
-    # Simple vector: each element is an occasion label AND its unique site code
+    # simple vector: each element is an occasion label AND its unique site code
     mapping <- data.frame(
       site_code = as.character(locs_def),
       occasion  = as.character(locs_def),
@@ -49,11 +73,11 @@ build_mark_histories <- function(tag_history,
     stop("locs_def must be a character vector OR a named list of character vectors.", call. = FALSE)
   }
 
-  # Normalization
+  # normalization
   mapping$site_code <- toupper(trimws(mapping$site_code))
   mapping$occasion  <- as.character(mapping$occasion)
 
-  # ---- 2) Join mapping; drop/flag unknown sites ----
+  # 2) join mapping; drop/flag unknown sites
   df <- tag_history
   df[[site_col]] <- toupper(trimws(as.character(df[[site_col]])))
   df[[tag_col]]  <- as.character(df[[tag_col]])
@@ -69,8 +93,8 @@ build_mark_histories <- function(tag_history,
     df2 <- df2[!is.na(df2$occ_idx), , drop = FALSE]
   }
 
-  # ---- 3) Optional: enforce downstream monotone order per tag ----
-  # Keep only the first appearance of each strictly increasing occ_idx per tag.
+  # 3) optional: enforce downstream monotone order per tag
+  # keep only the first appearance of each strictly increasing occ_idx per tag.
   if (enforce_order) {
     # order within tag (by time if available, else by occ_idx)
     if (!is.null(time_col) && time_col %in% names(df2)) {
@@ -92,16 +116,16 @@ build_mark_histories <- function(tag_history,
       dplyr::ungroup()
   }
 
-  # Reduce to (tag, occ_idx) and deduplicate
+  # reduce to (tag, occ_idx) and deduplicate
   surv_dat <- df2 |>
     dplyr::distinct(.data[[tag_col]], occ_idx, .keep_all = FALSE) |>
     dplyr::select(all_of(tag_col), occ_idx)
 
-  # ---- 4) Build encounter histories ----
+  # 4) build encounter histories
   n_occasions <- length(unique(mapping$occ_idx))
   occasion_cols <- as.character(seq_len(n_occasions))
 
-  # Wide 0/1 per occasion
+  # wide 0/1 per occasion
   ch_data <- surv_dat |>
     dplyr::mutate(detected = 1L, occ_idx = as.character(occ_idx)) |>
     tidyr::pivot_wider(
@@ -111,7 +135,7 @@ build_mark_histories <- function(tag_history,
       values_fill = 0L
     )
 
-  # Ensure all columns exist and are ordered
+  # ensure all columns exist and are ordered
   miss <- setdiff(occasion_cols, names(ch_data))
   if (length(miss)) ch_data[miss] <- 0L
   ch_data <- ch_data |>
@@ -122,12 +146,12 @@ build_mark_histories <- function(tag_history,
     ) |>
     dplyr::select(dplyr::all_of(tag_col), ch)
 
-  # Collapsed frequency table
+  # collapsed frequency table
   ch_freq <- ch_data |>
     dplyr::count(ch, name = "freq") |>
     dplyr::arrange(dplyr::desc(freq))
 
-  # Summary of dropped/unknown sites
+  # summary of dropped/unknown sites
   dropped_summary <- if (nrow(dropped)) {
     as.data.frame(table(dropped[[site_col]]), stringsAsFactors = FALSE) |>
       stats::setNames(c("site_code", "n")) |>

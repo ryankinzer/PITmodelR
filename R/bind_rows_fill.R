@@ -1,9 +1,9 @@
 #' @title Bind Rows and Fill
 #'
-#' @description Bind rows while filling missing columns; adds .id column name
-#' supplied
+#' @description
+#' Bind rows while filling missing columns; adds .id column name supplied
 #'
-#' @param lst A list of data frames to bind
+#' @param lst A list of data frames to bind.
 #' @param id_name Name of the identifier column to add to the output tibble.
 #'
 #' @return A tibble with missing columns filled and an .id column added.

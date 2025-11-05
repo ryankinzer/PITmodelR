@@ -2,7 +2,7 @@
 % Please edit documentation in R/build_detection_histories.R
 \name{build_detection_histories}
 \alias{build_detection_histories}
-\title{Build detection histories from observation events}
+\title{Build Detection Histories from Observation Events}
 \usage{
 build_detection_histories(
   observations,
@@ -13,23 +13,35 @@ build_detection_histories(
 )
 }
 \arguments{
-\item{observations}{data.frame/tibble of PTAGIS observations.}
+\item{observations}{A data.frame or tibble of PTAGIS observation events. Must include
+columns for tag codes, site codes, and event timestamps.}
 
-\item{route_sites}{character vector of site codes defining the downstream route order (e.g., c("LGR","LGS","LMN","MCN")).}
+\item{route_sites}{Character vector of site codes defining the downstream route order.
+Example: \code{c("LGR","LGS","LMN","MCN")}.}
 
-\item{tag_col}{name of the column containing PIT tag codes.}
+\item{tag_col}{Character; name of the column in \code{observations} containing PIT tag codes.
+Default is \code{"tag_code"}.}
 
-\item{time_col}{name of the column containing event timestamps (POSIXct or parseable).}
+\item{time_col}{Character; name of the column in \code{observations} containing event timestamps
+(POSIXct or parseable). Default is \code{"event_time"}.}
 
-\item{site_col}{name of the column containing site codes.}
+\item{site_col}{Character; name of the column in \code{observations} containing site codes.
+Default is \code{"site_code"}.}
 }
 \value{
-A list with:
+A list with two elements:
 \itemize{
-\item \code{long}: long table of (tag, site, time), ordered.
-\item \code{wide}: one row per tag with 0/1 detection indicators per route site and encounter history string.
+\item \code{long} – a long-format table of detections with columns \code{tag}, \code{site}, and \code{time},
+ordered by tag, time, and site.
+\item \code{wide} – a wide-format table with one row per tag, columns for each site indicating
+presence/absence (0/1), and an \code{encounter_history} string summarizing detections along
+the route in order.
 }
+Both elements also carry a \code{"route_sites"} attribute with the ordered route used.
 }
 \description{
-Converts raw observation events into long/wide detection histories over a specified route.
+Converts raw PTAGIS observation events into long and wide detection histories
+along a specified downstream route. The long table records each detection event,
+while the wide table summarizes whether each tag was detected at each site and
+includes an encounter history string.
 }

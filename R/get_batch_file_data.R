@@ -22,7 +22,9 @@
 #' }
 #'
 #' @author Ryan Kinzer
+#'
 #' @export
+
 get_batch_file_data <- function(filenames,
                                 check_labels = c("warn","error","ignore"),
                                 keep_code_cols = TRUE,

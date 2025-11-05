@@ -1,14 +1,29 @@
-#' Get all observations at a site within a given year
+#' @title Get Observations for a Single Interrogation Site
 #'
-#' @param api_key Optional PTAGIS API key. If omitted, uses `Sys.getenv("PTAGIS_API_KEY")`.
-#' @param site_code PTAGIS site code (e.g., "LGR"). Single non-empty string.
-#' @param year Optional four-digit integer year (e.g., 2024). If provided, it is sent
-#'   as a query filter (confirm exact param name in Swagger; commonly `year`).
-#' @param page,page_size Integers for pagination (used when `all_pages = FALSE`).
-#' @param all_pages logical; if TRUE (default), fetches and binds all pages.
-#' @param fields Optional character vector of columns to keep (after name cleaning).
-#' @return A tibble of observations (possibly zero rows).
+#' @description
+#' Retrieves PIT-tag observation events for a specified PTAGIS interrogation site.
+#' Optionally filters by year and can automatically fetch all available pages
+#' of data from the API.
+#'
+#' @param api_key Optional PTAGIS API key. If omitted, the function attempts to use
+#'   the \code{PTAGIS_API_KEY} environment variable.
+#' @param site_code Character string giving the PTAGIS site code (e.g., \code{"LGR"}).
+#'   Must be a single, non-empty value.
+#' @param year Optional four-digit integer year (e.g., \code{2024}) used as a filter
+#'   when supported by the API.
+#' @param page,page_size Integers controlling pagination when \code{all_pages = FALSE}.
+#' @param all_pages Logical; if \code{TRUE} (default), the function automatically
+#'   retrieves and combines all pages of results.
+#' @param fields Optional character vector specifying a subset of columns to return
+#'   after name cleaning.
+#'
+#' @return A tibble containing PIT-tag observation events for the requested site
+#'   (and year, if specified). May be zero rows if no data are available.
+#'
+#' @author Ryan Kinzer
+#'
 #' @export
+
 get_site_observations <- function(api_key = NULL,
                                   site_code,
                                   year = NULL,

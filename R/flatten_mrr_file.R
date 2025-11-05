@@ -1,20 +1,28 @@
 #' @title Flatten Parsed MRR File
 #'
-#' @description Flatten a parsed MRR list into a single tibble.
+#' @description
+#' Converts the parsed output of \code{get_file_data(..., return = "list")} into a single
+#' tidy tibble by:
+#' \enumerate{
+#'   \item Replicating all session-level fields onto each event row.
+#'   \item Converting PDV/SPDV code columns (e.g., \code{pdv1}, \code{spdv2}) into
+#'         human-readable label columns using the session and detail PDV mapping tables.
+#' }
 #'
-#' Function takes the output of `get_file_data(..., return = "list)` and:
-#' 1) replicates session columns onto every events row, and
-#' 2) replaces SPDV/PDV code columns with their labeled columns using the
-#' session/detail PDV mapping tables.
+#' @param mrr A list returned by \code{get_file_data(..., return = "list")}, containing
+#'   \code{session}, \code{events}, and PDV/SPDV mapping tables.
+#' @param keep_code_cols Logical; if \code{TRUE}, retain the original PDV*/SPDV* code
+#'   columns in addition to the new label-named columns. Default is \code{FALSE}.
+#' @param label_conflict Character indicating how to handle name conflicts when creating
+#'   label-named columns. Options:
+#'   \describe{
+#'     \item{\code{"suffix"}}{Append \code{"_label"}, \code{"_label2"}, etc. (default).}
+#'     \item{\code{"overwrite"}}{Overwrite the existing column.}
+#'     \item{\code{"skip"}}{Do not create the label column if the name already exists.}
+#'   }
 #'
-#' @param mrr A list from get_file_data(..., return = "list")
-#' @param keep_code_cols logical; keep original SPDV*/PDV* code columns? (default FALSE)
-#' @param label_conflict What to do if a label name already exists:
-#'   "suffix" (default) -> append "_label" to the new name,
-#'   "overwrite" -> overwrite the existing column,
-#'   "skip" -> don’t create the labeled column if there’s a conflict.
-#'
-#' @return A tibble with session+event fields in wide form.
+#' @return A tibble containing event-level rows with all session fields and
+#'   labeled PDV/SPDV fields merged in.
 #'
 #' @author Ryan Kinzer
 #'

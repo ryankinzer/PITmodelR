@@ -1,6 +1,7 @@
 #' @title Retrieve PTAGIS Project Codes
 #'
-#' @description Retrieves a character vector of all mark-recapture-recovery (MRR)
+#' @description
+#' Retrieves a character vector of all mark-recapture-recovery (MRR)
 #' project codes currently available in the [PTAGIS](https://www.ptagis.org) database.
 #' Project codes identify the MRR project under which PIT-tag data were submitted.
 #'

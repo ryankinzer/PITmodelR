@@ -1,7 +1,14 @@
-#' Quick printer for fit_marked_cjs output
+#' @title Print CJS Model Summary
 #'
-#' @param x object returned by fit_marked_cjs
-#' @param ... additional arguments (unused)
+#' @description
+#' Provides a concise display of results from \code{fit_marked_cjs()}, including
+#' the model name, the first several survival (\code{phi}) estimates, and the
+#' first several detection (\code{p}) estimates.
+#'
+#' @param x An object returned by \code{fit_marked_cjs()}.
+#' @param ... Additional arguments (currently unused).
+#'
+#' @return Invisibly returns the input object \code{x}.
 #'
 #' @export
 

@@ -1,10 +1,27 @@
-#' Parse a PTAGIS MRR xml_document into tidy tibbles
+#' @title Parse a PTAGIS MRR XML Document
+#'
+#' @description
+#' Converts a raw PTAGIS MRR XML document into structured tibbles. The function
+#' strips XML namespaces, extracts session-level metadata, detail-level
+#' project-defined field (PDV) mappings, and event records, and performs basic
+#' type coercion (datetime and numeric). This is a low-level helper used by
+#' higher-level MRR import functions.
+#'
+#' @param doc An \code{xml2::xml_document} representing a PTAGIS MRR XML file.
+#'
+#' @return A named list containing:
+#' \describe{
+#'   \item{\code{session}}{Tibble of session-level metadata (one row).}
+#'   \item{\code{events}}{Tibble of event-level records.}
+#'   \item{\code{session_pdv_fields}}{Mapping table for session-level PDV fields.}
+#'   \item{\code{detail_pdv_fields}}{Mapping table for event-level PDV fields.}
+#' }
 #'
 #' @keywords internal
-#'
 
 parse_mrr_xml <- function(doc) {
-  # Strip namespaces to make XPath simple and robust
+
+  # strip namespaces to make XPath simple and robust
   xml2::xml_ns_strip(doc)
 
   to_snake <- function(x) {
@@ -14,7 +31,7 @@ parse_mrr_xml <- function(doc) {
   }
   text_or_na <- function(node) if (length(node)) xml2::xml_text(node) else NA_character_
 
-  # Robust datetime parser → always returns POSIXct (UTC), NA when unparseable
+  # robust datetime parser → always returns POSIXct (UTC), NA when unparseable
   parse_datetime_mixed <- function(x) {
     if (is.null(x)) return(as.POSIXct(character(), tz = "UTC"))
     x <- as.character(x)
@@ -75,7 +92,7 @@ parse_mrr_xml <- function(doc) {
   names(session_vals) <- to_snake(nm)
   session <- tibble::as_tibble(as.list(session_vals))
 
-  # Coerce common types
+  # coerce common types
   for (nm_dt in c("created","modified")) {
     if (nm_dt %in% names(session)) session[[nm_dt]] <- parse_datetime_mixed(session[[nm_dt]])
   }
@@ -116,7 +133,7 @@ parse_mrr_xml <- function(doc) {
       vals <- vapply(kids, xml2::xml_text, character(1))
       as.list(stats::setNames(vals, keys))
     })
-    # Row-bind, fill missing columns
+    # row-bind, fill missing columns
     cols <- Reduce(union, lapply(rows, names))
     rows <- lapply(rows, function(r) { r[setdiff(cols, names(r))] <- NA_character_; r[cols] })
     df <- tibble::as_tibble(do.call(rbind, lapply(rows, as.data.frame, stringsAsFactors = FALSE)))

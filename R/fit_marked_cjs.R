@@ -18,11 +18,11 @@
 #' @return A list with components:
 #' \describe{
 #'   \item{\code{model}}{The fitted \code{marked} CJS model object.}
-#'   \item{\code{phi}}{Data frame of interval survival estimates with \code{estimate}, \code{se}, \code{lcl}, \code{ucl}, and interval index.}
+#'   \item{\code{phi}}{Data frame of interval survival estimates with columns \code{estimate}, \code{se}, \code{lcl}, \code{ucl}, and interval index.}
 #'   \item{\code{cum_phi}}{Data frame of cumulative survival estimates across intervals with confidence intervals.}
-#'   \item{\code{p}}{Data frame of interval detection probabilities with \code{estimate}, \code{se}, \code{lcl}, \code{ucl}, and interval index.}
-#'   \item{\code{plots}}{List of plots for \code{phi}, \code{p}, and \code{cum_phi}. Uses \code{ggplot2} if available, otherwise base R plots.}
-#'   \item{\code{covariance_mode}}{Character indicating whether cumulative survival used "full" covariance or "independence_fallback".}
+#'   \item{\code{p}}{Data frame of interval detection probabilities with columns \code{estimate}, \code{se}, \code{lcl}, \code{ucl}, and interval index.}
+#'   \item{\code{plots}}{List of plots for \code{phi}, \code{p}, and \code{cum_phi}. Uses \code{ggplot2} if available, otherwise base R.}
+#'   \item{\code{covariance_mode}}{Character indicating whether cumulative survival used "full" covariance or the "independence_fallback".}
 #' }
 #'
 #' @details

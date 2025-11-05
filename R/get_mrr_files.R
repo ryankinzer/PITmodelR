@@ -1,6 +1,7 @@
 #' @title Retrieve File Info for Project Code and Year
 #'
-#' @description Retrieve file information submitted by a
+#' @description
+#' Retrieve file information submitted by a
 #' mark-recapture-recovery (MRR) project code within a given year.
 #'
 #' @param code A single PTAGIS project code (3 characters), e.g. "LGR".
@@ -9,6 +10,7 @@
 #' @return A tibble containing metadata for submitted files.
 #'
 #' @author Ryan Kinzer
+#'
 #' @examples
 #' \dontrun{ get_mrr_files(code = "LGR", year = 2024) }
 #'

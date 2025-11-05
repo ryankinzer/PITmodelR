@@ -1,17 +1,22 @@
-#' Get PTAGIS observation events for a single PIT tag
+#' @title Get Observation Events for a Single PIT Tag
 #'
-#' Fetches the observation (event) history for a PIT tag from the PTAGIS API.
+#' @description
+#' Retrieves the full PTAGIS observation (event) history for a single PIT tag.
+#' The request uses the PTAGIS Events API endpoint and returns a cleaned
+#' tibble with snake_case column names. Optional field selection can be used
+#' to reduce the returned payload.
 #'
-#' @param api_key Optional. PTAGIS API key as a single string. If omitted, the
-#'   function will use \code{Sys.getenv("PTAGIS_API_KEY")}. The key is never
-#'   printed or logged.
-#' @param tag_code PIT tag code as a single string (e.g., "384.1B79726A98").
-#'   Case-insensitive; leading/trailing spaces are trimmed.
-#' @param fields Optional character vector of column names to keep (after
-#'   name-cleaning to snake_case). Useful to reduce payload.
+#' @param api_key Optional PTAGIS API key. If omitted, the function attempts to use
+#'   the \code{PTAGIS_API_KEY} environment variable. Must be a single non-empty string.
+#' @param tag_code Character string containing a single PIT tag code (e.g.,
+#'   \code{"384.1B79726A98"}). Case-insensitive; leading/trailing whitespace is trimmed.
+#' @param fields Optional character vector of column names to retain after name
+#'   cleaning. If provided, only matching columns are returned.
 #'
-#' @return A tibble of observation events (may be zero rows).
-#' @export
+#' @return A tibble of observation events for the requested PIT tag. May be zero rows
+#'   if no events are available.
+#'
+#' @author Ryan Kinzer
 #'
 #' @examples
 #' \dontrun{
@@ -23,6 +28,9 @@
 #' get_tag_history(api_key = "YOUR-KEY-HERE", tag_code = "384.1B79726A98",
 #'                 fields = c("event_time", "site_code", "antenna"))
 #' }
+#'
+#' @export
+
 get_tag_history <- function(api_key = NULL, tag_code, fields = NULL) {
   # ---- resolve / validate api_key ----
   if (is.null(api_key) || !nzchar(api_key)) {

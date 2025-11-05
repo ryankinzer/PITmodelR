@@ -5,7 +5,7 @@
 #' into a tibble. Returns a named list of tibbles, one per MRR file.
 #'
 #' @param mrr_list A list of parsed MRR objects, typically from \code{get_file_data(..., return="list")}.
-#' #' @param keep_code_cols Logical, default \code{TRUE}. If \code{TRUE}, retains code columns (pdv*, spdv*)
+#' @param keep_code_cols Logical, default \code{TRUE}. If \code{TRUE}, retains code columns (pdv*, spdv*)
 #'   in the output tibbles.
 #' @param label_conflict Character; one of \code{"suffix"}, \code{"overwrite"}, or \code{"skip"}.
 #'   Determines how to handle column name conflicts arising from labels.

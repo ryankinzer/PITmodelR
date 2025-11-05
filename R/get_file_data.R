@@ -4,12 +4,14 @@
 #' (MRR) .xml file.
 #'
 #' @param filename name of the file to be downloaded as character
-#' e.g. "CDR-2024-072-JCT.xml".
+#'   e.g. "CDR-2024-072-JCT.xml".
 #' @param return the format of the object to be returned:
-#' "list" (default), "xml", "session", or "events"
+#'   "list" (default), "xml", "session", or "events"
 #'
 #' @return if "list", a list with tibbles: session, events, session_pdv_fields,
 #' detail_pdv_fields
+#'
+#' @author Ryan Kinzer
 #'
 #' @export
 

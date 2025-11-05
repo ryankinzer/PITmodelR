@@ -1,6 +1,7 @@
 #' @title Retrieve Years for a PTAGIS Project
 #'
-#' @description Retrieves the years for which data are available for a given
+#' @description
+#' Retrieves the years for which data are available for a given
 #' PTAGIS project code.
 #'
 #' @param code A single PTAGIS project code (3 characters), e.g. "LGR".

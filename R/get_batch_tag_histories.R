@@ -1,20 +1,30 @@
-#' Download & parse multiple tag histories
+#' @title Download and Combine Multiple Tag Histories
 #'
-#' Fetches PIT tag observation histories for multiple tag codes and
-#' returns them in a single tibble with an added `tag_code` column.
+#' @description
+#' Retrieves PIT tag observation histories for a set of tag codes and combines them
+#' into a single tibble. Each tag’s history is downloaded individually using
+#' \code{get_tag_history()}, and a \code{tag_code} column is added to identify
+#' the originating tag.
 #'
-#' @param tag_codes Character vector of PIT tag codes.
-#' @param api_key Optional PTAGIS API key (default: reads from env).
-#' @param fields Optional character vector of column names to keep (after cleaning).
+#' @param tag_codes Character vector of PIT tag codes to retrieve.
+#' @param api_key Optional PTAGIS API key. If not supplied, the function will attempt
+#'   to read the key from the session environment.
+#' @param fields Optional character vector of column names to retain after cleaning.
 #'
-#' @return A tibble of combined tag histories with `tag_code` column.
-#' @export
+#' @return A tibble containing the combined tag histories for all requested tag codes,
+#'   including an added \code{tag_code} column.
+#'
+#' @author Ryan Kinzer
 #'
 #' @examples
 #' \dontrun{
 #' get_batch_tag_histories(c("384.1B79726A98", "384.1B79726B01"))
 #' }
+#'
+#' @export
+
 get_batch_tag_histories <- function(tag_codes, api_key = NULL, fields = NULL) {
+
   if (!is.character(tag_codes) || !length(tag_codes)) {
     stop("`tag_codes` must be a non-empty character vector.", call. = FALSE)
   }
@@ -37,7 +47,7 @@ get_batch_tag_histories <- function(tag_codes, api_key = NULL, fields = NULL) {
   # bind all into one tibble
   out <- dplyr::bind_rows(res_list)
 
-  # ---- format event_date ----
+  # format event_date
   if ("event_date" %in% names(out)) {
     # try to parse full datetime with time zone (UTC safest for PTAGIS API)
     dt <- as.POSIXct(out$event_date, format = "%Y-%m-%dT%H:%M:%S", tz = "UTC")

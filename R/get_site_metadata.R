@@ -1,25 +1,31 @@
-#' Get interrogation site metadata
+#' @title Get Metadata for a Single Interrogation Site
 #'
-#' Fetch metadata for a single PTAGIS interrogation site.
+#' @description
+#' Retrieves PTAGIS metadata for a single interrogation site identified by its
+#' PTAGIS site code (e.g., \code{"LGR"}). Returns a tibble containing site-level
+#' information as provided by the PTAGIS API.
 #'
-#' @param site_code PTAGIS site code as a single string (e.g., "LGR").
-#' @return A tibble (usually one row) with site metadata.
+#' @param site_code Character string giving the PTAGIS site code to query. Must be
+#'   a single, non-empty value (e.g., \code{"LGR"}).
+#'
+#' @return A tibble containing interrogation site metadata, typically one row.
+#'
+#' @author Ryan Kinzer
+#'
 #' @export
 #'
-#' @examples
-#' \dontrun{
-#' get_site_metadata("LGR")
-#' }
 get_site_metadata <- function(site_code) {
-  # ---- validate ----
+
+  # validate site_code
   if (missing(site_code) || !is.character(site_code) || length(site_code) != 1L ||
       is.na(site_code) || !nzchar(site_code)) {
     stop("`site_code` must be a single, non-missing string (e.g., 'LGR').", call. = FALSE)
   }
+
   site_code <- toupper(trimws(site_code))
 
-  # ---- endpoint ----
-  # Confirm path in PTAGIS Swagger; many APIs use `interrogation/sites/{code}`
+  # endpoint
+  # confirm path in PTAGIS Swagger; many APIs use `interrogation/sites/{code}`
   path <- paste0("interrogation/sites/", site_code)
 
   message("Downloading site metadata for ", site_code, " from PTAGIS...")
@@ -32,7 +38,7 @@ get_site_metadata <- function(site_code) {
     return(tbl)
   }
 
-  # ---- clean names ----
+  # clean names
   nm <- names(tbl)
   nm <- gsub("\\.", "_", nm)
   nm <- gsub("([a-z0-9])([A-Z])", "\\1_\\2", nm)

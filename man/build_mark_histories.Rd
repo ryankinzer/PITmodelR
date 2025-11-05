@@ -51,8 +51,8 @@ their site was not in the survival map.
 }
 \description{
 Converts tag-level observation events into capture histories compatible with
-MARK/Program MARK analyses using a flexible survival map. Can handle multiple
-sites per occasion, enforce downstream order, and optionally drop unknown sites.
+program MARK using a flexible survival map. Can handle multiple sites
+per occasion, enforce downstream order, and optionally drop unknown sites.
 }
 \author{
 Ryan Kinzer

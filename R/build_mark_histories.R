@@ -2,8 +2,8 @@
 #'
 #' @description
 #' Converts tag-level observation events into capture histories compatible with
-#' MARK/Program MARK analyses using a flexible survival map. Can handle multiple
-#' sites per occasion, enforce downstream order, and optionally drop unknown sites.
+#' program MARK using a flexible survival map. Can handle multiple sites
+#' per occasion, enforce downstream order, and optionally drop unknown sites.
 #'
 #' @param tag_history A data.frame or tibble of tag observations. Must contain
 #'   columns for tag codes and site codes. A time column is optional for ordering events.

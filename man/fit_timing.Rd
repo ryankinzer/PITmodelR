@@ -26,20 +26,12 @@ fit_timing(
 \value{
 A list with components:
 \describe{
-\item{\code{daily}}{Data frame with columns:
-\describe{
-\item{\code{date}}{Date of the aggregation unit.}
-\item{\code{n}}{Number of events on that date.}
-\item{\code{cum_n}}{Cumulative number of events through that date.}
-\item{\code{prop}}{Cumulative proportion of total events through that date.}
-}
-}
-\item{\code{quantiles}}{Data frame of requested quantiles with columns:
-\describe{
-\item{\code{q}}{Requested quantile.}
-\item{\code{date}}{Date corresponding to the quantile.}
-}
-}
+\item{\code{daily}}{Data frame with columns \code{date} (Date of the aggregation unit),
+\code{n} (Number of events on that date),
+\code{cum_n} (Cumulative number of events through that date),
+\code{prop} (Cumulative proportion of total events through that date).}
+\item{\code{quantiles}}{Data frame of requested quantiles with columns \code{q} (Requested quantile),
+\code{date} (Date corresponding to the quantile).}
 \item{\code{method}}{Character indicating which method was used ("quantile" or "gam").}
 }
 }

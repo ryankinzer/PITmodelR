@@ -45,3 +45,6 @@ along a specified downstream route. The long table records each detection event,
 while the wide table summarizes whether each tag was detected at each site and
 includes an encounter history string.
 }
+\author{
+Ryan Kinzer
+}

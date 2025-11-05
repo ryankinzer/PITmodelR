@@ -18,9 +18,7 @@ For a full list of available project codes with names, years, and status, see
 the \href{https://www.ptagis.org/Resources/ValidationCodes?domainFilter=MrrProject}{PTAGIS Validation Codes page}.
 }
 \examples{
-\dontrun{
-get_project_codes()
-}
+\dontrun{ #' get_project_codes() }
 
 }
 \author{

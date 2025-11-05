@@ -1,17 +1,19 @@
-#' @title Download Years for a PTAGIS Project
+#' @title Retrieve Years for a PTAGIS Project
 #'
-#' @description Download the years for which data are available for a PTAGIS
-#' project code.
-#'
-#' @author Ryan Kinzer
+#' @description Retrieves the years for which data are available for a given
+#' PTAGIS project code.
 #'
 #' @param code A single PTAGIS project code (3 characters), e.g. "LGR".
 #'
-#' @export
 #' @return An integer vector of available years (sorted, unique).
+#'
+#' @author Ryan Kinzer
+#'
 #' @examples
 #' \dontrun{ get_project_years("LGR") }
 #'
+#' @export
+
 get_project_years <- function(code) {
 
   if (missing(code) || length(code) != 1 || !is.character(code) || is.na(code))

@@ -12,9 +12,7 @@
 #' @author Ryan Kinzer
 #'
 #' @examples
-#' \dontrun{
-#' get_project_codes()
-#' }
+#' \dontrun{ #' get_project_codes() }
 #'
 #' @export
 

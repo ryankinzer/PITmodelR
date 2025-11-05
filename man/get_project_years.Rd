@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_project_years.R
 \name{get_project_years}
 \alias{get_project_years}
-\title{Download Years for a PTAGIS Project}
+\title{Retrieve Years for a PTAGIS Project}
 \usage{
 get_project_years(code)
 }
@@ -13,8 +13,8 @@ get_project_years(code)
 An integer vector of available years (sorted, unique).
 }
 \description{
-Download the years for which data are available for a PTAGIS
-project code.
+Retrieves the years for which data are available for a given
+PTAGIS project code.
 }
 \examples{
 \dontrun{ get_project_years("LGR") }

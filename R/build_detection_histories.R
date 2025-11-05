@@ -27,6 +27,8 @@
 #' }
 #' Both elements also carry a \code{"route_sites"} attribute with the ordered route used.
 #'
+#' @author Ryan Kinzer
+#'
 #' @export
 
 build_detection_histories <- function(observations,

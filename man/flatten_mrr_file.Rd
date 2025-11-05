@@ -2,7 +2,7 @@
 % Please edit documentation in R/flatten_mrr_file.R
 \name{flatten_mrr_file}
 \alias{flatten_mrr_file}
-\title{Flatten a parsed MRR list into one tibble}
+\title{Flatten Parsed MRR File}
 \usage{
 flatten_mrr_file(
   mrr,
@@ -24,10 +24,15 @@ flatten_mrr_file(
 A tibble with session+event fields in wide form.
 }
 \description{
-Takes the output of get_file_data(..., return = "list") and:
+Flatten a parsed MRR list into a single tibble.
+
+Function takes the output of \verb{get_file_data(..., return = "list)} and:
 \enumerate{
 \item replicates session columns onto every events row, and
 \item replaces SPDV/PDV code columns with their labeled columns using the
 session/detail PDV mapping tables.
 }
+}
+\author{
+Ryan Kinzer
 }

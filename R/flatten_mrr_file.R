@@ -1,9 +1,11 @@
-#' Flatten a parsed MRR list into one tibble
+#' @title Flatten Parsed MRR File
 #'
-#' Takes the output of get_file_data(..., return = "list") and:
+#' @description Flatten a parsed MRR list into a single tibble.
+#'
+#' Function takes the output of `get_file_data(..., return = "list)` and:
 #' 1) replicates session columns onto every events row, and
 #' 2) replaces SPDV/PDV code columns with their labeled columns using the
-#'    session/detail PDV mapping tables.
+#' session/detail PDV mapping tables.
 #'
 #' @param mrr A list from get_file_data(..., return = "list")
 #' @param keep_code_cols logical; keep original SPDV*/PDV* code columns? (default FALSE)
@@ -11,11 +13,17 @@
 #'   "suffix" (default) -> append "_label" to the new name,
 #'   "overwrite" -> overwrite the existing column,
 #'   "skip" -> don’t create the labeled column if there’s a conflict.
+#'
 #' @return A tibble with session+event fields in wide form.
+#'
+#' @author Ryan Kinzer
+#'
 #' @export
+
 flatten_mrr_file <- function(mrr,
                         keep_code_cols = FALSE,
                         label_conflict = c("suffix", "overwrite", "skip")) {
+
   stopifnot(is.list(mrr))
   label_conflict <- match.arg(label_conflict)
 
@@ -31,11 +39,12 @@ flatten_mrr_file <- function(mrr,
     tolower(x)
   }
 
-  # Move values from code columns to new label-named columns
+  # move values from code columns to new label-named columns
   apply_code_map <- function(df, map_df, code_col = "pdv_column", label_col = "label",
                              code_prefix = c("pdv", "spdv"),
                              keep_codes = FALSE,
                              conflict = c("suffix","overwrite","skip")) {
+
     conflict <- match.arg(conflict)
     if (is.null(df) || !nrow(df)) return(df)
     if (is.null(map_df) || !nrow(map_df)) return(df)
@@ -95,21 +104,21 @@ flatten_mrr_file <- function(mrr,
       }
     }
     df
-  }
+  } # end apply_code_map()
 
-  # Get pieces (tibbles)
+  # get pieces (tibbles)
   session  <- mrr$session
   events   <- mrr$events
   spdv_map <- mrr$session_pdv_fields
   pdv_map  <- mrr$detail_pdv_fields
 
-  # If no events, return empty result with best-guess columns
+  # if no events, return empty result with best-guess columns
   if (is.null(events) || !nrow(events)) {
     warning("No MRREvent rows found; returning empty tibble.", call. = FALSE)
     return(tibble::tibble())
   }
 
-  # 1) Apply PDV mappings to events (PDV# -> label columns)
+  # 1) apply PDV mappings to events (PDV# -> label columns)
   events2 <- apply_code_map(events, pdv_map,
                             code_col = "pdv_column",
                             label_col = "label",
@@ -117,7 +126,7 @@ flatten_mrr_file <- function(mrr,
                             keep_codes = keep_code_cols,
                             conflict = label_conflict)
 
-  # 2) Apply SPDV mappings to session (SPDV# -> label columns)
+  # 2) apply SPDV mappings to session (SPDV# -> label columns)
   session2 <- session
   if (!is.null(session2) && nrow(session2) == 1L) {
     session2 <- apply_code_map(session2, spdv_map,
@@ -128,8 +137,8 @@ flatten_mrr_file <- function(mrr,
                                conflict = label_conflict)
   }
 
-  # 3) Replicate session row across events and bind
-  # Ensure session has columns; if empty, just return events2
+  # 3) replicate session row across events and bind
+  # ensure session has columns; if empty, just return events2
   if (!is.null(session2) && nrow(session2) == 1L && ncol(session2) > 0) {
     # Avoid name collisions by suffixing session columns that already exist in events
     ses <- session2[rep(1, nrow(events2)), , drop = FALSE]

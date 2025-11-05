@@ -2,18 +2,21 @@
 % Please edit documentation in R/download_mrr_files.R
 \name{download_mrr_files}
 \alias{download_mrr_files}
-\title{Download & Parse Multiple MRR .xml Files}
+\title{Download and Parse Multiple MRR XML Files}
 \usage{
 download_mrr_files(filenames)
 }
 \arguments{
-\item{filenames}{}
+\item{filenames}{Character vector of MRR XML file paths or URLs to download and parse.
+Must be non-empty.}
 }
 \value{
-a named list; each element is the parse list from \verb{get_file_data(..., return = "list}
+A named list where each element corresponds to one input file.
+Each element contains the parsed output from \code{get_file_data(..., return = "list")}.
 }
 \description{
-Download & Parse Multiple MRR .xml Files
+Downloads and parses multiple mark-recapture-recovery (MRR) XML files.
+Each file is read using \code{get_file_data()} and returned as a list.
 }
 \author{
 Ryan Kinzer

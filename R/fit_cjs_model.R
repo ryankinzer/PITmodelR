@@ -1,20 +1,31 @@
-#' Fit simple CJS-like survival by reach (placeholder)
+#' @title Fit Simple CJS-like Survival per Reach (placeholder)
 #'
-#' Estimates apparent survival per reach using simple proportions: for reach i (site i -> site i+1),
-#' phi_hat = (#tags detected at site i+1) / (#tags detected at site i).
+#' @description
+#' Computes simple apparent survival estimates between consecutive sites along a route.
+#' This is a placeholder "CJS-style" approach: for reach i (site i → site i+1),
+#' the survival estimate is calculated as
+#' \eqn{\hat{\phi}_i = (#tags detected at site i+1) / (#tags detected at site i)}.
+#' Wald confidence intervals are approximated using a binomial assumption on the logit scale.
 #'
-#' @param histories list returned by \code{build_detection_histories()}.
-#' @param model currently only "cjs" is supported (placeholder).
-#' @param formula ignored in this placeholder; present for API compatibility.
+#' @param histories A list returned by \code{build_detection_histories()}, containing at least
+#'   \code{$wide}. Must have \code{route_sites} attribute.
+#' @param model Character; currently only \code{"cjs"} is supported (placeholder).
+#' @param formula Formula; ignored in this placeholder, present for API compatibility.
+#'
 #' @return A list with components:
 #' \itemize{
 #'   \item \code{survival}: data.frame of reach-level estimates with Wald CIs.
 #'   \item \code{route_sites}: route site order used.
 #' }
+#'
+#' @author Ryan Kinzer
+#'
 #' @export
+
 fit_survival <- function(histories,
                          model = "cjs",
                          formula = ~ 1) {
+
   if (!is.list(histories) || is.null(histories$wide)) {
     stop("`histories` must be the result of build_detection_histories().", call. = FALSE)
   }
@@ -24,6 +35,7 @@ fit_survival <- function(histories,
   wide <- histories$wide
   # counts per site
   n_at_site <- vapply(rs, function(s) sum(wide[[s]] > 0, na.rm = TRUE), numeric(1))
+
   # counts at downstream site (shifted)
   n_next <- c(n_at_site[-1], NA_real_)
 

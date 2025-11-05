@@ -1,14 +1,35 @@
-#' @title Fit a CJS Model with `marked`
+#' @title Fit a CJS Model Using `marked`
 #'
-#' @description Fit a Cormack-Jolly-Seber (CJS) model using the `marked` package
-#' and return tidy results + cumulative survival with covariance-aware CIs
+#' @description
+#' Fits a CJS capture-recapture model using the `marked` package and returns
+#' tidy results for survival (\code{Phi}) and detection (\code{p}) parameters.
+#' Cumulative survival estimates are computed with covariance-aware confidence intervals
+#' when possible; otherwise, an independence-based fallback is used.
 #'
-#' @param ch_data data frame with columns `tag_code` and `ch`
-#' @param phi_formula formula for survival (Phi), default `~ time`
-#' @param p_formula   formula for detection (p), default `~ time`
-#' @param conf_level  confidence level (default 0.95)
+#' @param ch_data Data frame or tibble with at least the following columns:
+#'   \describe{
+#'     \item{\code{tag_code}}{Unique identifier for each tagged individual.}
+#'     \item{\code{ch}}{Encounter history string (e.g., "11001").}
+#'   }
+#' @param phi_formula Formula specifying the model for survival (\code{Phi}); default \code{~ time}.
+#' @param p_formula Formula specifying the model for detection probability (\code{p}); default \code{~ time}.
+#' @param conf_level Numeric; confidence level for Wald intervals (default 0.95).
 #'
-#' @return list(model, phi, cum_phi, p, plots)
+#' @return A list with components:
+#' \describe{
+#'   \item{\code{model}}{The fitted \code{marked} CJS model object.}
+#'   \item{\code{phi}}{Data frame of interval survival estimates with \code{estimate}, \code{se}, \code{lcl}, \code{ucl}, and interval index.}
+#'   \item{\code{cum_phi}}{Data frame of cumulative survival estimates across intervals with confidence intervals.}
+#'   \item{\code{p}}{Data frame of interval detection probabilities with \code{estimate}, \code{se}, \code{lcl}, \code{ucl}, and interval index.}
+#'   \item{\code{plots}}{List of plots for \code{phi}, \code{p}, and \code{cum_phi}. Uses \code{ggplot2} if available, otherwise base R plots.}
+#'   \item{\code{covariance_mode}}{Character indicating whether cumulative survival used "full" covariance or "independence_fallback".}
+#' }
+#'
+#' @details
+#' This function wraps the `marked::crm` workflow for CJS models, extracts tidy parameter
+#' tables, and computes cumulative survival across intervals. If the covariance matrix
+#' for \code{Phi} parameters is available, cumulative survival confidence intervals
+#' account for correlations; otherwise, a simple product-of-bounds approach is used.
 #'
 #' @author Ryan Kinzer
 #'

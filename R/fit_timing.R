@@ -1,14 +1,39 @@
-#' Fit migration timing metrics (placeholder)
+#' @title Fit Migration Timing Metrics (Placeholder)
 #'
+#' @description
 #' Computes daily counts and requested quantiles of passage based on event timestamps.
+#' Currently supports simple daily aggregation; more advanced methods (e.g., GAM smoothing)
+#' are accepted as arguments but return the same structure in this placeholder.
 #'
-#' @param observations data.frame of observations containing a time column.
-#' @param time_col name of the timestamp column (POSIXct or parseable).
-#' @param by aggregation unit, currently "day".
-#' @param quantiles numeric vector of quantiles to compute (0..1).
-#' @param method currently "quantile" (placeholder). "gam" accepted but returns same structure.
-#' @return A list with \code{daily} (data.frame of counts/cumulative) and \code{quantiles} (data.frame).
+#' @param observations Data frame or tibble of observation events containing a timestamp column.
+#' @param time_col Character; name of the column containing event timestamps (POSIXct or parseable). Default: "event_time".
+#' @param by Character; aggregation unit for counts. Currently only "day" is supported. Default: "day".
+#' @param quantiles Numeric vector of quantiles to compute, in the range [0, 1]. Default: c(0.1, 0.5, 0.9).
+#' @param method Character; method to compute timing metrics. Options: "quantile" (default) or "gam" (placeholder, returns same structure).
+#'
+#' @return A list with components:
+#' \describe{
+#'   \item{\code{daily}}{Data frame with columns:
+#'     \describe{
+#'       \item{\code{date}}{Date of the aggregation unit.}
+#'       \item{\code{n}}{Number of events on that date.}
+#'       \item{\code{cum_n}}{Cumulative number of events through that date.}
+#'       \item{\code{prop}}{Cumulative proportion of total events through that date.}
+#'     }
+#'   }
+#'   \item{\code{quantiles}}{Data frame of requested quantiles with columns:
+#'     \describe{
+#'       \item{\code{q}}{Requested quantile.}
+#'       \item{\code{date}}{Date corresponding to the quantile.}
+#'     }
+#'   }
+#'   \item{\code{method}}{Character indicating which method was used ("quantile" or "gam").}
+#' }
+#'
+#' @author Ryan Kinzer
+#'
 #' @export
+
 fit_timing <- function(observations,
                        time_col = "event_time",
                        by = "day",

@@ -2,16 +2,17 @@
 % Please edit documentation in R/fit_cjs_model.R
 \name{fit_survival}
 \alias{fit_survival}
-\title{Fit simple CJS-like survival by reach (placeholder)}
+\title{Fit Simple CJS-like Survival per Reach (placeholder)}
 \usage{
 fit_survival(histories, model = "cjs", formula = ~1)
 }
 \arguments{
-\item{histories}{list returned by \code{build_detection_histories()}.}
+\item{histories}{A list returned by \code{build_detection_histories()}, containing at least
+\code{$wide}. Must have \code{route_sites} attribute.}
 
-\item{model}{currently only "cjs" is supported (placeholder).}
+\item{model}{Character; currently only \code{"cjs"} is supported (placeholder).}
 
-\item{formula}{ignored in this placeholder; present for API compatibility.}
+\item{formula}{Formula; ignored in this placeholder, present for API compatibility.}
 }
 \value{
 A list with components:
@@ -21,6 +22,12 @@ A list with components:
 }
 }
 \description{
-Estimates apparent survival per reach using simple proportions: for reach i (site i -> site i+1),
-phi_hat = (#tags detected at site i+1) / (#tags detected at site i).
+Computes simple apparent survival estimates between consecutive sites along a route.
+This is a placeholder "CJS-style" approach: for reach i (site i → site i+1),
+the survival estimate is calculated as
+\eqn{\hat{\phi}_i = (#tags detected at site i+1) / (#tags detected at site i)}.
+Wald confidence intervals are approximated using a binomial assumption on the logit scale.
+}
+\author{
+Ryan Kinzer
 }

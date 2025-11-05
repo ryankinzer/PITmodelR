@@ -6,11 +6,11 @@
 #' Detects conflicting labels across files.
 #'
 #' @param mrr_listA named list of parsed MRR objects (output
-#' from \code{get_file_data(..., return="list")}).
+#'   from \code{get_file_data(..., return="list")}).
 #' @param which Character. Which fields to check: "both" (default), "pdv" (detail
-#' fields), or "spdv" (session fields).
+#'   fields), or "spdv" (session fields).
 #' @param action Character. What to do when inconsistencies are found:
-#' "warn" (default), "error", or "ignore".
+#'   "warn" (default), "error", or "ignore".
 #'
 #' @return a data.frame of issues (zero rows if none)
 #'

@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_mrr_files.R
 \name{get_mrr_files}
 \alias{get_mrr_files}
-\title{Download file information associated with a project MRR code and year.}
+\title{Retrieve File Info for Project Code and Year}
 \usage{
 get_mrr_files(code, year = NULL, page = 1, page_size = 1000, all_pages = TRUE)
 }
@@ -12,11 +12,16 @@ get_mrr_files(code, year = NULL, page = 1, page_size = 1000, all_pages = TRUE)
 \item{year}{A four digit year as an integer.}
 }
 \value{
-A character vector with file names.
+A tibble containing metadata for submitted files.
 }
 \description{
-Download file information associated with a project MRR code and year.
+Retrieve file information submitted by a
+mark-recapture-recovery (MRR) project code within a given year.
 }
 \examples{
-\dontrun{ get_mrr_files("LGR") }
+\dontrun{ get_mrr_files(code = "LGR", year = 2024) }
+
+}
+\author{
+Ryan Kinzer
 }

@@ -1,13 +1,17 @@
 ---
 title: "Getting Started with PITmodelR"
-output: rmarkdown::html_vignette
+author: Ryan Kinzer and Mike Ackerman
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  rmarkdown::html_vignette:
+    toc: true
 vignette: >
   %\VignetteIndexEntry{Getting Started with PITmodelR}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup, eval=FALSE, include=FALSE}
+```{r, eval = FALSE, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -20,66 +24,100 @@ knitr::opts_chunk$set(
 
 `PITmodelR` streamlines access to [PTAGIS](https://www.ptagis.org/) data through API endpoints and provides helper tools for PIT-tag data workflows, including project discovery, site metadata, tag observations, and survival/migration modeling.
 
-This vignette shows how to:
-- Install the package
-- Configure API authentication
-- Retrieve project codes and available years of data
-- Explore MRR and interrogation site metadata
-- Download mark-recapture-recovery (MRR) and observation PIT-tag data
-- Retrieve tag event histories
+This vignette demonstrates how to:
+* Install the package
+* Configure API authentication
+* Retrieve mark-recapture-recovery (MRR) project codes and available years of data
+* Explore MRR and interrogation site metadata
+* Download MRR and observation PIT-tag data
+* Retrieve tag event histories
 
-> **Note:** Network calls and API-key examples are set to `eval = FALSE` to keep this vignette runnable on CRAN. Try them locally after setting your API key.
+> **Note:** Code chunks below requiring network calls or an API key are set
+to `eval = FALSE` to keep this vignette runnable on CRAN. Try them locally
+after setting up your API key.
 
 # Installation
 
-The `PITmodelR` package can be installed from GitHub using the install function from the package `remotes`.
+The `PITmodelR` package can be installed from GitHub using the package `remotes`. Optionally, you can set the argument `build_vignettes = TRUE` to access package
+vignettes.
 
-```{r eval=FALSE}
-# install.packages("remotes")
+```{r eval = FALSE}
+# install.packages("remotes") # if not already, installed
+
+# install PITmodelR (faster, saver version)
 remotes::install_github("ryankinzer/PITmodelR")
+
+# to access package vignettes
+remotes::install_github("ryankinzer/PITmodelR", build_vignettes = TRUE)
 ```
 
-As for any R package, it must be loaded into the session environment before the functions will operate.
+As for any R package, it must be loaded into the session environment using the before the functions will operate.
 
-```{r eval=FALSE}
+```{r eval = FALSE}
+# load PITmodelR package to access functions
 library(PITmodelR)
+```
+
+If `PITmodelR` was installed using `build_vignettes = TRUE`, vignettes can be access using:
+
+```{r eval = FALSE}
+# see available vignettes
+browseVignettes(package = "PITmodelR")
+
+# to view this vignette
+vignette("getting-started", package = "PITmodelR")
+
 ```
 
 # Authentication (API key)
 
-Some PTAGIS endpoints require an API key. You can pass it directly to functions as a character string using the argument "PTAGIS_API_KEY" or set it once as a session environment variable.
+Some PTAGIS endpoints require an API key, which is a unique string that identifies you as an authorized user - like a password that allows the `PITmodelR` package to access data on your behalf. You can pass it directly to functions as a character string using the argument `api_key` (when needed), or set it once for your R session as an environmental variable: 
 
-```{r eval=FALSE}
+```{r eval = FALSE}
 Sys.setenv(PTAGIS_API_KEY = "YOUR-PTAGIS-API-KEY")
 ```
 
-Another option is to add `PTAGIS_API_KEY` permanently to your `~/.Renviron` file for persistent use. The proper method and steps to complete this action are not included in this tutorial.  
+Another option is to add `PTAGIS_API_KEY` permanently to your `~/.Renviron` file for persistent use. The steps to do this are not covered in this tutorial. For assistance with adding the API key permanently, contact: mikea@nezperce.org. Remember to **keep your API key private** and do not share it publicly. 
 
-# Project  Data
+# Project Data
 
-PTAGIS files are organized into projects with a three character code. In the past, these project codes were called "Coordinator IDs". A project code is appended to the name of every data file uploaded to PTAGIS. The function `get_project_codes()` returns a vector of all project codes that have data associated with them in PTAGIS.
+PTAGIS data files are organized by projects, each identified by a three-character project code. Previously, these codes were called "Coordinator IDs". Every data file uploaded to PTAGIS has the associated project code appended to its filename.
 
-```{r eval=FALSE}
+For more information on project codes, see the [PTAGIS Validation Codes](https://www.ptagis.org/Resources/ValidationCodes) site and navigate to "MRR Project". You can retrieve all project codes that currently have data in PTAGIS using the `get_project_codes()` function:
+
+```{r eval = FALSE}
 codes <- get_project_codes()
 ```
 
-Package users may need to check the number of years a specific project has submitted PIT-tag data. This task is easily completed with `get_project_years()`. 
+Users may want to check the years a specific project has submitted data. This task is easily completed using `get_project_years()`:
 
-```{r eval=FALSE}
-yrs <- get_project_years(code = "CDR")
+```{r eval = FALSE}
+yrs <- get_project_years(code = "CDR") # "Craig Rabe Projects"
 ```
 
+Individual mark-recapture-recovery (MRR) files submitted for a given project and year can be obtained with `get_mrr_files()`. The function returns a small data frame containing metadata about the file uploads: 
 
-Individual mark-recapture-recovery (MRR) files submitted for a given project and year can be obtained with `get_mrr_files()`. The function returns a small data frame containing metadata about the file uploads. 
-
-```{r eval=FALSE}
+```{r eval = FALSE}
 files <- get_mrr_files(code = "CDR", year = 2024)
+
+# number of files submitted for code and year
+nrow(files)
+
+# view names of files submitted
 files$name
 ```
 
-After we know which files are available we can then download all uploaded data submitted with the file using `get_file_data()`. The function returns a list with four objects; session, events, session_pdv_fields, and detail_pdv_fields. The list can then be collapsed into a simple data frame using `flatten_mrr_file()` for easier manipulation. 
+After identifying which files are available, we can retrieve all uploaded data from a specific file using `get_file_data()`. This function returns a list with four objects:
 
-```{r eval=FALSE}
+* session – information about the session.
+* events - each individual mark, recapture, or recovery recorded during the session.
+* session_pdv_fields - session-level *Project Defined Variables (PDVs)*, which are custom fields defined for the session.
+* detail_pdv_fields - detail-level PDVs i.e., custom fields associated with events.
+
+For easier analysis, the list can be flattened into a single data frame using `flatten_mrr_file()`. This function replicates session-level fields across all rows and replaces PDV codes with labeled columns, creating a tidy, wide-format table more suitable for further manipulation.
+
+```{r eval = FALSE}
+# CONTINUE HERE AND REVIEW FLATTEN_MRR_FILE()
 mrr_file <- get_file_data(files$name[1])
 mrr_file$session
 mrr_file$events
@@ -88,6 +126,7 @@ mrr_file$detail_pdv_fields
 
 df <- flatten_mrr_file(mrr_file)
 ```
+
 Or, you can download data from multiple MRR files in a single step using the batch function `get_batch_file_data()`. Because uploaded MRR files may not have standardized PDV fields, the function also contains arguments for how the output is returned based on label consistency. The function returns a list with three objects: "files", "combined", and "issues". The "files" object is a nested list with individual objects for each file name supplied to the function. The second object, "combined", is a single data frame with the data flattened across all the files. The final object, "issues", displays discrepancies between user defined field labels (SPDV and PDV).
 
 > **Note:** User defined fields may contain dates, numbers, or character strings, as such, all data in those fields are returned as a character string. Additional data formatting may be necessary if user defined fields require a specific format.

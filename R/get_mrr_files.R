@@ -22,22 +22,25 @@ get_mrr_files <- function(code,
                           page_size = 1000,
                           all_pages = TRUE) {
 
-  # validate code
-  if (missing(code) || length(code) != 1 || !is.character(code) || is.na(code))
+  # ---- validate project code ----
+  if (missing(code) || length(code) != 1 || !is.character(code) || is.na(code)) {
     stop("`code` must be a single, non-missing character string.", call. = FALSE)
+  }
   code <- toupper(trimws(code))
-  if (nchar(code) != 3)
+  if (nchar(code) != 3) {
     stop("`code` must be exactly 3 characters (e.g., 'LGR').", call. = FALSE)
+  }
 
-  # validate year
+  # ---- validate year ----
   if (!is.null(year)) {
-    if (!is.numeric(year) || length(year) != 1L || is.na(year) || nchar(as.character(as.integer(year))) != 4) {
+    if (!is.numeric(year) || length(year) != 1L || is.na(year) ||
+        nchar(as.character(as.integer(year))) != 4) {
       stop("`year` must be a single four-digit integer (e.g., 2024) or NULL.", call. = FALSE)
     }
     year <- as.integer(year)
   }
 
-  # validate paging controls
+  # ---- validate pagination controls ----
   if (!is.logical(all_pages) || length(all_pages) != 1L || is.na(all_pages)) {
     stop("`all_pages` must be TRUE/FALSE.", call. = FALSE)
   }
@@ -48,13 +51,21 @@ get_mrr_files <- function(code,
     stop("`page_size` must be a single positive integer.", call. = FALSE)
   }
 
-  message("Downloading tag file information for project ", code, " and year ", year," from PTAGIS...")
-  url <- paste0("files/mrr/sites/", code,"/year/",year)
-  params <- list(pageSize = page_size,
-                 pageNumber = page)
+  # ---- message to user ----
+  message("Downloading tag file information for project ", code,
+          " and year ", year, " from PTAGIS...")
 
+  # ---- construct URL and query parameters ----
+  url <- paste0("files/mrr/sites/", code, "/year/", year)
+  params <- list(
+    pageSize   = page_size,
+    pageNumber = page
+  )
+
+  # ---- fetch content ----
   content <- ptagis_GET(url, params)
 
+  # ---- coerce to tibble ----
   tmp <- as_tibble_safely(content$model)
 
   return(tmp)

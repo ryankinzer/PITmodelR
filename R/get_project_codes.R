@@ -13,16 +13,19 @@
 #' @author Ryan Kinzer
 #'
 #' @examples
-#' \dontrun{ #' get_project_codes() }
+#' \dontrun{ get_project_codes() }
 #'
 #' @export
 
 get_project_codes <- function() {
 
+  # ---- message to user ----
   message("Downloading available project codes from PTAGIS...")
+
+  # ---- fetch content from PTAGIS ----
   content <- ptagis_GET("files/mrr/projects")
 
-  # content may be a character vector or a list of objects with code fields
+  # ---- parse codes ----
   codes <- NULL
   if (is.character(content)) {
     codes <- content
@@ -30,6 +33,7 @@ get_project_codes <- function() {
     codes <- vapply(content, function(x) x, character(1))
   }
 
+  # ---- clean codes ----
   codes <- unique(stats::na.omit(codes))
 
   if (!length(codes)) {
@@ -37,5 +41,6 @@ get_project_codes <- function() {
     return(character())
   }
 
+  # ---- normalize codes ----
   sort(unique(toupper(trimws(codes))))
 }

@@ -1,7 +1,7 @@
 #' @title Retrieve Years for a PTAGIS Project
 #'
 #' @description
-#' Retrieves the years for which data are available for a given
+#' Retrieves the years for which data were submitted for a given
 #' PTAGIS project code.
 #'
 #' @param code A single PTAGIS project code (3 characters), e.g. "LGR".
@@ -17,15 +17,22 @@
 
 get_project_years <- function(code) {
 
-  if (missing(code) || length(code) != 1 || !is.character(code) || is.na(code))
+  # ---- validate code ----
+  if (missing(code) || length(code) != 1 || !is.character(code) || is.na(code)) {
     stop("`code` must be a single, non-missing character string.", call. = FALSE)
+  }
   code <- toupper(trimws(code))
-  if (nchar(code) != 3)
+  if (nchar(code) != 3) {
     stop("`code` must be exactly 3 characters (e.g., 'LGR').", call. = FALSE)
+  }
 
+  # ---- message ----
   message("Downloading available years for project ", code, " from PTAGIS...")
+
+  # ---- fetch content ----
   content <- ptagis_GET(paste0("files/mrr/projects/", code))
 
+  # ---- parse years ----
   years <- NULL
   if (is.numeric(content)) {
     years <- as.integer(content)
@@ -33,6 +40,7 @@ get_project_years <- function(code) {
     years <- vapply(content, function(x) x, integer(1))
   }
 
+  # ---- clean years ----
   years <- unique(stats::na.omit(years))
 
   if (!length(years)) {
@@ -40,5 +48,6 @@ get_project_years <- function(code) {
     return(integer())
   }
 
+  # ---- normalize ----
   sort(years)
 }

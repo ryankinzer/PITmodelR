@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_project_codes.R
 \name{get_project_codes}
 \alias{get_project_codes}
-\title{Download PTAGIS Project Codes}
+\title{Retrieve PTAGIS Project Codes}
 \usage{
 get_project_codes()
 }
@@ -10,13 +10,18 @@ get_project_codes()
 A character vector of available project codes (uppercase, sorted, unique).
 }
 \description{
-Download a character vector of project codes available in PTAGIS. Project
-codes are used to identify the mark-recapture-recovery (MRR) project under which the
-data was submitted. More information on available project codes can be found
-[here](https://www.ptagis.org/Resources/ValidationCodes?domainFilter=MrrProject).
+Retrieves a character vector of all mark-recapture-recovery (MRR)
+project codes currently available in the \href{https://www.ptagis.org}{PTAGIS} database.
+Project codes identify the MRR project under which PIT-tag data were submitted.
+
+For a full list of available project codes with names, years, and status, see
+the \href{https://www.ptagis.org/Resources/ValidationCodes?domainFilter=MrrProject}{PTAGIS Validation Codes page}.
 }
 \examples{
-\dontrun{ get_project_codes() }
+\dontrun{
+get_project_codes()
+}
+
 }
 \author{
 Ryan Kinzer

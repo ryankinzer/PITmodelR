@@ -2,7 +2,7 @@
 % Please edit documentation in R/marked_helpers.R
 \name{fit_marked_cjs}
 \alias{fit_marked_cjs}
-\title{Fit a CJS model with `marked` and return tidy results + cumulative survival with covariance-aware CIs}
+\title{Fit a CJS model with \code{marked} and return tidy results + cumulative survival with covariance-aware CIs}
 \usage{
 fit_marked_cjs(
   ch_data,
@@ -12,11 +12,11 @@ fit_marked_cjs(
 )
 }
 \arguments{
-\item{ch_data}{data frame with columns `tag_code` and `ch`}
+\item{ch_data}{data frame with columns \code{tag_code} and \code{ch}}
 
-\item{phi_formula}{formula for survival (Phi), default `~ time`}
+\item{phi_formula}{formula for survival (Phi), default \code{~ time}}
 
-\item{p_formula}{formula for detection (p), default `~ time`}
+\item{p_formula}{formula for detection (p), default \code{~ time}}
 
 \item{conf_level}{confidence level (default 0.95)}
 }
@@ -24,5 +24,5 @@ fit_marked_cjs(
 list(model, phi, cum_phi, p, plots)
 }
 \description{
-Fit a CJS model with `marked` and return tidy results + cumulative survival with covariance-aware CIs
+Fit a CJS model with \code{marked} and return tidy results + cumulative survival with covariance-aware CIs
 }

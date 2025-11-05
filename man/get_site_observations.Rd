@@ -15,14 +15,14 @@ get_site_observations(
 )
 }
 \arguments{
-\item{api_key}{Optional PTAGIS API key. If omitted, uses `Sys.getenv("PTAGIS_API_KEY")`.}
+\item{api_key}{Optional PTAGIS API key. If omitted, uses \code{Sys.getenv("PTAGIS_API_KEY")}.}
 
 \item{site_code}{PTAGIS site code (e.g., "LGR"). Single non-empty string.}
 
 \item{year}{Optional four-digit integer year (e.g., 2024). If provided, it is sent
-as a query filter (confirm exact param name in Swagger; commonly `year`).}
+as a query filter (confirm exact param name in Swagger; commonly \code{year}).}
 
-\item{page, page_size}{Integers for pagination (used when `all_pages = FALSE`).}
+\item{page, page_size}{Integers for pagination (used when \code{all_pages = FALSE}).}
 
 \item{all_pages}{logical; if TRUE (default), fetches and binds all pages.}
 

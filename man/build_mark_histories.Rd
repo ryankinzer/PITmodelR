@@ -26,15 +26,15 @@ OR a named list: names = occasion labels, each element = vector of site codes in
 
 \item{time_col}{optional time column to order within tag (POSIXct or parseable)}
 
-\item{enforce_order}{logical; if TRUE keep first occurrence of each *increasing* occasion per tag}
+\item{enforce_order}{logical; if TRUE keep first occurrence of each \emph{increasing} occasion per tag}
 
 \item{keep_unknown}{logical; if FALSE drop events whose site isn't in the survival map}
 }
 \value{
 list(ch_data = tibble(tag_code, ch),
-             ch_freq = tibble(ch, freq),
-             mapping = tibble(site_code, occasion, occ_idx),
-             dropped_summary = tibble(site_code, n))
+ch_freq = tibble(ch, freq),
+mapping = tibble(site_code, occasion, occ_idx),
+dropped_summary = tibble(site_code, n))
 }
 \description{
 Build MARK capture histories from tag events using a flexible survival map

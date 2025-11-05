@@ -16,8 +16,8 @@ fit_survival(histories, model = "cjs", formula = ~1)
 \value{
 A list with components:
 \itemize{
-  \item \code{survival}: data.frame of reach-level estimates with Wald CIs.
-  \item \code{route_sites}: route site order used.
+\item \code{survival}: data.frame of reach-level estimates with Wald CIs.
+\item \code{route_sites}: route site order used.
 }
 }
 \description{

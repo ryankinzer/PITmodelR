@@ -14,9 +14,11 @@ tibble
 }
 \description{
 Ensures JSON parsed responses are always a tibble:
-- data.frame      -> tibble
-- list of records -> rows bound into a tibble
-- named list      -> 1-row tibble
-- atomic vector   -> tibble with a single `value` column
+\itemize{
+\item data.frame      -> tibble
+\item list of records -> rows bound into a tibble
+\item named list      -> 1-row tibble
+\item atomic vector   -> tibble with a single \code{value} column
+}
 }
 \keyword{internal}

@@ -25,7 +25,9 @@ A tibble with session+event fields in wide form.
 }
 \description{
 Takes the output of get_file_data(..., return = "list") and:
-1) replicates session columns onto every events row, and
-2) replaces SPDV/PDV code columns with their labeled columns using the
-   session/detail PDV mapping tables.
+\enumerate{
+\item replicates session columns onto every events row, and
+\item replaces SPDV/PDV code columns with their labeled columns using the
+session/detail PDV mapping tables.
+}
 }

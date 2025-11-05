@@ -26,8 +26,8 @@ build_detection_histories(
 \value{
 A list with:
 \itemize{
-  \item \code{long}: long table of (tag, site, time), ordered.
-  \item \code{wide}: one row per tag with 0/1 detection indicators per route site and encounter history string.
+\item \code{long}: long table of (tag, site, time), ordered.
+\item \code{wide}: one row per tag with 0/1 detection indicators per route site and encounter history string.
 }
 }
 \description{

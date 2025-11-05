@@ -14,11 +14,11 @@ get_batch_tag_histories(tag_codes, api_key = NULL, fields = NULL)
 \item{fields}{Optional character vector of column names to keep (after cleaning).}
 }
 \value{
-A tibble of combined tag histories with `tag_code` column.
+A tibble of combined tag histories with \code{tag_code} column.
 }
 \description{
 Fetches PIT tag observation histories for multiple tag codes and
-returns them in a single tibble with an added `tag_code` column.
+returns them in a single tibble with an added \code{tag_code} column.
 }
 \examples{
 \dontrun{

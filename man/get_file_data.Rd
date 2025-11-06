@@ -7,19 +7,25 @@
 get_file_data(filename, return = c("list", "xml", "session", "events"))
 }
 \arguments{
-\item{filename}{name of the file to be downloaded as character
-e.g. "CDR-2024-072-JCT.xml".}
+\item{filename}{Character; the name of the MRR file to download.}
 
-\item{return}{the format of the object to be returned:
-"list" (default), "xml", "session", or "events"}
+\item{return}{Character; format of the returned object. One of:
+\code{"list"} (default), \code{"xml"}, \code{"session"}, or \code{"events"}.}
 }
 \value{
-if "list", a list with tibbles: session, events, session_pdv_fields,
-detail_pdv_fields
+If \code{return = "list"}, a list containing:
+\itemize{
+\item \code{session} — one-row tibble of session-level metadata
+\item \code{events} — tibble of MRR event records
+\item \code{session_pdv_fields} — mapping of session-level project-defined fields
+\item \code{detail_pdv_fields} — mapping of event-level project-defined fields
+}
+For other \code{return} values, the corresponding component is returned.
 }
 \description{
-Download and parse data within a single PTAGIS mark-recapture-recovery
-(MRR) .xml file.
+Downloads a single PTAGIS mark–recapture–recovery (MRR) XML file and parses it
+into a structured list of tibbles. The file is retrieved from the PTAGIS API
+using its filename (e.g., \code{"CDR-2024-072-JCT.xml"}).
 }
 \author{
 Ryan Kinzer

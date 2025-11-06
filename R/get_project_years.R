@@ -48,6 +48,6 @@ get_project_years <- function(code) {
     return(integer())
   }
 
-  # ---- normalize ----
+  # ---- sort ----
   sort(years)
 }

@@ -13,7 +13,7 @@ get_project_years(code)
 An integer vector of available years (sorted, unique).
 }
 \description{
-Retrieves the years for which data are available for a given
+Retrieves the years for which data were submitted for a given
 PTAGIS project code.
 }
 \examples{

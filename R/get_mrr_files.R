@@ -51,7 +51,7 @@ get_mrr_files <- function(code,
     stop("`page_size` must be a single positive integer.", call. = FALSE)
   }
 
-  # ---- message to user ----
+  # ---- message ----
   message("Downloading tag file information for project ", code,
           " and year ", year, " from PTAGIS...")
 

@@ -19,7 +19,7 @@
 
 get_project_codes <- function() {
 
-  # ---- message to user ----
+  # ---- message ----
   message("Downloading available project codes from PTAGIS...")
 
   # ---- fetch content from PTAGIS ----
@@ -41,6 +41,6 @@ get_project_codes <- function() {
     return(character())
   }
 
-  # ---- normalize codes ----
+  # ---- clean and sort ----
   sort(unique(toupper(trimws(codes))))
 }

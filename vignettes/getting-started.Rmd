@@ -318,9 +318,10 @@ ch_list$dropped_summary
 # Fit CJS model
 library(marked)
 
-fit <- fit_marked_cjs(res$ch_data,
+fit <- fit_marked_cjs(ch_list$ch_data,
                       phi_formula = ~ time,
                       p_formula   = ~ time,
+                      hessian = TRUE,
                       conf_level  = 0.95)
 
 # Peek tables

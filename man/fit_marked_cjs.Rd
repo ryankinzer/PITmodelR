@@ -8,6 +8,7 @@ fit_marked_cjs(
   ch_data,
   phi_formula = ~time,
   p_formula = ~time,
+  hessian = TRUE,
   conf_level = 0.95
 )
 }
@@ -21,6 +22,8 @@ fit_marked_cjs(
 \item{phi_formula}{Formula specifying the model for survival (\code{Phi}); default \code{~ time}.}
 
 \item{p_formula}{Formula specifying the model for detection probability (\code{p}); default \code{~ time}.}
+
+\item{hessian}{Passed to \code{marked::crm()}. If \code{TRUE} (defaulat), compute the Hessian so that uncertainty and variance-covariance matrices can be extracts.}
 
 \item{conf_level}{Numeric; confidence level for Wald intervals (default 0.95).}
 }
@@ -36,8 +39,8 @@ A list with components:
 }
 }
 \description{
-Fits a CJS capture-recapture model using the \code{marked} package and returns
-tidy results for survival (\code{Phi}) and detection (\code{p}) parameters.
+Fits a Cormack-Jolly-Seber (CJS) capture-recapture model using the \code{marked} package
+and returns tidy results for survival (\code{Phi}) and detection (\code{p}) parameters.
 Cumulative survival estimates are computed with covariance-aware confidence intervals
 when possible; otherwise, an independence-based fallback is used.
 }

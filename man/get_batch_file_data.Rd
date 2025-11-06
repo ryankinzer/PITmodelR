@@ -30,14 +30,13 @@ when combining flattened tibbles to ensure a consistent schema.}
 A list with three elements:
 \itemize{
 \item \code{files} – named list of flattened tibbles, one per file
-\item \code{combined} – a single tibble combining all files
+\item \code{combined} – a single tibble combining "events" from all files
 \item \code{issues} – a data.frame of PDV/SPDV label inconsistencies detected across files
 }
 }
 \description{
 A one-call convenience wrapper to download multiple PTAGIS mark-recapture-recovery (MRR) XML files,
-check for PDV/SPDV label consistency across files, flatten each file into tibbles, and combine them
-into a single tibble.
+check for PDV/SPDV label consistency across files, and return everything as a single list.
 }
 \author{
 Ryan Kinzer

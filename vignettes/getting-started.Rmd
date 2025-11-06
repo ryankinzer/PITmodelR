@@ -20,6 +20,7 @@ knitr::opts_chunk$set(
 )
 ```
 
+
 # Overview
 
 `PITmodelR` streamlines access to [PTAGIS](https://www.ptagis.org/) data through API endpoints and provides helper tools for PIT-tag data workflows, including project discovery, site metadata, tag observations, and survival/migration modeling.
@@ -35,6 +36,7 @@ This vignette demonstrates how to:
 > **Note:** Code chunks below requiring network calls or an API key are set
 to `eval = FALSE` to keep this vignette runnable on CRAN. Try them locally
 after setting up your API key.
+
 
 # Installation
 
@@ -69,6 +71,7 @@ vignette("getting-started", package = "PITmodelR")
 
 ```
 
+
 # Authentication (API key)
 
 Some PTAGIS endpoints require an API key, which is a unique string that identifies you as an authorized user - like a password that allows the `PITmodelR` package to access data on your behalf. You can pass it directly to functions as a character string using the argument `api_key` (when needed), or set it once for your R session as an environmental variable: 
@@ -79,6 +82,7 @@ Sys.setenv(PTAGIS_API_KEY = "YOUR-PTAGIS-API-KEY")
 
 Another option is to add `PTAGIS_API_KEY` permanently to your `~/.Renviron` file for persistent use. The steps to do this are not covered in this tutorial. For assistance with adding the API key permanently, contact: mikea@nezperce.org. Remember to **keep your API key private** and do not share it publicly. 
 
+
 # Project Data
 
 PTAGIS data files are organized by projects, each identified by a three-character project code. Previously, these codes were called "Coordinator IDs". Every data file uploaded to PTAGIS has the associated project code appended to its filename.
@@ -88,6 +92,8 @@ For more information on project codes, see the [PTAGIS Validation Codes](https:/
 ```{r eval = FALSE}
 codes <- get_project_codes()
 ```
+
+> **Note:** At any time, a help menu for any function can be accessed using e.g., `?get_project_codes`
 
 Users may want to check the years a specific project has submitted data. This task is easily completed using `get_project_years()`:
 
@@ -117,104 +123,158 @@ After identifying which files are available, we can retrieve all uploaded data f
 For easier analysis, the list can be flattened into a single data frame using `flatten_mrr_file()`. This function replicates session-level fields across all rows and replaces PDV codes with labeled columns, creating a tidy, wide-format table more suitable for further manipulation.
 
 ```{r eval = FALSE}
-# CONTINUE HERE AND REVIEW FLATTEN_MRR_FILE()
-mrr_file <- get_file_data(files$name[1])
-mrr_file$session
-mrr_file$events
-mrr_file$session_pdv_fields
-mrr_file$detail_pdv_fields
+mrr_data <- get_file_data("CDR-2024-067-JCT.xml")
 
-df <- flatten_mrr_file(mrr_file)
+# alternately, using files$name from above
+mrr_data <- get_file_data(files$name[1]) # first element in files$name
+
+# if return = "list" (default), view each data frame in mrr_data
+mrr_data$session
+mrr_data$events
+mrr_data$session_pdv_fields
+mrr_data$detail_pdv_fields
+
+# flatten mrr_data into single data frame (df)
+mrr_df <- flatten_mrr_file(mrr_data)
 ```
 
-Or, you can download data from multiple MRR files in a single step using the batch function `get_batch_file_data()`. Because uploaded MRR files may not have standardized PDV fields, the function also contains arguments for how the output is returned based on label consistency. The function returns a list with three objects: "files", "combined", and "issues". The "files" object is a nested list with individual objects for each file name supplied to the function. The second object, "combined", is a single data frame with the data flattened across all the files. The final object, "issues", displays discrepancies between user defined field labels (SPDV and PDV).
+Better yet, you can download data from multiple MRR files in a single step using the batch function `get_batch_file_data()`. Because submitted MRR files may not have standardized PDV fields, the function also contains arguments for how the output is returned based on label consistency. 
+
+`get_batch_file_data()` returns a list with three objects:
+
+- **files** — a nested list with individual objects for each file name supplied to the function. 
+- **combined** — a single data frame with the data flattened across all files.  
+- **issues** — displays discrepancies between user defined field labels (SPDV and PDV).
 
 > **Note:** User defined fields may contain dates, numbers, or character strings, as such, all data in those fields are returned as a character string. Additional data formatting may be necessary if user defined fields require a specific format.
 
-```{r eval=FALSE, message=FALSE}
-filenames <- files$name[grepl('SCT', files$name)]
+As an example, let's compile all data submitted by project "CDR" during 2024 from the Secesh River rotary screw trap:
 
-# Batch workflow:
+```{r eval = FALSE, message = FALSE}
+# return file names containing "SCT
+file_names <- files$name[grepl('SCT', files$name)]
+
+# same thing, except using tidyverse
+file_names <- files %>%
+  filter(str_detect(name, "SCT")) %>%
+  pull(name)
+
+# retrieve data for all file_names
 all_data <- get_batch_file_data(
-  filenames,
-  check_labels = "warn",         # checks if user defined fields have the same labels, can use "error" to stop on mismatches
-  keep_code_cols = FALSE,         # should we keep PDV/SPDV code columns and the user defined labels
-  label_conflict = "suffix",     # behavior for file label column collisions
-  use_codes_on_conflict = TRUE   # prefer consistent code columns across files
+  filenames = file_names,      # checks if user defined fields have the same labels, can use "error" to stop on mismatches
+  keep_code_cols = FALSE,      # should we keep PDV/SPDV code columns and the user defined labels
+  label_conflict = "suffix",   # behavior for file label column collisions
+  use_codes_on_conflict = TRUE # prefer consistent code columns across files
 )
 
-# list of all individual files
-names(all_data$files)
+# --- explore some items in all_data ---
+names(all_data$files)                 # list of all individual files
+all_data$files$"CDR-2024-101-SCT.xml" # info for a single session
+all_data$combined                     # combined mark-recapture-recovery events
+View(all_data$combined)               # same, except view in window
+all_data$issues                       # label mismatch issues
 
-# look at data for a single file
-all_data$files$`CDR-2024-101-JCT.xml`
+# summarize a column
+table(all_data$combined$event_type)
+table(all_data$combined$species_run_rear_type)
 
-# combined session and event data into a single dataset
+# store all_data$combined into a new object
 df <- all_data$combined
-
-# label mismatch issues
-all_data$issues
 ```
+
 
 # Survival Studies
 
-Survival studies begin with a list of tags that represent the population of interest and will later be recaptured or observed. The above functions allow us to download all the data associated with a MRR file (in this case a mark or tagging file) uploaded to PTAGIS. To create a list of tags suitable for a survival study, we first need to clean the MRR data and filter for tags that best represent our group of interest. This can easily be completed with functions from the `tidyverse` packages.
-
+Survival studies begin with a list of tags (i.e., marks) that represent the group or population of interest and that will later be recaptured or observed. The above functions allow us to download all the data associated with single or multiple MRR files (in this case, mark or tagging files) submitted to PTAGIS. To create a list of tags suitable for a survival study, we first need to clean the MRR data and filter for tags that best represnt our group of interest. This can easily be completed with functions from the `tidyverse` [packages](https://tidyverse.org/).
 
 ## Mark List
 
-```{r eval=FALSE}
+Creating mark groups requires careful thought and consideration. For instance, you might want to compare survival (and detection probabilities) between parr and smolts from a single location, between smolts between two or more locations, or between parr tagged at a screw trap versus those tagged via electrofishing - which can elucidate differences in tagging mortality or life-history strategies. In other words, consider the research or management question at hand before defining your mark group of interest.
+
+Because these decisions directly affect your analysis and interpretation of results, defining and creating mark groups is a critical first step in any survival study.
+
+As an example, let's create a mark group for wild summer Chinook salmon juveniles tagged and released during fall 2024 from the Secesh River screw trap. We'll accomplish this by filtering some fields in our `df`. 
+
+```{r eval = FALSE}
 library(tidyverse)
 
 mark_group <- df %>%
-  filter(species_run_rear_type == '12W',
-         migration_year == 2025,
-         between(release_date, ymd(20240901), ymd(20241231)),
-         release_site == 'SECTRP',
-         pittag != "..........",
-         !grepl('RE', text_comments),
-         !grepl('Y', conditional_comments)
-  )
+  filter(species_run_rear_type == "12W",                      # wild summer chinook
+         migration_year == 2025,                              # emigrating in 2025
+         between(release_date, ymd(20240901), ymd(20241231)), # fall trapping period
+         release_site == "SECTRP",                            # Secesh RST
+         pittag != "..........",                              # only records with pit tags (i.e., exclude tallies)
+         !grepl("Recapture", event_type),                     # exclude recapture
+         !grepl("Y", conditional_comments))                   # exclude yearlings
+
+# number of tags/fish in mark_group
+nrow(mark_group)
 ```
 
+## Tag Histories
 
-## Pit-Tag Histories
+We have our marks - now we need all the observations (i.e., detections) that represent the migration history of each fish. For a single PIT tag, use the `get_tag_history()` function; for multiple tags, use `get_batch_tag_histories()`. Both of these require the user to set `api_key`. The mark and all subsequent observations will eventually be used to create capture histories, which are then used in survival and detection models.
 
+```{r eval = FALSE}
+# single tag
+tag_history <- get_tag_history(tag_code = "3DD.003E50ED4A")
 
-```{r eval=FALSE}
-pittag <- mark_group$pittag[1]
-tag_history <- get_tag_history(tag_code = pittag)
+# alternately, using mark_group$pittag
+tag_history <- get_tag_history(tag_code = mark_group$pittag[1])
 ```
 
-```{r eval=FALSE}
-pittags <- mark_group$pittag
-tag_history <- get_batch_tag_histories(tag_codes = pittags)
+```{r eval = FALSE}
+# list of tags
+tag_list = mark_group$pittag
+
+# multiple tags
+tag_history <- get_batch_tag_histories(tag_codes = tag_list)
+
+# number of unique events
+nrow(tag_history)
 ```
 
-## Recapture Observations
+## Observation Locations and Reaches
 
-We first need to define our survival reaches by identify locations of potential recaptures. We can start by looking at a table with all the locations that the tag group was observed.
+We next need to define our detection occasions (i.e., locations), and inherently survival reaches, while considering the potential sites that fish may have been observed (mark, observation, recapture, or recovery). To aid us, we can look at a table of all sites that the mark group was observed:
 
-```{r eval=FALSE}
-table(tag_history$event_type)
-table(tag_history$site_code)
+```{r eval = FALSE}
+# summary of event types by site
+table(tag_history$site_code, tag_history$event_type)
 ```
 
-All the locations look good with the exception of "CWR".  To build my capture history I will first remove "CWR" and then select the sites that I need for survivals, SECTRP, ZEN, SFG, and Lower Granite Dam (GRJ and GRS), all other locations are downstream of Lower Granite (LGR) and can be used to calculate a detection efficiency at LGR. 
+In this case, all detection sites look good; however, it is always a good idea to review sites for potential errant observations. Next, we define the occasions (group of sites that we estimate parameters to) and then assign individual sites to each. In this case, we will estimate survivals from SECTRP to ZEN, SFG, and Lower Granite Dam (GRJ and GRS); all locations downstream of LGR can be used to calculate a detection efficiency (and survival) to LGR.
 
-```{r eval=FALSE}
-
+```{r eval = FALSE}
+# detection locations (group all sites downstream of LGR)
 locs <- c("SECTRP","ZEN","SFG","LGR","Down")
 
+# assign individual detection sites to locations
 locs <- list(
   SECTRP = "SECTRP",
   ZEN    = "ZEN",
   SFG    = "SFG",
-  LGR    = c("GRJ","GRS"),
-  Down   = c("LMN","MCN","BON", "B2J", "BCC", "GOJ", "ICH", "JDJ", "LMJ", "MCJ", "PD7", "PD8", "PDW", "TWX")
-)
+  LGR    = c("GRJ", "GRS"), # Lower Granite Juvenile Bypass (J) and Spillway (S)
+  # upstream -> downstream
+  Down   = c(
+    "GOJ",                     # Little Goose Dam
+    "LMJ",                     # Lower Monumental Dam
+    "ICH",                     # Ice Harbor Dam
+    "CRESIS",                  # Crescent Island
+    "MCJ",                     # McNary Dam
+    "JDJ",                     # John Day Dam
+    "LMILIS",                  # Little Miller Island
+    "B2J", "BCC",              # Bonneville Dam
+    "PD7", "PD8", "PDW", "TWX" # Lower Columbia & Estuary
+    )
+  )
+```
 
-res <- build_mark_histories(
+Since we have our tag histories and have assigned individual detection sites to study occasions, inherently defining study reaches, we can now build capture histories. This can be accomplished using the `build_mark_histories()` function.
+
+```{r eval = FALSE}
+# convert observations to capture histories
+ch_list <- build_mark_histories(
   tag_history  = tag_history,
   locs_def     = locs,
   site_col     = "site_code",
@@ -224,12 +284,35 @@ res <- build_mark_histories(
   keep_unknown  = FALSE
 )
 
-ch_data <- res$ch_data      # tag_code, ch
-ch_freq <- res$ch_freq      # ch, freq
-res$dropped_summary         # any sites removed because not in `locs`
-res$mapping                 # site -> occasion index
+# view objects in ch_list
+ch_list$ch_data
+ch_list$ch_freq
+ch_list$mapping
+ch_list$dropped_summary
 ```
 
+Notice that no sites were dropped in `ch_list$droppedsummary`, because we included all detection sites in `locs`. However, you could choose to ignore some detection sites and the `build_mark_histories()` function will drop those observations if `keep_unkown = FALSE`.
+
+```{r eval = FALSE}
+# remove a couple sites from locs
+locs$Down <- setdiff(locs$Down, c("CRESIS", "LMILIS"))
+
+# retry buld_mark_histories()
+ch_list <- build_mark_histories(
+  tag_history  = tag_history,
+  locs_def     = locs,
+  site_col     = "site_code",
+  tag_col      = "tag_code",
+  time_col     = "event_time",  # optional but helps order ties/revisits
+  enforce_order = TRUE,
+  keep_unknown  = FALSE
+)
+
+# some observations now not included in ch_list$ch_data
+ch_list$dropped_summary
+```
+
+## CJS Model
 
 ```{r eval=FALSE}
 # Fit CJS model

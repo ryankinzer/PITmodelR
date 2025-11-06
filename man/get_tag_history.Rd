@@ -7,24 +7,24 @@
 get_tag_history(api_key = NULL, tag_code, fields = NULL)
 }
 \arguments{
-\item{api_key}{Optional PTAGIS API key. If omitted, the function attempts to use
+\item{api_key}{PTAGIS API key. If omitted, the function attempts to use
 the \code{PTAGIS_API_KEY} environment variable. Must be a single non-empty string.}
 
 \item{tag_code}{Character string containing a single PIT tag code (e.g.,
-\code{"384.1B79726A98"}). Case-insensitive; leading/trailing whitespace is trimmed.}
+\code{"384.1B79726A98"}). Case-insensitive; any leading/trailing whitespace is trimmed.}
 
-\item{fields}{Optional character vector of column names to retain after name
-cleaning. If provided, only matching columns are returned.}
+\item{fields}{Optional character vector of column names to retain to reduce
+returned data payload e.g., \code{fields = c("tag_code", "site_code", "event_type",
+  "event_date", "event_count")}.}
 }
 \value{
-A tibble of observation events for the requested PIT tag. May be zero rows
+A tibble of MRR and observation events for the requested PIT tag. May be zero rows
 if no events are available.
 }
 \description{
-Retrieves the full PTAGIS observation (event) history for a single PIT tag.
-The request uses the PTAGIS Events API endpoint and returns a cleaned
-tibble with snake_case column names. Optional field selection can be used
-to reduce the returned payload.
+Retrieves all mark-recapture-recovery (MRR) events and observations associated
+with a single PIT tag code from PTAGIS. The request uses the PTAGIS events API
+endpoint and returns a cleaned tibble.
 }
 \examples{
 \dontrun{
@@ -32,9 +32,9 @@ to reduce the returned payload.
 Sys.setenv(PTAGIS_API_KEY = "YOUR-KEY-HERE")
 get_tag_history(tag_code = "384.1B79726A98")
 
-# or pass the key manually
+# or pass the key manually, and reduce fields
 get_tag_history(api_key = "YOUR-KEY-HERE", tag_code = "384.1B79726A98",
-                fields = c("event_time", "site_code", "antenna"))
+                fields = c("tag_code", "site_code", "event_type", "event_date"))
 }
 
 }

@@ -2,8 +2,7 @@
 #'
 #' @description
 #' A one-call convenience wrapper to download multiple PTAGIS mark-recapture-recovery (MRR) XML files,
-#' check for PDV/SPDV label consistency across files, flatten each file into tibbles, and combine them
-#' into a single tibble.
+#' check for PDV/SPDV label consistency across files, and return everything as a single list.
 #'
 #' @param filenames A character vector of MRR file names to download and process.
 #' @param check_labels Character; one of \code{"warn"}, \code{"error"}, or \code{"ignore"}.
@@ -17,7 +16,7 @@
 #' @return A list with three elements:
 #' \itemize{
 #'   \item \code{files} – named list of flattened tibbles, one per file
-#'   \item \code{combined} – a single tibble combining all files
+#'   \item \code{combined} – a single tibble combining "events" from all files
 #'   \item \code{issues} – a data.frame of PDV/SPDV label inconsistencies detected across files
 #' }
 #'
@@ -32,10 +31,14 @@ get_batch_file_data <- function(filenames,
                                 use_codes_on_conflict = TRUE) {
 
   check_labels   <- match.arg(check_labels)
+
   label_conflict <- match.arg(label_conflict)
 
   mrr_list <- download_mrr_files(filenames)
-  issues <- check_pdv_label_consistency(mrr_list, which = "both", action = check_labels)
+
+  issues <- check_pdv_label_consistency(mrr_list,
+                                        which = "both",
+                                        action = check_labels)
 
   files <- flatten_mrr_list(mrr_list,
                             keep_code_cols = keep_code_cols,
@@ -44,6 +47,8 @@ get_batch_file_data <- function(filenames,
   combined <- combine_flattened_mrr(files,
                                     use_codes_on_conflict = use_codes_on_conflict)
 
-  list(files = files, combined = combined, issues = issues)
+  list(files = files,
+       combined = combined,
+       issues = issues)
 
 }

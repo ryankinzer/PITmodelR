@@ -46,13 +46,13 @@ encounter history, plus 0/1 columns per occasion.
 \item \code{mapping} – tibble mapping \code{site_code} to \code{occasion} and numeric
 \code{occ_idx}.
 \item \code{dropped_summary} – tibble summarizing the number of events dropped because
-their site was not in the survival map.
+their site was not in the "study design".
 }
 }
 \description{
 Converts tag-level observation events into capture histories compatible with
-program MARK using a flexible survival map. Can handle multiple sites
-per occasion, enforce downstream order, and optionally drop unknown sites.
+program MARK. Can handle multiple sites per occasion, enforce downstream order,
+and optionally drop unknown sites.
 }
 \author{
 Ryan Kinzer

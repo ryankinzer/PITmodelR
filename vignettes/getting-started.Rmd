@@ -39,6 +39,7 @@ This vignette demonstrates how to:
 to `eval = FALSE` to keep this vignette runnable on CRAN. Try them locally
 after setting up your API key.
 
+---
 
 # Installation
 
@@ -73,6 +74,7 @@ vignette("getting-started", package = "PITmodelR")
 
 ```
 
+---
 
 # Authentication (API key)
 
@@ -84,6 +86,7 @@ Sys.setenv(PTAGIS_API_KEY = "YOUR-PTAGIS-API-KEY")
 
 Another option is to add `PTAGIS_API_KEY` permanently to your `~/.Renviron` file for persistent use. The steps to do this are not covered in this tutorial. For assistance with adding the API key permanently, contact: mikea@nezperce.org. Remember to **keep your API key private** and do not share it publicly. 
 
+---
 
 # Project Data
 
@@ -184,6 +187,7 @@ table(all_data$combined$species_run_rear_type)
 df <- all_data$combined
 ```
 
+---
 
 # Survival Studies
 
@@ -318,7 +322,7 @@ ch_list$dropped_summary
 
 We can then feed the output of `build_mark_histories()` into a *Cormack-Jolly-Seber* survival model. To fit the model we need to have first installed the R package `marked`. 
 
-```{r eval=FALSE}
+```{r eval = FALSE}
 # Fit CJS model
 library(marked)
 
@@ -358,7 +362,7 @@ res$mapping
 
 ```
 
-```{r eval=FALSE}
+```{r eval = FALSE}
 proc <- process.data(res$ch_data, model = "CJS")
 ddl  <- make.design.data(proc)
 
@@ -375,7 +379,7 @@ est_preds = predict(mod) %>%
       map(.f = as_tibble)
 ```
 
-```{r eval=TRUE}
+```{r eval = FALSE}
 timing <- summarize_arrival_travel(
   tag_history,
   locs_def = locs,
@@ -404,18 +408,20 @@ if (inherits(plots$arrival_ecdf, "ggplot")) {
 }
 ```
 
+---
+
 # Interrogation Sites
 
 ## List interrogation sites (metadata)
 
-```{r}
+```{r eval = FALSE}
 obs_sites <- get_interrogation_sites()
 #obs_sites <- get_interrogation_sites(active_only = FALSE)
 ```
 
 ## Get metadata for a single site
 
-```{r}
+```{r eval = FALSE}
 get_site_metadata(obs_sites$siteCode[1])
 ```
 
@@ -424,7 +430,7 @@ get_site_metadata(obs_sites$siteCode[1])
 
 This section is currently non-functional.
 
-```{r}
+```{r eval = FALSE}
 obs <- get_site_observations(site_code = "COC", year = 2023)
 obs_page1 <- get_site_observations(site_code = "COC", year = 2023, page = 1, page_size = 1000, all_pages = FALSE)
 obs_small <- get_site_observations(
@@ -432,6 +438,8 @@ obs_small <- get_site_observations(
   fields = c("event_time", "tag_code", "antenna", "site_code")
 )
 ```
+
+---
 
 # Error handling & best practices
 
@@ -445,11 +453,15 @@ obs_small <- get_site_observations(
   - Rate limiting / backoff on large downloads
   - Filtering by time windows when available
 
+---
+
 # Session info
 
 ```{r}
 sessionInfo()
 ```
+
+---
 
 # Appendix: Troubleshooting
 

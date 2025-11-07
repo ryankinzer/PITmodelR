@@ -20,9 +20,9 @@ get_site_metadata <- function(site_code) {
 
   # ---- endpoint ----
   # Confirm path in PTAGIS Swagger; many APIs use `interrogation/sites/{code}`
-  path <- paste0("interrogation/sites/", site_code)
+  path <- paste0("sites/interrogation/", site_code)
 
-  message("Downloading site metadata for ", site_code, " from PTAGIS...")
+  message("Downloading site metadata for ", site_code, " ...")
   out <- ptagis_GET(path)
 
   tbl <- as_tibble_safely(out)

@@ -5,7 +5,7 @@
 #' @examples
 #' \dontrun{ get_project_codes() }
 get_project_codes <- function() {
-  message("Downloading available project codes from PTAGIS...")
+  message("Downloading available project codes...")
   content <- ptagis_GET("files/mrr/projects")
 
   # content may be a character vector or a list of objects with code fields

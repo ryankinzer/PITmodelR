@@ -1,7 +1,8 @@
-#' Download file information associated with a project MRR code and year.
-#' @param code A single PTAGIS project code (3 characters), e.g. "LGR".
-#' @param year A four digit year as an integer.
-#' @return A character vector with file names.
+#' Download file information associated with a specified project code and year
+#'
+#' @param code A character string with a single PTAGIS project code (3 characters), e.g. "LGR".
+#' @param year A single integer with four digits, e.g. "2015"
+#' @return A tibble containing file names and properties of the files.
 #' @export
 #' @examples
 #' \dontrun{ get_mrr_files("LGR") }
@@ -37,7 +38,7 @@ get_mrr_files <- function(code,
     stop("`page_size` must be a single positive integer.", call. = FALSE)
   }
 
-  message("Downloading tag file information for project ", code, " and year ", year," from PTAGIS...")
+  message("Downloading tag file information for project ", code, " and year ", year,"...")
   url <- paste0("files/mrr/sites/", code,"/year/",year)
   params <- list(pageSize = page_size,
                  pageNumber = page)

@@ -1,6 +1,6 @@
-#' Download available data years for a PTAGIS project
+#' Download available data years for a specified PTAGIS project
 #'
-#' @param code A single PTAGIS project code (3 characters), e.g. "LGR".
+#' @param code A character string with a single PTAGIS project code (3 characters), e.g. "LGR".
 #' @return An integer vector of available years (sorted, unique).
 #' @export
 #' @examples
@@ -12,7 +12,7 @@ get_project_years <- function(code) {
   if (nchar(code) != 3)
     stop("`code` must be exactly 3 characters (e.g., 'LGR').", call. = FALSE)
 
-  message("Downloading available years for project ", code, " from PTAGIS...")
+  message("Downloading available years for project ", code, "...")
   content <- ptagis_GET(paste0("files/mrr/projects/", code))
 
   years <- NULL

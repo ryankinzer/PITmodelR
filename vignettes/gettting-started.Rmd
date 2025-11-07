@@ -9,6 +9,7 @@ vignette: >
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(
+  eval = FALSE,
   collapse = TRUE,
   comment = "#>",
   fig.width = 7, fig.height = 4,
@@ -18,69 +19,67 @@ knitr::opts_chunk$set(
 
 # Overview
 
-`PITmodelR` streamlines access to [PTAGIS](https://www.ptagis.org/) data through API endpoints and provides helper tools for PIT-tag data workflows, including project discovery, site metadata, tag observations, and survival/migration modeling.
+`PITmodelR` streamlines access to [PTAGIS](https://www.ptagis.org/) data through their [API endpoints](api.ptagis.org) and provides helper tools for PIT-tag data workflows, including project discovery, site metadata, tag observations, and survival/migration modeling.
 
-This vignette shows how to:
+The package does not replace the user's responsibility to ensure the data is used properly and subset to a sample of tags representing their population of interest. Additionally, the modeling tools within will lead to erroneous results if careful thought isn't given at each step and assumptions are violated.
+
+The purpose of this vignette shows how to:
 - Install the package
-- Configure API authentication
-- Retrieve project codes and available years of data
+- Request and configure API authentication
+- Retrieve project codes and years of available data
 - Explore MRR and interrogation site metadata
-- Download mark-recapture-recovery (MRR) and observation PIT-tag data
+- Download mark-recapture-recovery (MRR) files and interrogation site PIT-tag data
 - Retrieve tag event histories
 
-> **Note:** Network calls and API-key examples are set to `eval = FALSE` to keep this vignette runnable on CRAN. Try them locally after setting your API key.
+> **Note:** Most of the code chunks within this vignette make HTTP requests, many requiring an API-key, as such, examples are set to `eval = FALSE` to keep this vignette runnable on CRAN and all machines. Try them locally after setting up your own API key.
 
 ---
 
-# Installation
+# Set-up
 
-The `PITmodelR` package can be installed from GitHub using the install function from the package `remotes`.
+Install the `PITmodelR` package from GitHub using the `install_github()` function from the package `remotes`.
 
-```{r eval=FALSE}
+```{r}
 # install.packages("remotes")
 remotes::install_github("ryankinzer/PITmodelR")
 ```
 
-As for any R package, it must be loaded into the session environment before the functions will operate.
+Similar to all R package a user must load the package into the R session environment before the functions will operate. Load the package using `library()`.
 
 ```{r}
 library(PITmodelR)
 ```
 
----
 
-# Authentication (API key)
+Many of the functions require an API key to successfully reach the PTAGIS endpoints. Request the key from PTAGIS staff at this [link](https://www.ptagis.org/Contact). Pass the key directly to functions as a character string using the argument "PTAGIS_API_KEY" or set it once as a session environment variable.
 
-Some PTAGIS endpoints require an API key. You can pass it directly to functions as a character string using the argument "PTAGIS_API_KEY" or set it once as a session environment variable.
-
-```{r eval=FALSE}
+```{r}
+# save the api key in the session environment
 Sys.setenv(PTAGIS_API_KEY = "YOUR-PTAGIS-API-KEY")
 ```
 
-Another option is to add `PTAGIS_API_KEY` permanently to your `~/.Renviron` file for persistent use. The proper method and steps to complete this action are not included in this tutorial.  
+Another option is to add the variable `PTAGIS_API_KEY` permanently to your `~/.Renviron` file for persistent use. The steps necessary to complete this action are not included in this tutorial but can easily be found online.
 
 ---
 
-# Project  Data
+# Project Data
 
 PTAGIS files are organized into projects with a three character code. In the past, these project codes were called "Coordinator IDs". A project code is appended to the name of every data file uploaded to PTAGIS. The function `get_project_codes()` returns a vector of all project codes that have data associated with them in PTAGIS.
 
-```{r eval=FALSE}
+```{r}
 codes <- get_project_codes()
 ```
 
-Package users may need to check the number of years a specific project has submitted PIT-tag data. This task is easily completed with `get_project_years()`. 
+Package users may need to check the number of years a specific project has submitted PIT-tag data. This task is completed with `get_project_years()`. The function will return a vector of integers. 
 
 ```{r eval=FALSE}
 yrs <- get_project_years(code = "CDR")
 ```
 
-
-Individual mark-recapture-recovery (MRR) files submitted for a given project and year can be obtained with `get_mrr_files()`. The function returns a small data frame containing metadata about the file uploads. 
+Individual mark-recapture-recovery (MRR) files submitted for a given project and year are obtained with the function `get_mrr_files()`. A small tibble is returned containing metadata about the file uploads. 
 
 ```{r eval=FALSE}
 files <- get_mrr_files(code = "CDR", year = 2024)
-files$name
 ```
 
 After we know which files are available we can then download all uploaded data submitted with the file using `get_file_data()`. The function returns a list with four objects; session, events, session_pdv_fields, and detail_pdv_fields. The list can then be collapsed into a simple data frame using `flatten_mrr_file()` for easier manipulation. 
@@ -99,7 +98,8 @@ Or, you can download data from multiple MRR files in a single step using the bat
 > **Note:** User defined fields may contain dates, numbers, or character strings, as such, all data in those fields are returned as a character string. Additional data formatting may be necessary if user defined fields require a specific format.
 
 ```{r eval=FALSE, message=FALSE}
-filenames <- files$name[grepl('SCT', files$name)]
+# get all of CDR file names with 'SRT' at the end
+filenames <- grep("SCT\\.xml$", files$name, value = TRUE)
 
 # Batch workflow:
 all_data <- get_batch_file_data(
@@ -114,7 +114,7 @@ all_data <- get_batch_file_data(
 names(all_data$files)
 
 # look at data for a single file
-all_data$files$`CDR-2024-101-JCT.xml`
+all_data$files$`CDR-2024-183-SCT.xml`
 
 # combined session and event data into a single dataset
 df <- all_data$combined
@@ -125,12 +125,12 @@ all_data$issues
 ---
 # Survival Studies
 
-Survival studies begin with a list of tags that represent the population of interest and will later be recaptured or observed. The above functions allow us to download all the data associated with a MRR file (in this case a mark or tagging file) uploaded to PTAGIS. To create a list of tags suitable for a survival study, we first need to clean the MRR data and filter for tags that best represent our group of interest. This can easily be completed with functions from the `tidyverse` packages.
+Survival studies begin with a list of tags that represent the population of interest and that will later be recaptured or observed. The above functions allow us to download all the data associated with MRR files (in this case a mark or tagging files) uploaded to PTAGIS. To create a list of tags suitable for a survival study, we first need to subset the MRR data and filter for tags that best represent our group of interest. This can easily be completed with functions from the `tidyverse` packages.
 
 
 ## Mark List
 
-```{r eval=FALSE}
+```{r}
 library(tidyverse)
 
 mark_group <- df %>%
@@ -142,17 +142,24 @@ mark_group <- df %>%
          !grepl('RE', text_comments),
          !grepl('Y', conditional_comments)
   )
+
+# check for unique tags
+n_distinct(mark_group$pittag)
 ```
 
 ---
 
 ## Pit-Tag Histories
 
+After getting the list of tags we then need to gather all observations or recaptures after the fishes' initial release. The function `get_tag_history()` will download the complete tag history for a single specified tag.
 
 ```{r eval=FALSE}
 pittag <- mark_group$pittag[1]
+# only gives a summary of detections at each site......we need to get all detections by antenna/coil
 tag_history <- get_tag_history(tag_code = pittag)
 ```
+
+While the function `get_batch_tag_histories()` will download detections for a list of tag codes.
 
 ```{r eval=FALSE}
 pittags <- mark_group$pittag
@@ -161,19 +168,19 @@ tag_history <- get_batch_tag_histories(tag_codes = pittags)
 
 ## Recapture Observations
 
-We first need to define our survival reaches by identify locations of potential recaptures. We can start by looking at a table with all the locations that the tag group was observed.
+Before fitting a survival model we need to define our survival reaches by identify detection sites of interest. We can start by looking at a table with all the locations the tags were observed.
 
 ```{r eval=FALSE}
+# summary of event types
 table(tag_history$event_type)
+# summary of site detections
 table(tag_history$site_code)
 ```
 
-All the locations look good with the exception of "CWR".  To build my capture history I will first remove "CWR" and then select the sites that I need for survivals, SECTRP, ZEN, SFG, and Lower Granite Dam (GRJ and GRS), all other locations are downstream of Lower Granite (LGR) and can be used to calculate a detection efficiency at LGR. 
+To build my capture history I first need to create a list that designates my reaches of interest and groups site detections to bolster sample sizes. **Caution- take some time to think about mark/recapture and survival modeling assumption violations.** Our reaches of interest include the areas between SECTRP, ZEN, SFG, and Lower Granite Dam. We will group the two juvenile detection sites at Lower Granite Dam (LGR) and all other sites below Lower Granite Dam in order to calculate a more precise detection efficiency at LGR. If we choose to exclude locations from the list, e.g. CWR, they will be automatically dropped from the capture histories. 
 
 ```{r eval=FALSE}
-
-locs <- c("SECTRP","ZEN","SFG","LGR","Down")
-
+# we can define detection sites with a list
 locs <- list(
   SECTRP = "SECTRP",
   ZEN    = "ZEN",
@@ -194,14 +201,15 @@ res <- build_mark_histories(
 
 ch_data <- res$ch_data      # tag_code, ch
 ch_freq <- res$ch_freq      # ch, freq
-res$dropped_summary         # any sites removed because not in `locs`
+res$dropped_summary         # any sites removed because they are not listin in `locs`
 res$mapping                 # site -> occasion index
 ```
 
+We can then feed the output of `build_mark_histories()` into a *Cormack-Jolly-Seber* survival model. To fit the model we need to have first installed the R package `marked`. 
 
 ```{r eval=TRUE}
 # Fit CJS model
-library(marked)
+#install.packages('marked')
 
 fit <- fit_marked_cjs(res$ch_data,
                       phi_formula = ~ time,
@@ -234,25 +242,39 @@ if (inherits(fit$plots$cum_phi, "ggplot")) {
   fit$plots$cum_phi()
 }
 
+res$mapping
+
 ```
+
 
 ```{r eval=TRUE}
-proc <- process.data(res$ch_data, model = "CJS")
-ddl  <- make.design.data(proc)
+timing <- summarize_arrival_travel(
+  tag_history,
+  locs_def = locs,
+  site_col = "site_code",
+  tag_col  = "tag_code",
+  time_col = "event_date",
+  tz = "UTC",
+  keep_unknown = FALSE
+)
 
-Phi.time <- list(formula = ~ time)
-p.time   <- list(formula = ~ time)
+# Inspect tables
+head(timing$arrivals_long)
+head(timing$travel_long)
+timing$occasion_summary
+timing$leg_summary
+timing$dropped_summary  # sites filtered out
 
-mod <- crm(proc, ddl, model.parameters = list(Phi = Phi.time, p = p.time))
-summary(mod)
-
-mod$results
-mod$results$reals$Phi
-
-est_preds = predict(mod) %>% 
-      map(.f = as_tibble)
+# Plots
+plots <- plot_arrival_travel(timing)
+if (inherits(plots$arrival_ecdf, "ggplot")) {
+  print(plots$arrival_ecdf)
+  print(plots$travel_time)
+} else {
+  plots$arrival_ecdf()  # base fallback
+  plots$travel_time()
+}
 ```
-
 
 ---
 
@@ -260,46 +282,28 @@ est_preds = predict(mod) %>%
 
 ## List interrogation sites (metadata)
 
-```{r eval=FALSE}
-sites_active <- list_interrogation_sites()
-sites_all <- list_interrogation_sites(active_only = FALSE)
-sites_min <- list_interrogation_sites(fields = c("site_code", "site_name", "status"))
+```{r}
+obs_sites <- get_interrogation_sites()
+#obs_sites <- get_interrogation_sites(active_only = FALSE)
 ```
 
 ## Get metadata for a single site
 
-```{r eval=FALSE}
-md <- get_site_metadata("LGR")
-md
+```{r}
+get_site_metadata(obs_sites$siteCode[1])
 ```
 
----
-
-# Observations
 
 ## Get site observations (with auto-pagination)
 
-```{r eval=FALSE}
-obs1 <- get_site_observations(site_code = "LGR")
-obs2 <- get_site_observations(site_code = "LGR", year = 2023)
-obs_page1 <- get_site_observations(site_code = "LGR", page = 1, page_size = 1000, all_pages = FALSE)
+This section is currently non-functional.
+
+```{r}
+obs <- get_site_observations(site_code = "COC", year = 2023)
+obs_page1 <- get_site_observations(site_code = "COC", year = 2023, page = 1, page_size = 1000, all_pages = FALSE)
 obs_small <- get_site_observations(
-  site_code = "LGR", year = 2023,
+  site_code = "COC", year = 2023,
   fields = c("event_time", "tag_code", "antenna", "site_code")
-)
-```
-
----
-
-# Tag Event History
-
-## Get observations for a single PIT tag
-
-```{r eval=FALSE}
-tag_events <- get_tag_history(tag_code = "384.1B79726A98")
-tag_events_min <- get_tag_history(
-  tag_code = "384.1B79726A98",
-  fields = c("event_time", "site_code", "antenna", "direction")
 )
 ```
 

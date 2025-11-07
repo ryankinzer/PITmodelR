@@ -33,25 +33,26 @@ This vignette demonstrates end-to-end workflows for **juvenile survival** and **
 
 # Prerequisites
 
-```{r eval=FALSE}
-# Install PITmodelR (development)
-# install.packages("remotes")
-remotes::install_github("yourusername/PITmodelR")
+This vignette will require the package `PITmodelR`, `marked`, and the `tidyverse` set of packages to function correctly. Please install them before moving forward with `install_packages()` or `remotes::install_github()`.
 
-# Optional: modeling packages you may use internally or downstream
-install.packages(c("survival", "mgcv", "ggplot2", "dplyr", "tidyr"))
+```{r eval=FALSE}
+install.packages('tidyverse')
+install.packages('marked')
+install.packages("remotes")
+remotes::install_github("ryankinzer/PITmodelR")
 ```
 
-Load libraries:
+Load the `PITmodelR` library:
 
 ```{r}
 library(PITmodelR)
 ```
 
-Set the API key once per session (or store in `~/.Renviron`):
+Many functions within the package require a PTAGIS API key to function. Request the key from PTAGIS staff at this [link](https://www.ptagis.org/Contact). The key can be set once per session following:
 
 ```{r eval=FALSE}
-Sys.setenv(PTAGIS_API_KEY = "YOUR-PTAGIS-API-KEY")
+your_api_key = "YOUR-PTAGIS-API-KEY"
+Sys.setenv(PTAGIS_API_KEY = your_api_key)
 ```
 
 ---
@@ -286,3 +287,169 @@ sessionInfo()
 - Function names used here (`build_detection_histories()`, `fit_survival()`, `summarize_survival()`, `fit_timing()`, `passage_curve()`, `plot_survival()`, `plot_timing()`) are **placeholders** for your package's exported API. Adjust to match the final names.
 - Ensure vignettes mark long-running or network-dependent chunks with `eval = FALSE`.
 - Consider adding small synthetic datasets in `inst/extdata/` for fully runnable examples without PTAGIS access.
+
+
+```{r eval=TRUE}
+proc <- process.data(res$ch_data, model = "CJS")
+ddl  <- make.design.data(proc)
+
+Phi.time <- list(formula = ~ time)
+p.time   <- list(formula = ~ time)
+
+mod <- crm(proc, ddl, model.parameters = list(Phi = Phi.time, p = p.time))
+summary(mod)
+
+mod$results
+mod$results$reals$Phi
+
+est_preds = predict(mod) %>% 
+      map(.f = as_tibble)
+```
+
+
+```{r}
+
+library(PITmodelR)
+
+your_api_key = "YOUR-PTAGIS-API-KEY"
+Sys.setenv(PTAGIS_API_KEY = your_api_key)
+
+files <- get_mrr_files(code = "CSS", year = 2025)
+
+# get all of the CSS file names that end in a number
+filenames <- grep("[0-9]{3}\\.xml$", files$name, value = TRUE)
+
+# Batch workflow:
+all_data <- get_batch_file_data(
+  filenames,
+  check_labels = "warn",         # checks if user defined fields have the same labels, can use "error" to stop on mismatches
+  keep_code_cols = FALSE,         # should we keep PDV/SPDV code columns and the user defined labels
+  label_conflict = "suffix",     # behavior for file label column collisions
+  use_codes_on_conflict = TRUE   # prefer consistent code columns across files
+)
+
+# list of all individual files
+names(all_data$files)
+
+# look at data for a single file
+all_data$files$`CDR-2024-183-SCT.xml`
+
+# combined session and event data into a single dataset
+df <- all_data$combined
+
+# label mismatch issues
+all_data$issues
+
+library(tidyverse)
+
+mark_group <- df %>%
+  filter(species_run_rear_type == '12W',
+         migration_year == 2025,
+         between(release_date, ymd(20240901), ymd(20241231)),
+         release_site == 'SECTRP',
+         pittag != "..........",
+         !grepl('RE', text_comments),
+         !grepl('Y', conditional_comments)
+  )
+
+# check for unique tags
+n_distinct(mark_group$pittag)
+
+pittags <- mark_group$pittag
+tag_history <- get_batch_tag_histories(tag_codes = pittags)
+
+# summary of event types
+table(tag_history$event_type)
+# summary of site detections
+table(tag_history$site_code)
+
+we can define detection sites with a list
+locs <- list(
+  SECTRP = "SECTRP",
+  ZEN    = "ZEN",
+  SFG    = "SFG",
+  LGR    = c("GRJ","GRS"),
+  Down   = c("LMN","MCN","BON", "B2J", "BCC", "GOJ", "ICH", "JDJ", "LMJ", "MCJ", "PD7", "PD8", "PDW", "TWX")
+)
+
+res <- build_mark_histories(
+  tag_history  = tag_history,
+  locs_def     = locs,
+  site_col     = "site_code",
+  tag_col      = "tag_code",
+  time_col     = "event_time",  # optional but helps order ties/revisits
+  enforce_order = TRUE,
+  keep_unknown  = FALSE
+)
+
+ch_data <- res$ch_data      # tag_code, ch
+ch_freq <- res$ch_freq      # ch, freq
+res$dropped_summary         # any sites removed because they are not listin in `locs`
+res$mapping                 # site -> occasion index
+
+
+# Fit CJS model
+#install.packages('marked')
+
+fit <- fit_marked_cjs(res$ch_data,
+                      phi_formula = ~ time,
+                      p_formula   = ~ time,
+                      conf_level  = 0.95)
+
+# Peek tables
+head(fit$phi)
+head(fit$p)
+
+# Show plots
+if (inherits(fit$plots$phi, "ggplot")) {
+  print(fit$plots$phi)
+  print(fit$plots$p)
+} else if (is.function(fit$plots$phi)) {
+  fit$plots$phi()  # base plot
+  fit$plots$p()
+}
+
+# Full model summary if needed
+summary(fit$model)
+
+fit$cum_phi         # cumulative survival with CIs
+fit$covariance_mode # "full" if covariance used, otherwise "independence_fallback"
+
+# Plot
+if (inherits(fit$plots$cum_phi, "ggplot")) {
+  print(fit$plots$cum_phi)
+} else {
+  fit$plots$cum_phi()
+}
+
+res$mapping
+
+
+timing <- summarize_arrival_travel(
+  tag_history,
+  locs_def = locs,
+  site_col = "site_code",
+  tag_col  = "tag_code",
+  time_col = "event_date",
+  tz = "UTC",
+  keep_unknown = FALSE
+)
+
+# Inspect tables
+head(timing$arrivals_long)
+head(timing$travel_long)
+timing$occasion_summary
+timing$leg_summary
+timing$dropped_summary  # sites filtered out
+
+# Plots
+plots <- plot_arrival_travel(timing)
+if (inherits(plots$arrival_ecdf, "ggplot")) {
+  print(plots$arrival_ecdf)
+  print(plots$travel_time)
+} else {
+  plots$arrival_ecdf()  # base fallback
+  plots$travel_time()
+}
+
+```

@@ -2,7 +2,7 @@
 #'
 #' @description
 #' Converts raw PTAGIS observation events into long and wide detection histories
-#' along a specified downstream route. The long table records each detection event,
+#' along a specified route. The long table records each detection event,
 #' while the wide table summarizes whether each tag was detected at each site and
 #' includes an encounter history string.
 #'

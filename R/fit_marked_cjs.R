@@ -32,6 +32,12 @@
 #' for \code{Phi} parameters is available, cumulative survival confidence intervals
 #' account for correlations; otherwise, a simple product-of-bounds approach is used.
 #'
+#' @seealso [marked::crm]
+#'
+#' @note Additional arugments are passed directly to `marked::crm()`. This feature
+#'       is experimental and not fully tested; supplying unsupported arguments
+#'       may cause errors or unexpected behavior.
+#'
 #' @author Ryan Kinzer
 #'
 #' @export
@@ -40,7 +46,8 @@ fit_marked_cjs <- function(ch_data,
                            phi_formula = ~ time,
                            p_formula   = ~ time,
                            hessian     = TRUE,
-                           conf_level  = 0.95) {
+                           conf_level  = 0.95,
+                           ...) {
 
   # --- dependencies & validation ---
   if (!requireNamespace("marked", quietly = TRUE)) {
@@ -64,7 +71,8 @@ fit_marked_cjs <- function(ch_data,
     proc,
     ddl,
     model.parameters = list(Phi = Phi.spec, p = p.spec),
-    hessian = hessian
+    hessian = hessian,
+    ...
   )
 
   z <- stats::qnorm(1 - (1 - conf_level) / 2)

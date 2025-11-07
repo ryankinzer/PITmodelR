@@ -9,7 +9,8 @@ fit_marked_cjs(
   phi_formula = ~time,
   p_formula = ~time,
   hessian = TRUE,
-  conf_level = 0.95
+  conf_level = 0.95,
+  ...
 )
 }
 \arguments{
@@ -49,6 +50,14 @@ This function wraps the \code{marked::crm} workflow for CJS models, extracts tid
 tables, and computes cumulative survival across intervals. If the covariance matrix
 for \code{Phi} parameters is available, cumulative survival confidence intervals
 account for correlations; otherwise, a simple product-of-bounds approach is used.
+}
+\note{
+Additional arugments are passed directly to \code{marked::crm()}. This feature
+is experimental and not fully tested; supplying unsupported arguments
+may cause errors or unexpected behavior.
+}
+\seealso{
+\link[marked:crm]{marked::crm}
 }
 \author{
 Ryan Kinzer

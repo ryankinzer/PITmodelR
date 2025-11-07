@@ -176,7 +176,6 @@ all_data <- get_batch_file_data(
 names(all_data$files)                 # list of all individual files
 all_data$files$"CDR-2024-101-SCT.xml" # info for a single session
 all_data$combined                     # combined mark-recapture-recovery events
-View(all_data$combined)               # same, except view in window
 all_data$issues                       # label mismatch issues
 
 # summarize a column
@@ -320,12 +319,15 @@ ch_list$dropped_summary
 
 ## CJS Model
 
-We can then feed the output of `build_mark_histories()` into a *Cormack-Jolly-Seber* survival model. To fit the model we need to have first installed the R package `marked`. 
+We can then feed the capture history data (`$ch_data` tibble) from `build_mark_histories()` into a *Cormack-Jolly-Seber* survival model. To fit the model, we will use the `marked` R package. More information on `marked` can be found at its [journal article](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.12065) and [GitHub website](https://github.com/jlaake/marked).
+
+CONTINUE HERE...
 
 ```{r eval = FALSE}
-# Fit CJS model
+# load marked library
 library(marked)
 
+# fit CJS model
 fit <- fit_marked_cjs(ch_list$ch_data,
                       phi_formula = ~ time,
                       p_formula   = ~ time,

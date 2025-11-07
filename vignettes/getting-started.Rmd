@@ -25,6 +25,8 @@ knitr::opts_chunk$set(
 
 `PITmodelR` streamlines access to [PTAGIS](https://www.ptagis.org/) data through API endpoints and provides helper tools for PIT-tag data workflows, including project discovery, site metadata, tag observations, and survival/migration modeling.
 
+The package does not replace the user's responsibility to ensure the data is used properly and subset to a sample of tags representing their group or population of interest. Additionally, the modeling tools within can lead to erroneous results if careful through isn't given at each step and assumptions are violated.
+
 This vignette demonstrates how to:
 * Install the package
 * Configure API authentication
@@ -74,7 +76,7 @@ vignette("getting-started", package = "PITmodelR")
 
 # Authentication (API key)
 
-Some PTAGIS endpoints require an API key, which is a unique string that identifies you as an authorized user - like a password that allows the `PITmodelR` package to access data on your behalf. You can pass it directly to functions as a character string using the argument `api_key` (when needed), or set it once for your R session as an environmental variable: 
+Some PTAGIS endpoints require an API key, which is a unique string that identifies you as an authorized user - like a password that allows the `PITmodelR` package to access data on your behalf. Many of the functions in `PITmodelR` require an API key to successfully reach out to these PTAGIS endpoints. You can request a key from PTAGIS staff at this [link](https://www.ptagis.org/Contact). You can pass it directly to functions as a character string using the argument `api_key` (when needed), or set it once for your R session as an environmental variable: 
 
 ```{r eval = FALSE}
 Sys.setenv(PTAGIS_API_KEY = "YOUR-PTAGIS-API-KEY")
@@ -236,7 +238,7 @@ nrow(tag_history)
 
 ## Observation Locations and Reaches
 
-We next need to define our detection occasions (i.e., locations), and inherently survival reaches, while considering the potential sites that fish may have been observed (mark, observation, recapture, or recovery). To aid us, we can look at a table of all sites that the mark group was observed:
+We next need to define our detection occasions (i.e., locations), and inherently survival reaches, while considering the potential sites that fish may have been observed (mark, observation, recapture, or recovery). **Caution - take some time to think about mark-recapture and survival modeling assumption violations.** To aid us, we can look at a table of all sites that the mark group was observed:
 
 ```{r eval = FALSE}
 # summary of event types by site
@@ -314,6 +316,8 @@ ch_list$dropped_summary
 
 ## CJS Model
 
+We can then feed the output of `build_mark_histories()` into a *Cormack-Jolly-Seber* survival model. To fit the model we need to have first installed the R package `marked`. 
+
 ```{r eval=FALSE}
 # Fit CJS model
 library(marked)
@@ -350,6 +354,8 @@ if (inherits(fit$plots$cum_phi, "ggplot")) {
   fit$plots$cum_phi()
 }
 
+res$mapping
+
 ```
 
 ```{r eval=FALSE}
@@ -369,52 +375,63 @@ est_preds = predict(mod) %>%
       map(.f = as_tibble)
 ```
 
+```{r eval=TRUE}
+timing <- summarize_arrival_travel(
+  tag_history,
+  locs_def = locs,
+  site_col = "site_code",
+  tag_col  = "tag_code",
+  time_col = "event_date",
+  tz = "UTC",
+  keep_unknown = FALSE
+)
+
+# Inspect tables
+head(timing$arrivals_long)
+head(timing$travel_long)
+timing$occasion_summary
+timing$leg_summary
+timing$dropped_summary  # sites filtered out
+
+# Plots
+plots <- plot_arrival_travel(timing)
+if (inherits(plots$arrival_ecdf, "ggplot")) {
+  print(plots$arrival_ecdf)
+  print(plots$travel_time)
+} else {
+  plots$arrival_ecdf()  # base fallback
+  plots$travel_time()
+}
+```
 
 # Interrogation Sites
 
 ## List interrogation sites (metadata)
 
-```{r eval=FALSE}
-sites_active <- list_interrogation_sites()
-sites_all <- list_interrogation_sites(active_only = FALSE)
-sites_min <- list_interrogation_sites(fields = c("site_code", "site_name", "status"))
+```{r}
+obs_sites <- get_interrogation_sites()
+#obs_sites <- get_interrogation_sites(active_only = FALSE)
 ```
 
 ## Get metadata for a single site
 
-```{r eval=FALSE}
-md <- get_site_metadata("LGR")
-md
+```{r}
+get_site_metadata(obs_sites$siteCode[1])
 ```
 
-
-# Observations
 
 ## Get site observations (with auto-pagination)
 
-```{r eval=FALSE}
-obs1 <- get_site_observations(site_code = "LGR")
-obs2 <- get_site_observations(site_code = "LGR", year = 2023)
-obs_page1 <- get_site_observations(site_code = "LGR", page = 1, page_size = 1000, all_pages = FALSE)
+This section is currently non-functional.
+
+```{r}
+obs <- get_site_observations(site_code = "COC", year = 2023)
+obs_page1 <- get_site_observations(site_code = "COC", year = 2023, page = 1, page_size = 1000, all_pages = FALSE)
 obs_small <- get_site_observations(
-  site_code = "LGR", year = 2023,
+  site_code = "COC", year = 2023,
   fields = c("event_time", "tag_code", "antenna", "site_code")
 )
 ```
-
-
-# Tag Event History
-
-## Get observations for a single PIT tag
-
-```{r eval=FALSE}
-tag_events <- get_tag_history(tag_code = "384.1B79726A98")
-tag_events_min <- get_tag_history(
-  tag_code = "384.1B79726A98",
-  fields = c("event_time", "site_code", "antenna", "direction")
-)
-```
-
 
 # Error handling & best practices
 
@@ -428,13 +445,11 @@ tag_events_min <- get_tag_history(
   - Rate limiting / backoff on large downloads
   - Filtering by time windows when available
 
-
 # Session info
 
 ```{r}
 sessionInfo()
 ```
-
 
 # Appendix: Troubleshooting
 

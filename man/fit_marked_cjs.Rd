@@ -24,7 +24,7 @@ fit_marked_cjs(
 
 \item{p_formula}{Formula specifying the model for detection probability (\code{p}); default \code{~ time}.}
 
-\item{hessian}{Passed to \code{marked::crm()}. If \code{TRUE} (defaulat), compute the Hessian so that uncertainty and variance-covariance matrices can be extracts.}
+\item{hessian}{Passed to \code{marked::crm()}. If \code{TRUE} (default), compute the Hessian so that uncertainty and variance-covariance matrices can be extracted.}
 
 \item{conf_level}{Numeric; confidence level for Wald intervals (default 0.95).}
 }

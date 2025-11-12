@@ -156,13 +156,8 @@ Better yet, you can download data from multiple MRR files in a single step using
 As an example, let's compile all data submitted by project "CDR" during 2024 from the Secesh River rotary screw trap:
 
 ```{r eval = FALSE, message = FALSE}
-# return file names containing "SCT
+# return file names containing "SCT"
 file_names <- files$name[grepl('SCT', files$name)]
-
-# same thing, except using tidyverse
-file_names <- files %>%
-  filter(str_detect(name, "SCT")) %>%
-  pull(name)
 
 # retrieve data for all file_names
 all_data <- get_batch_file_data(
@@ -241,7 +236,7 @@ nrow(tag_history)
 
 ## Observation Locations and Reaches
 
-We next need to define our detection occasions (i.e., locations), and inherently survival reaches, while considering the potential sites that fish may have been observed (mark, observation, recapture, or recovery). **Caution - take some time to think about mark-recapture and survival modeling assumption violations.** To aid us, we can look at a table of all sites that the mark group was observed:
+We next need to define our detection occasions (i.e., locations), and inherently survival reaches, while considering the potential sites that fish may have been observed (mark, observation, recapture, or recovery). **Caution - take some time to think about mark-recapture and survival modeling assumptions and potential violations.** To aid us, we can look at a table of all sites that the mark group was observed:
 
 ```{r eval = FALSE}
 # summary of event types by site
@@ -321,7 +316,9 @@ ch_list$dropped_summary
 
 We can then feed the capture history data (`$ch_data` tibble) from `build_mark_histories()` into a *Cormack-Jolly-Seber* survival model. To fit the model, we will use the `marked` R package. More information on `marked` can be found at its [journal article](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.12065) and [GitHub website](https://github.com/jlaake/marked).
 
-CONTINUE HERE...
+`PITmodelR` includes the `fit_marked_cjs()` function which calls the `marked::crm()` (capture-recapture model) function and returns some tidy results for survival `Phi` and detection `p` parameters. By default, it uses the `model = "CJS"` option from `crm()`.
+
+In this example, both the survival and detection parameters are modeled as functions of `time`. Here, `time` represents encounter occasion - in our case, the grouped `locs`. Specifying `~ time` allows survival and detection probabilities to vary among occasions, rather than assuming they are constant across the locations and reaches. We are not including any additional covariates (e.g., fish size, tagging date, flow conditions), so the model assumes that differences in survival and detection arise only from temporal or spatial variation represented by `time`.
 
 ```{r eval = FALSE}
 # load marked library
@@ -331,36 +328,35 @@ library(marked)
 fit <- fit_marked_cjs(ch_list$ch_data,
                       phi_formula = ~ time,
                       p_formula   = ~ time,
-                      hessian = TRUE,
+                      hessian = TRUE,       # for uncertainty
                       conf_level  = 0.95)
 
-# Peek tables
-head(fit$phi)
-head(fit$p)
+# peek at estimates
+fit$phi             # survival
+fit$p               # detection
 
-# Show plots
-if (inherits(fit$plots$phi, "ggplot")) {
-  print(fit$plots$phi)
-  print(fit$plots$p)
-} else if (is.function(fit$plots$phi)) {
-  fit$plots$phi()  # base plot
-  fit$plots$p()
-}
+# round to 3 digits for easier viewing
+round(fit$phi, 3)
 
-# Full model summary if needed
+# show plots (if tidyverse and ggplot are loaded)
+print(fit$plots$phi)
+print(fit$plots$p)
+
+# show plots (base plot in case ggplot isn't loaded)
+#fit$plots$phi()
+#fit$plots$p()
+
+# cumulative survival with CIs
+round(fit$cum_phi, 3)
+print(fit$plots$cum_phi)
+fit$covariance_mode      # "full" if covariance used, otherwise "independence_fallback"
+
+# reminder of sites and occasions
+ch_list$mapping
+
+# view some other items from fit
 summary(fit$model)
-
-fit$cum_phi         # cumulative survival with CIs
-fit$covariance_mode # "full" if covariance used, otherwise "independence_fallback"
-
-# Plot
-if (inherits(fit$plots$cum_phi, "ggplot")) {
-  print(fit$plots$cum_phi)
-} else {
-  fit$plots$cum_phi()
-}
-
-res$mapping
+fit$model$results
 
 ```
 

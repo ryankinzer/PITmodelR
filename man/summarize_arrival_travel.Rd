@@ -2,7 +2,7 @@
 % Please edit documentation in R/summarize_arrival_travel.R
 \name{summarize_arrival_travel}
 \alias{summarize_arrival_travel}
-\title{Summarize arrival times and travel times between locations}
+\title{Summarize Arrival and Travel Times Between Locations}
 \usage{
 summarize_arrival_travel(
   tag_history,
@@ -10,45 +10,55 @@ summarize_arrival_travel(
   site_col = "site_code",
   tag_col = "tag_code",
   time_col = "event_time",
-  tz = "UTC",
+  tz = "America/Los_Angeles",
   keep_unknown = FALSE
 )
 }
 \arguments{
-\item{tag_history}{data.frame/tibble with at least \code{tag_code}, \code{site_code}, \code{event_time}.}
+\item{tag_history}{A data frame or tibble with at least the following columns:
+\describe{
+\item{\code{tag_code}}{Unique identifier for each tagged fish.}
+\item{\code{site_code}}{Detection site code.}
+\item{\code{event_time}}{Timestamp of the detection event.}
+}}
 
-\item{locs_def}{Either a character vector of ordered occasions (e.g., c("SECTRP","ZEN",...)),
-or a named list mapping occasion -> one or more site codes
-(e.g., list(LGR=c("GRJ","GRS","LGR"), Down=c("LMN","MCN","BON"))).}
+\item{locs_def}{Either a character vector defining the ordered occasions
+(e.g., \code{c("SECTRP","ZEN",...)}), or a named list mapping one or more site codes
+to occasions
+(e.g., \code{list(LGR = c("GRJ","GRS"), Down = c("LMN","MCN","BON"))}).}
 
-\item{site_col}{Column name containing site codes (default "site_code").}
+\item{site_col}{Column name containing site codes (default = \code{"site_code"}).}
 
-\item{tag_col}{Column name containing tag IDs   (default "tag_code").}
+\item{tag_col}{Column name containing tag IDs (default = \code{"tag_code"}).}
 
-\item{time_col}{Column name with event timestamps (default "event_time").}
+\item{time_col}{Column name with event timestamps (default = \code{"event_time"}).}
 
-\item{tz}{Time zone used when parsing \code{time_col} if it is character (default "UTC").}
+\item{tz}{Time zone used when parsing \code{time_col} if it is character (default = \code{"America/Los_Angeles"}, Pacific Standard).}
 
-\item{keep_unknown}{logical; keep events whose site_code is not in \code{locs_def}? (default FALSE).}
+\item{keep_unknown}{Logical; whether to keep events with site codes not found in
+\code{locs_def} (default = \code{FALSE}).}
 }
 \value{
-A list with elements:
-\itemize{
-\item arrivals_long:  first-arrival time per tag x occasion (long)
-\item arrivals_wide:  first-arrival time per tag (wide by occasion)
-\item travel_long:    travel time (days) per tag and leg (o_i -> o_{i+1})
-\item occasion_summary: arrival-time quantiles by occasion
-\item leg_summary:       travel-time quantiles by leg
-\item mapping: site_code -> occasion, occ_idx
-\item dropped_summary: counts of unknown sites (if removed)
+A list with the following elements:
+\describe{
+\item{\code{arrivals_long}}{First-arrival time per tag × occasion (long format).}
+\item{\code{arrivals_wide}}{First-arrival time per tag (wide format).}
+\item{\code{travel_long}}{Travel time (days) per tag and leg (occasion\(\emph{i\) → occasion\(}{i+1}\)).}
+\item{\code{occasion_summary}}{Quantile summaries of arrival times by occasion.}
+\item{\code{leg_summary}}{Quantile summaries of travel times by migration leg.}
+\item{\code{mapping}}{Mapping of \code{site_code} to occasion and occasion index.}
+\item{\code{dropped_summary}}{Counts of unknown sites removed (if any).}
 }
 }
 \description{
-Given raw tag events and a survival-location definition, returns:
-\itemize{
-\item First-arrival time at each occasion per tag
-\item Travel time between consecutive occasions per tag
-\item Per-occasion arrival summaries (n, quantiles)
-\item Per-leg travel-time summaries (n, quantiles)
+Given raw tag histories e.g., from \code{get_batch_tag_histories()} and user-defined sequence of
+detection locations or occasions, summarizes first-arrival and travel times for tagged fish.
+Calculates per-tag first arrival and travel times, as well as quantile summaries for each
+occassion and migration "leg".
 }
+\seealso{
+\code{\link[=plot_arrival_travel]{plot_arrival_travel()}}
+}
+\author{
+Ryan Kinzer
 }

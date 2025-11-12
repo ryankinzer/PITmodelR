@@ -360,50 +360,42 @@ fit$model$results
 
 ```
 
-```{r eval = FALSE}
-proc <- process.data(res$ch_data, model = "CJS")
-ddl  <- make.design.data(proc)
+## Migration Timing
 
-Phi.time <- list(formula = ~ time)
-p.time   <- list(formula = ~ time)
-
-mod <- crm(proc, ddl, model.parameters = list(Phi = Phi.time, p = p.time))
-summary(mod)
-
-mod$results
-mod$results$reals$Phi
-
-est_preds = predict(mod) %>% 
-      map(.f = as_tibble)
-```
+The `PITmodelR` package also provides tools to summarize migration timing for a group or population of interest, including estimates of travel and arrival times to detection locations. The `summarize_arrival_travel()` function takes individual tag histories (e.g., obtained using `get_batch_tag_histories()`) along with a set of ordered locations (e.g., `locs`) to calculate and summarize migration timing metrics such as first arrival times to each location and travel times between consecutive locations.
 
 ```{r eval = FALSE}
+# view help menu
+?summarize_arrival_travel
+
 timing <- summarize_arrival_travel(
   tag_history,
   locs_def = locs,
   site_col = "site_code",
   tag_col  = "tag_code",
   time_col = "event_date",
-  tz = "UTC",
+  tz = "America/Los_Angeles",  # Pacific Standard Time (PTAGIS)
   keep_unknown = FALSE
 )
 
-# Inspect tables
-head(timing$arrivals_long)
-head(timing$travel_long)
-timing$occasion_summary
-timing$leg_summary
-timing$dropped_summary  # sites filtered out
+# inspect some objects
+head(timing$arrivals_long) # first arrivals by tag; long format
+head(timing$arrivals_wide) # first arrivals by tag; wide format
+timing$occasion_summary    # quantiles of arrival times, by occasion
+timing$leg_summary         # quantiles of travel times, by leg
+timing$dropped_summary     # sites filtered out, if any
 
-# Plots
-plots <- plot_arrival_travel(timing)
-if (inherits(plots$arrival_ecdf, "ggplot")) {
-  print(plots$arrival_ecdf)
-  print(plots$travel_time)
-} else {
-  plots$arrival_ecdf()  # base fallback
-  plots$travel_time()
-}
+# create plots
+timing_plots <- plot_arrival_travel(timing)
+
+# view plots (ggplot)
+print(timing_plots$arrival_ecdf)  # cumulative arrival timing distribution
+print(timing_plots$travel_time)   # travel times between occassions
+
+# view plots (base fallback)
+#plots$arrival_ecdf()
+#plots$travel_time()
+
 ```
 
 ---

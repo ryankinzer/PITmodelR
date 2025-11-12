@@ -43,7 +43,7 @@ summarize_arrival_travel <- function(tag_history,
                                      locs_def,
                                      site_col = "site_code",
                                      tag_col  = "tag_code",
-                                     time_col = "event_time",
+                                     time_col = "event_date",
                                      tz = "America/Los_Angeles",
                                      keep_unknown = FALSE) {
   # --- validate inputs ---
@@ -127,7 +127,7 @@ summarize_arrival_travel <- function(tag_history,
 
   names(arrivals_wide) <- sub(paste0("^", time_col, "\\."), "", names(arrivals_wide), perl = TRUE)
 
-  # --- define order of occassions ---
+  # --- get order of occasions ---
   occ_order <- unique(mapping[, c("occasion", "occ_idx")])
   occ_order <- occ_order[order(occ_order$occ_idx), , drop = FALSE]
 
@@ -228,7 +228,8 @@ summarize_arrival_travel <- function(tag_history,
   arrivals_long$occasion <- factor(arrivals_long$occasion, levels = occ_order$occasion)
   travel_long$leg <- factor(
     travel_long$leg,
-    levels = paste(head(occ_order$occasion, -1), "->", tail(occ_order$occasion, -1))
+    levels = apply(combn(occ_order$occasion, 2), 2, function(x) paste(x[1], "->", x[2]))
+    #levels = paste(head(occ_order$occasion, -1), "->", tail(occ_order$occasion, -1))
   )
 
   # --- return results ---

@@ -1,15 +1,29 @@
-#' Plot arrival timing (ECDF) and travel times by leg
+#' @title Plot Arrival Timing and Travel Times by Leg
 #'
-#' @param timing_list Result from `summarize_arrival_travel()`
-#' @param tz Label/timezone for axis formatting (default "UTC")
+#' @description
+#' Plot arrival timing as an empirical cumulative distribution function (ECDF) to each location
+#' and travel times by leg (occasion-to-occasion).
+#'
+#'
+#' @param timing_list Result from `summarize_arrival_travel()` with the objects `$arrivals_long`
+#'   and `$travel_long`.
+#' @param tz Label/timezone for axis formatting (default "America/Los_Angeles" Pacific Standard Time)
+#'
 #' @return A list with `$arrival_ecdf` and `$travel_time` plot objects.
 #'         If ggplot2 is not available, returns functions that draw base plots.
+#'
+#' @author Ryan Kinzer
+#'
+#' @seealso [summarize_arrival_travel()]
+#'
 #' @export
-plot_arrival_travel <- function(timing_list, tz = "UTC") {
+plot_arrival_travel <- function(timing_list,
+                                tz = "America/Los_Angeles") {
+
   arrivals <- timing_list$arrivals_long
   travel   <- timing_list$travel_long
 
-  # -------- detect the arrivals time column robustly --------
+  # --- detect the arrivals time column robustly ---
   time_col <- NULL
   if (nrow(arrivals)) {
     posix_cols <- names(arrivals)[vapply(arrivals, function(x) inherits(x, "POSIXt"), logical(1))]
@@ -24,16 +38,16 @@ plot_arrival_travel <- function(timing_list, tz = "UTC") {
     }
   }
 
-  # -------- Arrival ECDF by occasion --------
+  # --- arrival ECDF by occasion ---
   arrival_plot <- NULL
   if (nrow(arrivals)) {
     if (requireNamespace("ggplot2", quietly = TRUE)) {
       arrival_plot <- ggplot2::ggplot(arrivals, ggplot2::aes(x = .data[[time_col]])) +
         ggplot2::stat_ecdf(geom = "step") +
         ggplot2::facet_wrap(~ occasion, scales = "free_x") +
-        ggplot2::labs(x = paste0("Arrival time (", tz, ")"),
-                      y = "Cumulative proportion",
-                      title = "Arrival timing by occasion") +
+        ggplot2::labs(x = paste0("Arrival Time (", tz, ")"),
+                      y = "Cumulative Proportion",
+                      title = "Arrival Timing by Occasion") +
         ggplot2::theme_minimal()
     } else {
       df <- arrivals
@@ -48,7 +62,7 @@ plot_arrival_travel <- function(timing_list, tz = "UTC") {
           if (length(xx)) {
             yy <- seq_along(xx) / length(xx)
             plot(xx, yy, type = "s",
-                 xlab = paste0("Arrival time (", tz, ")"),
+                 xlab = paste0("Arrival Time (", tz, ")"),
                  ylab = "ECDF", main = oc)
           } else {
             plot(NA, NA, xlab = "", ylab = "", main = oc)
@@ -60,27 +74,28 @@ plot_arrival_travel <- function(timing_list, tz = "UTC") {
     }
   }
 
-  # -------- Travel time box/violin by leg --------
+  # --- travel time box/violin by leg ---
   travel_plot <- NULL
   if (nrow(travel)) {
     if (requireNamespace("ggplot2", quietly = TRUE)) {
       travel_plot <- ggplot2::ggplot(travel, ggplot2::aes(x = leg, y = travel_days)) +
         ggplot2::geom_violin(trim = TRUE, fill = NA) +
         ggplot2::geom_boxplot(width = 0.2, outlier.size = 0.8) +
-        ggplot2::labs(x = "Leg", y = "Travel time (days)",
-                      title = "Travel time between occasions") +
+        ggplot2::labs(x = "Leg", y = "Travel Time (days)",
+                      title = "Travel Time Between Occasions") +
         ggplot2::theme_minimal() +
         ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 45, hjust = 1))
     } else {
       df <- travel
       travel_plot <- function() {
         op <- par(no.readonly = TRUE); on.exit(par(op))
-        boxplot(travel_days ~ leg, data = df, las = 2, ylab = "Travel time (days)",
-                main = "Travel time between occasions")
+        boxplot(travel_days ~ leg, data = df, las = 2, ylab = "Travel Time (days)",
+                main = "Travel Time Between Occasions")
         invisible(NULL)
       }
     }
   }
 
-  list(arrival_ecdf = arrival_plot, travel_time = travel_plot)
+  list(arrival_ecdf = arrival_plot,
+       travel_time = travel_plot)
 }

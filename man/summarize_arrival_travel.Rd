@@ -9,7 +9,7 @@ summarize_arrival_travel(
   locs_def,
   site_col = "site_code",
   tag_col = "tag_code",
-  time_col = "event_time",
+  time_col = "event_date",
   tz = "America/Los_Angeles",
   keep_unknown = FALSE
 )

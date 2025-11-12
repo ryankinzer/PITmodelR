@@ -2,19 +2,27 @@
 % Please edit documentation in R/plot_arrival_travel.R
 \name{plot_arrival_travel}
 \alias{plot_arrival_travel}
-\title{Plot arrival timing (ECDF) and travel times by leg}
+\title{Plot Arrival Timing and Travel Times by Leg}
 \usage{
-plot_arrival_travel(timing_list, tz = "UTC")
+plot_arrival_travel(timing_list, tz = "America/Los_Angeles")
 }
 \arguments{
-\item{timing_list}{Result from \code{summarize_arrival_travel()}}
+\item{timing_list}{Result from \code{summarize_arrival_travel()} with the objects \verb{$arrivals_long}
+and \verb{$travel_long}.}
 
-\item{tz}{Label/timezone for axis formatting (default "UTC")}
+\item{tz}{Label/timezone for axis formatting (default "America/Los_Angeles" Pacific Standard Time)}
 }
 \value{
 A list with \verb{$arrival_ecdf} and \verb{$travel_time} plot objects.
 If ggplot2 is not available, returns functions that draw base plots.
 }
 \description{
-Plot arrival timing (ECDF) and travel times by leg
+Plot arrival timing as an empirical cumulative distribution function (ECDF) to each location
+and travel times by leg (occasion-to-occasion).
+}
+\seealso{
+\code{\link[=summarize_arrival_travel]{summarize_arrival_travel()}}
+}
+\author{
+Ryan Kinzer
 }

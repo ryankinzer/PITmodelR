@@ -384,13 +384,17 @@ head(timing$arrivals_wide) # first arrivals by tag; wide format
 timing$occasion_summary    # quantiles of arrival times, by occasion
 timing$leg_summary         # quantiles of travel times, by leg
 timing$dropped_summary     # sites filtered out, if any
+```
 
+The `plot_arrival_travel()` function uses the `$arrivals_long` and `$travel_long` objects returned from `summarize_arrival_travel()` to create plots of cumulative arrival timing to locations and travel times between occasions, respectively.
+
+```{r eval = FALSE}
 # create plots
 timing_plots <- plot_arrival_travel(timing)
 
 # view plots (ggplot)
 print(timing_plots$arrival_ecdf)  # cumulative arrival timing distribution
-print(timing_plots$travel_time)   # travel times between occassions
+print(timing_plots$travel_time)   # travel times between occasions
 
 # view plots (base fallback)
 #plots$arrival_ecdf()
@@ -401,6 +405,10 @@ print(timing_plots$travel_time)   # travel times between occassions
 ---
 
 # Interrogation Sites
+
+## Metadata
+
+
 
 ## List interrogation sites (metadata)
 

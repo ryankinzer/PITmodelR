@@ -23,4 +23,7 @@ Performs a GET request to the PTAGIS API with retries and user-agent handling.
 Automatically stops on common client errors (400, 401, 403, 404) and attempts
 to parse JSON, falling back to raw text if parsing fails.
 }
+\author{
+Ryan Kinzer
+}
 \keyword{internal}

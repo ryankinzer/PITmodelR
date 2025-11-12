@@ -16,7 +16,7 @@
 #'
 get_site_metadata <- function(site_code) {
 
-  # validate site_code
+  # --- validate site_code ---
   if (missing(site_code) || !is.character(site_code) || length(site_code) != 1L ||
       is.na(site_code) || !nzchar(site_code)) {
     stop("`site_code` must be a single, non-missing string (e.g., 'LGR').", call. = FALSE)
@@ -24,9 +24,8 @@ get_site_metadata <- function(site_code) {
 
   site_code <- toupper(trimws(site_code))
 
-  # endpoint
-  # confirm path in PTAGIS Swagger; many APIs use `interrogation/sites/{code}`
-  path <- paste0("interrogation/sites/", site_code)
+  # set path to API endpoint
+  path <- paste0("sites/interrogation/", site_code)
 
   message("Downloading site metadata for ", site_code, " from PTAGIS...")
   out <- ptagis_GET(path)

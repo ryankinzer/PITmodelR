@@ -11,7 +11,12 @@
 #' @param ... Additional arguments passed to \code{httr::RETRY}.
 #'
 #' @return Parsed JSON content if successful, otherwise raw text content.
+#'
+#' @author Ryan Kinzer
+#'
 #' @keywords internal
+#'
+#' @export
 
 ptagis_GET <- function(path, query = list(), base_url = "https://api.ptagis.org", ...) {
 

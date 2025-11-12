@@ -14,9 +14,8 @@ reporting interrogation sites. If \code{FALSE}, return all interrogation sites.}
 A tibble containing interrogation site metadata.
 }
 \description{
-Retrieves metadata for PTAGIS interrogation sites. The function can return either
-all known sites or only those currently active/reporting, depending on the value
-of \code{active_only}.
+Retrieves metadata for interrogation sites from PTAGIS. The function can return either
+all registered sites (past and present) or only those active and contributing data.
 }
 \author{
 Ryan Kinzer

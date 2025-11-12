@@ -408,21 +408,27 @@ print(timing_plots$travel_time)   # travel times between occasions
 
 ## Metadata
 
-
-
-## List interrogation sites (metadata)
+`PITmodelR` also contains some helper functions to retrieve metadata for interrogation sites. The `get_site_metadata()` function can be used to retrieve metadata for a single site:
 
 ```{r eval = FALSE}
+zen_meta <- get_site_metadata("ZEN")
+```
+
+whereas `get_interrogation_sites()` can be used to retrieve metadata from all sites registered in PTAGIS. By default, `active_only = TRUE` retrieves only active sites currently submitting data (seasonal or year-round). Optionally, `active_only` can be set to `FALSE` which will retrieve all sites that have been registered with PTAGIS, past or present.
+
+```{r eval = FALSE}
+# active sites only
 obs_sites <- get_interrogation_sites()
-#obs_sites <- get_interrogation_sites(active_only = FALSE)
+nrow(obs_sites)
+
+# all sites, past and present
+obs_sites <- get_interrogation_sites(active_only = FALSE)
+
+# filter to INT sites in tag_history$site_code
+my_sites = obs_sites %>%
+  filter(site_code %in% unique(tag_history$site_code))
+
 ```
-
-## Get metadata for a single site
-
-```{r eval = FALSE}
-get_site_metadata(obs_sites$siteCode[1])
-```
-
 
 ## Get site observations (with auto-pagination)
 

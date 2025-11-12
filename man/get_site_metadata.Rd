@@ -8,14 +8,14 @@ get_site_metadata(site_code)
 }
 \arguments{
 \item{site_code}{Character string giving the PTAGIS site code to query. Must be
-a single, non-empty value (e.g., \code{"LGR"}).}
+a single, non-empty value (e.g., \code{"JOC"}).}
 }
 \value{
 A tibble containing interrogation site metadata, typically one row.
 }
 \description{
 Retrieves PTAGIS metadata for a single interrogation site identified by its
-PTAGIS site code (e.g., \code{"LGR"}). Returns a tibble containing site-level
+PTAGIS site code (e.g., \code{"JOC"}). Returns a tibble containing site-level
 information as provided by the PTAGIS API.
 }
 \author{

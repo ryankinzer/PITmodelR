@@ -5,7 +5,7 @@
 #' Defined Fields) label consistency across a list of parsed MRR files.
 #' Detects conflicting labels across files.
 #'
-#' @param mrr_listA named list of parsed MRR objects (output
+#' @param mrr_list named list of parsed MRR objects (output
 #'   from \code{get_file_data(..., return="list")}).
 #' @param which Character. Which fields to check: "both" (default), "pdv" (detail
 #'   fields), or "spdv" (session fields).

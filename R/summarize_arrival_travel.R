@@ -39,6 +39,7 @@
 #' @seealso [plot_arrival_travel()]
 #'
 #' @export
+
 summarize_arrival_travel <- function(tag_history,
                                      locs_def,
                                      site_col = "site_code",

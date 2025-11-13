@@ -94,7 +94,7 @@ fit_marked_cjs <- function(ch_data,
       else                      mod$design.data$p
 
       pred <- try(
-        marked::predict.crm(mod, newdata = dd, type = param_name),
+        marked:::predict.crm(mod, newdata = dd, type = param_name),
         silent = TRUE
       )
 

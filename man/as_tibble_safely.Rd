@@ -15,7 +15,7 @@ A tibble representing the content.
 \description{
 Converts parsed PTAGIS API responses into a tibble, handling multiple possible
 formats consistently:
-\itemize{
+\describe{
 \item{data.frame}{Converted directly to a tibble.}
 \item{list of records}{Each element (a list) becomes a row in the tibble.}
 \item{named list}{Converted to a single-row tibble.}

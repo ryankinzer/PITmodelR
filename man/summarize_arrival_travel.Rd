@@ -43,7 +43,7 @@ A list with the following elements:
 \describe{
 \item{\code{arrivals_long}}{First-arrival time per tag × occasion (long format).}
 \item{\code{arrivals_wide}}{First-arrival time per tag (wide format).}
-\item{\code{travel_long}}{Travel time (days) per tag and leg (occasion\(\emph{i\) → occasion\(}{i+1}\)).}
+\item{\code{travel_long}}{Travel time (days) per tag and leg (\eqn{occasion_i \to occasion_{i+1}}).}
 \item{\code{occasion_summary}}{Quantile summaries of arrival times by occasion.}
 \item{\code{leg_summary}}{Quantile summaries of travel times by migration leg.}
 \item{\code{mapping}}{Mapping of \code{site_code} to occasion and occasion index.}

@@ -170,6 +170,7 @@ load(system.file("extdata/vignette_data/mrr_df.rda",
                  package = "PITmodelR",
                  mustWork = T))
 
+library(DT)
 DT::datatable(mrr_df, 
               options = list(
                 scrollX = TRUE,

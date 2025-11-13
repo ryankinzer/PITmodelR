@@ -8,7 +8,7 @@
 #' @param observations Data frame or tibble of observation events containing a timestamp column.
 #' @param time_col Character; name of the column containing event timestamps (POSIXct or parseable). Default: "event_time".
 #' @param by Character; aggregation unit for counts. Currently only "day" is supported. Default: "day".
-#' @param quantiles Numeric vector of quantiles to compute, in the range [0, 1]. Default: c(0.1, 0.5, 0.9).
+#' @param quantiles Numeric vector of quantiles to compute, in the range \code{[0, 1]}. Default: c(0.1, 0.5, 0.9).
 #' @param method Character; method to compute timing metrics. Options: "quantile" (default) or "gam" (placeholder, returns same structure).
 #'
 #' @return A list with components:

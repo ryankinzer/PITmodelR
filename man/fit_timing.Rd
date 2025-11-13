@@ -19,7 +19,7 @@ fit_timing(
 
 \item{by}{Character; aggregation unit for counts. Currently only "day" is supported. Default: "day".}
 
-\item{quantiles}{Numeric vector of quantiles to compute, in the range \link{0, 1}. Default: c(0.1, 0.5, 0.9).}
+\item{quantiles}{Numeric vector of quantiles to compute, in the range \code{[0, 1]}. Default: c(0.1, 0.5, 0.9).}
 
 \item{method}{Character; method to compute timing metrics. Options: "quantile" (default) or "gam" (placeholder, returns same structure).}
 }

@@ -277,13 +277,13 @@ fit_marked_cjs <- function(ch_data,
   }
 
   plots <- list(
-    phi     = make_ci_plot(phi_df, "Survival (Phi)", "Interval survival (Phi)"),
-    p       = make_ci_plot(p_df,   "Detection (p)",  "Interval detection (p)"),
+    phi     = make_ci_plot(phi_df, "Survival (Phi)", "Interval Survival (Phi)"),
+    p       = make_ci_plot(p_df,   "Detection (p)",  "Interval Detection (p)"),
     cum_phi = make_ci_plot(
       cum_phi,
-      "Cumulative survival",
+      "Cumulative Survival",
       paste0(
-        "Cumulative survival to interval ",
+        "Cumulative Survival to Interval ",
         if (used_full_cov) "(covariance-aware)"
         else               "(independence fallback)"
       )

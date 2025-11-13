@@ -7,7 +7,8 @@
 #' @param filenames A character vector of MRR file names to download and process.
 #' @param check_labels Character; one of \code{"warn"}, \code{"error"}, or \code{"ignore"}.
 #'   Determines how to handle PDV/SPDV label inconsistencies across files.
-#' @param keep_code_cols Logical, default \code{TRUE}. If \code{TRUE}, retains code columns (pdv*, spdv*) in flattened tibbles.
+#' @param keep_code_cols Logical, default \code{TRUE}. If \code{TRUE}, retains code
+#' columns (pdv*, spdv*) in flattened tibbles. If \code{FALSE}, replaces with user field names.
 #' @param label_conflict Character; one of \code{"suffix"}, \code{"overwrite"}, or \code{"skip"}.
 #'   Determines how to handle column name conflicts arising from labels when flattening MRR files.
 #' @param use_codes_on_conflict Logical, default \code{TRUE}. If \code{TRUE}, code columns are preferred over label-derived columns
@@ -15,8 +16,8 @@
 #'
 #' @return A list with three elements:
 #' \itemize{
-#'   \item \code{files} – named list of flattened tibbles, one per file
-#'   \item \code{combined} – a single tibble combining "events" from all files
+#'   \item \code{sessions} – named list of flattened tibbles, one per file
+#'   \item \code{events} – a single tibble combining "events" from all files
 #'   \item \code{issues} – a data.frame of PDV/SPDV label inconsistencies detected across files
 #' }
 #'
@@ -47,8 +48,8 @@ get_batch_file_data <- function(filenames,
   combined <- combine_flattened_mrr(files,
                                     use_codes_on_conflict = use_codes_on_conflict)
 
-  list(files = files,
-       combined = combined,
+  list(sessions = files,
+       events = combined,
        issues = issues)
 
 }

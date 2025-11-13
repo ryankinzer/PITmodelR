@@ -18,7 +18,8 @@ get_batch_file_data(
 \item{check_labels}{Character; one of \code{"warn"}, \code{"error"}, or \code{"ignore"}.
 Determines how to handle PDV/SPDV label inconsistencies across files.}
 
-\item{keep_code_cols}{Logical, default \code{TRUE}. If \code{TRUE}, retains code columns (pdv*, spdv*) in flattened tibbles.}
+\item{keep_code_cols}{Logical, default \code{TRUE}. If \code{TRUE}, retains code
+columns (pdv*, spdv*) in flattened tibbles. If \code{FALSE}, replaces with user field names.}
 
 \item{label_conflict}{Character; one of \code{"suffix"}, \code{"overwrite"}, or \code{"skip"}.
 Determines how to handle column name conflicts arising from labels when flattening MRR files.}
@@ -29,8 +30,8 @@ when combining flattened tibbles to ensure a consistent schema.}
 \value{
 A list with three elements:
 \itemize{
-\item \code{files} – named list of flattened tibbles, one per file
-\item \code{combined} – a single tibble combining "events" from all files
+\item \code{sessions} – named list of flattened tibbles, one per file
+\item \code{events} – a single tibble combining "events" from all files
 \item \code{issues} – a data.frame of PDV/SPDV label inconsistencies detected across files
 }
 }

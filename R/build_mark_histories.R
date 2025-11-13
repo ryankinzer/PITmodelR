@@ -95,7 +95,7 @@ build_mark_histories <- function(tag_history,
   df2 <- dplyr::left_join(
     df,
     mapping,
-    by = setNames("site_code", site_col)
+    by = stats::setNames("site_code", site_col)
   )
 
   dropped <- df2[is.na(df2$occ_idx), , drop = FALSE]

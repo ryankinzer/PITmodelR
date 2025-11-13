@@ -15,6 +15,7 @@
 #' @param p_formula Formula specifying the model for detection probability (\code{p}); default \code{~ time}.
 #' @param hessian Passed to `marked::crm()`. If `TRUE` (default), compute the Hessian so that uncertainty and variance-covariance matrices can be extracted.
 #' @param conf_level Numeric; confidence level for Wald intervals (default 0.95).
+#' @param ... Additional arguments passed to marked::crm().
 #'
 #' @return A list with components:
 #' \describe{

@@ -11,14 +11,14 @@ check_pdv_label_consistency(
 )
 }
 \arguments{
+\item{mrr_list}{named list of parsed MRR objects (output
+from \code{get_file_data(..., return="list")}).}
+
 \item{which}{Character. Which fields to check: "both" (default), "pdv" (detail
 fields), or "spdv" (session fields).}
 
 \item{action}{Character. What to do when inconsistencies are found:
 "warn" (default), "error", or "ignore".}
-
-\item{mrr_listA}{named list of parsed MRR objects (output
-from \code{get_file_data(..., return="list")}).}
 }
 \value{
 a data.frame of issues (zero rows if none)

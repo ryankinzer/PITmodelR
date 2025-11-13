@@ -10,6 +10,11 @@ get_mrr_files(code, year = NULL, page = 1, page_size = 1000, all_pages = TRUE)
 \item{code}{A single PTAGIS project code (3 characters), e.g. "LGR".}
 
 \item{year}{A four digit year as an integer.}
+
+\item{page, page_size}{Integers controlling pagination when \code{all_pages = FALSE}.}
+
+\item{all_pages}{Logical; if \code{TRUE} (default), the function automatically
+retrieves and combines all pages of results.}
 }
 \value{
 A tibble containing metadata for submitted files.

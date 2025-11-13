@@ -35,11 +35,13 @@
 #'
 #' @seealso [marked::crm]
 #'
-#' @note Additional arugments are passed directly to `marked::crm()`. This feature
+#' @note Additional arguments are passed directly to `marked::crm()`. This feature
 #'       is experimental and not fully tested; supplying unsupported arguments
 #'       may cause errors or unexpected behavior.
 #'
 #' @author Ryan Kinzer
+#'
+#' @importFrom marked process.data make.design.data crm
 #'
 #' @export
 
@@ -95,7 +97,8 @@ fit_marked_cjs <- function(ch_data,
       else                      mod$design.data$p
 
       pred <- try(
-        marked:::predict.crm(mod, newdata = dd, type = param_name),
+        stats::predict(mod, newdata = dd, type = param_name),
+        #marked::predict.crm(mod, newdata = dd, type = param_name),
         silent = TRUE
       )
 

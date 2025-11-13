@@ -54,7 +54,7 @@ for \code{Phi} parameters is available, cumulative survival confidence intervals
 account for correlations; otherwise, a simple product-of-bounds approach is used.
 }
 \note{
-Additional arugments are passed directly to \code{marked::crm()}. This feature
+Additional arguments are passed directly to \code{marked::crm()}. This feature
 is experimental and not fully tested; supplying unsupported arguments
 may cause errors or unexpected behavior.
 }

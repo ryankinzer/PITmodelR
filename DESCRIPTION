@@ -21,14 +21,21 @@ Imports:
     dplyr (>= 1.1.4),
     tidyr (>= 1.3.1),
     tibble (>= 3.2.1),
+    vctrs (>= 0.6.5),
     httr (>= 1.4.7),
     xml2 (>= 1.3.6),
-    vctrs (>= 0.6.5),
-    ggplot2 (>= 3.5.1),
-    marked (>= 1.2.8)
-Suggests: 
-    knitr,
-    rmarkdown,
+    jsonlite (>= 2.0.0),
+    stats (>= 4.4.1),
+    utils (>= 4.4.1),
+    graphics (>= 4.4.1),
+    methods (>= 4.4.1)
+Suggests:
     DT,
     tidyverse,
+    ggplot2,
+    marked,
+    knitr,
+    rmarkdown,
+    remotes,
+    testthat (>= 3.0.0)
 VignetteBuilder: knitr

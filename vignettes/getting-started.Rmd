@@ -21,8 +21,6 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-library(DT)
-
 ```
 
 
@@ -244,7 +242,7 @@ Creating mark groups requires careful thought and consideration. For instance, y
 
 As an example, let's create a mark group for wild summer Chinook salmon juveniles tagged and released during fall 2024 from the Secesh River screw trap. We'll accomplish this by filtering some fields in our `events_df`. 
 
-```{r eval = TRUE, warning = FALSE, message = FALSE}
+```{r eval = requireNamespace("tidyverse", quietly = TRUE), warning = FALSE, message = FALSE}
 library(tidyverse)
 
 # create mark group
@@ -441,7 +439,7 @@ We can then feed the capture history data (`$ch_data` tibble) from `build_mark_h
 
 In this example, both the survival and detection parameters are modeled as functions of `time`. Here, `time` represents encounter occasion, the grouped `locs`. Specifying `~ time` allows survival and detection probabilities to vary among occasions, rather than assuming they are constant across the locations and reaches. We are not including any additional covariates (e.g., fish size, tagging date, flow conditions), so the model assumes that differences in survival and detection arise only from temporal or spatial variation represented by `time`.
 
-```{r eval = TRUE, warning = FALSE, message = FALSE}
+```{r eval = requireNamespace("marked", quietly = TRUE), warning = FALSE, message = FALSE}
 # load marked library
 library(marked)
 

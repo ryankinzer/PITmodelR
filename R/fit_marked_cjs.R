@@ -41,8 +41,6 @@
 #'
 #' @author Ryan Kinzer
 #'
-#' @importFrom marked process.data make.design.data crm
-#'
 #' @export
 
 fit_marked_cjs <- function(ch_data,

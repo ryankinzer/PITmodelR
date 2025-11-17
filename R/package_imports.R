@@ -1,8 +1,7 @@
 # package-level imports
 # these generate the needed NAMESPACE entries automatically
 
-#' @import dplyr tidyr tibble vctrs httr xml2 jsonlite
-#' @import stats utils graphics methods
+#' @import tidyr httr xml2 jsonlite
 NULL
 
 # avoid R CMD check NOTE about non-standard evaluation / dplyr `.data`

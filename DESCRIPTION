@@ -28,11 +28,12 @@ Imports:
     jsonlite (>= 1.9.1),
     DT
 Suggests:
-    tidyverse,
-    ggplot2,
-    marked,
     knitr,
     rmarkdown,
+    lubridate,
+    magrittr,
+    ggplot2,
+    marked,
     remotes,
     testthat (>= 3.0.0)
 VignetteBuilder: knitr

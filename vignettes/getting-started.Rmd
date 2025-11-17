@@ -169,7 +169,9 @@ Note that `mrr_df` contains the same number of records as `mrr_data$events` exce
 load(system.file("extdata/vignette_data/mrr_df.rda",
                  package = "PITmodelR",
                  mustWork = T))
+```
 
+```{r echo = FALSE}
 DT::datatable(mrr_df, 
               options = list(
                 scrollX = TRUE,
@@ -177,7 +179,6 @@ DT::datatable(mrr_df,
                 lengthMenu = c(5,10,25,50)
               ),
               rownames = FALSE)
-
 ```
 
 ## Batch Retrieve MRR Data

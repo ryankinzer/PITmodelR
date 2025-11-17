@@ -4,15 +4,15 @@
 \alias{print_fit_marked_cjs}
 \title{Print CJS Model Summary}
 \usage{
-print_fit_marked_cjs(x, ...)
+print_fit_marked_cjs(z, ...)
 }
 \arguments{
-\item{x}{An object returned by \code{fit_marked_cjs()}.}
+\item{z}{An object returned by \code{fit_marked_cjs()}.}
 
 \item{...}{Additional arguments (currently unused).}
 }
 \value{
-Invisibly returns the input object \code{x}.
+Invisibly returns the input object \code{z}.
 }
 \description{
 Provides a concise display of results from \code{fit_marked_cjs()}, including

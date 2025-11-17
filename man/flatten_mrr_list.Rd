@@ -11,13 +11,19 @@ flatten_mrr_list(
 )
 }
 \arguments{
-\item{mrr_list}{A list of parsed MRR objects, typically from \code{get_file_data(..., return="list")}.}
+\item{mrr_list}{named list of parsed MRR objects (output
+from \code{get_file_data(..., return="list")}).}
 
-\item{keep_code_cols}{Logical, default \code{TRUE}. If \code{TRUE}, retains code columns (pdv*, spdv*)
-in the output tibbles.}
+\item{keep_code_cols}{Logical; if \code{TRUE}, retain the original PDV*/SPDV* code
+columns in addition to the new label-named columns. Default is \code{FALSE}.}
 
-\item{label_conflict}{Character; one of \code{"suffix"}, \code{"overwrite"}, or \code{"skip"}.
-Determines how to handle column name conflicts arising from labels.}
+\item{label_conflict}{Character indicating how to handle name conflicts when creating
+label-named columns. Options:
+\describe{
+\item{\code{"suffix"}}{Append \code{"_label"}, \code{"_label2"}, etc. (default).}
+\item{\code{"overwrite"}}{Overwrite the existing column.}
+\item{\code{"skip"}}{Do not create the label column if the name already exists.}
+}}
 }
 \value{
 A named list of tibbles, one per MRR file.

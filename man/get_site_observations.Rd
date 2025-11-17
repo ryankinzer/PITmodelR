@@ -15,11 +15,11 @@ get_site_observations(
 )
 }
 \arguments{
-\item{api_key}{Optional PTAGIS API key. If omitted, the function attempts to use
-the \code{PTAGIS_API_KEY} environment variable.}
+\item{api_key}{PTAGIS API key. If omitted, the function attempts to use
+the \code{PTAGIS_API_KEY} environment variable. Must be a single non-empty string.}
 
-\item{site_code}{Character string giving the PTAGIS site code (e.g., \code{"LGR"}).
-Must be a single, non-empty value.}
+\item{site_code}{Character string giving the PTAGIS site code to query. Must be
+a single, non-empty value (e.g., \code{"JOC"}).}
 
 \item{year}{Optional four-digit integer year (e.g., \code{2024}) used as a filter
 when supported by the API.}
@@ -29,8 +29,7 @@ when supported by the API.}
 \item{all_pages}{Logical; if \code{TRUE} (default), the function automatically
 retrieves and combines all pages of results.}
 
-\item{fields}{Optional character vector specifying a subset of columns to return
-after name cleaning.}
+\item{fields}{Optional character vector of column names to retain after cleaning.}
 }
 \value{
 A tibble containing PIT-tag observation events for the requested site

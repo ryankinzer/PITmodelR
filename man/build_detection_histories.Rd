@@ -19,13 +19,13 @@ columns for tag codes, site codes, and event timestamps.}
 \item{route_sites}{Character vector of site codes defining the downstream route order.
 Example: \code{c("LGR","LGS","LMN","MCN")}.}
 
-\item{tag_col}{Character; name of the column in \code{observations} containing PIT tag codes.
+\item{tag_col}{Character; column name in \code{tag_history} containing PIT tag codes.
 Default is \code{"tag_code"}.}
 
-\item{time_col}{Character; name of the column in \code{observations} containing event timestamps
-(POSIXct or parseable). Default is \code{"event_time"}.}
+\item{time_col}{Character; optional column name in \code{tag_history} containing
+event timestamps (POSIXct or parseable) used to order events within tag.}
 
-\item{site_col}{Character; name of the column in \code{observations} containing site codes.
+\item{site_col}{Character; column name in \code{tag_history} containing site codes.
 Default is \code{"site_code"}.}
 }
 \value{

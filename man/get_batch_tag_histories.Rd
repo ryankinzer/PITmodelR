@@ -9,8 +9,8 @@ get_batch_tag_histories(tag_codes, api_key = NULL, fields = NULL)
 \arguments{
 \item{tag_codes}{Character vector of PIT tag codes to retrieve.}
 
-\item{api_key}{Optional PTAGIS API key. If not supplied, the function will attempt
-to read the key from the session environment.}
+\item{api_key}{PTAGIS API key. If omitted, the function attempts to use
+the \code{PTAGIS_API_KEY} environment variable. Must be a single non-empty string.}
 
 \item{fields}{Optional character vector of column names to retain after cleaning.}
 }

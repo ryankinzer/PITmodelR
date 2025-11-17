@@ -13,7 +13,7 @@ fit_timing(
 )
 }
 \arguments{
-\item{observations}{Data frame or tibble of observation events containing a timestamp column.}
+\item{observations}{A data.frame or tibble of observation events containing a timestamp column.}
 
 \item{time_col}{Character; name of the column containing event timestamps (POSIXct or parseable). Default: "event_time".}
 

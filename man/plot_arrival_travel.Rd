@@ -10,7 +10,7 @@ plot_arrival_travel(timing_list, tz = "America/Los_Angeles")
 \item{timing_list}{Result from \code{summarize_arrival_travel()} with the objects \verb{$arrivals_long}
 and \verb{$travel_long}.}
 
-\item{tz}{Label/timezone for axis formatting (default "America/Los_Angeles" Pacific Standard Time)}
+\item{tz}{Time zone used when parsing \code{time_col} if it is character (default = \code{"America/Los_Angeles"}, Pacific Standard).}
 }
 \value{
 A list with \verb{$arrival_ecdf} and \verb{$travel_time} plot objects.

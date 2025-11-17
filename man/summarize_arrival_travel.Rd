@@ -27,11 +27,14 @@ summarize_arrival_travel(
 to occasions
 (e.g., \code{list(LGR = c("GRJ","GRS"), Down = c("LMN","MCN","BON"))}).}
 
-\item{site_col}{Column name containing site codes (default = \code{"site_code"}).}
+\item{site_col}{Character; column name in \code{tag_history} containing site codes.
+Default is \code{"site_code"}.}
 
-\item{tag_col}{Column name containing tag IDs (default = \code{"tag_code"}).}
+\item{tag_col}{Character; column name in \code{tag_history} containing PIT tag codes.
+Default is \code{"tag_code"}.}
 
-\item{time_col}{Column name with event timestamps (default = \code{"event_time"}).}
+\item{time_col}{Character; optional column name in \code{tag_history} containing
+event timestamps (POSIXct or parseable) used to order events within tag.}
 
 \item{tz}{Time zone used when parsing \code{time_col} if it is character (default = \code{"America/Los_Angeles"}, Pacific Standard).}
 

@@ -171,7 +171,7 @@ flatten_mrr_file <- function(mrr,
     # avoid name collisions (suffix "_session")
     col_clash <- intersect(names(ses), names(events2))
     if (length(col_clash)) {
-      rename_map <- setNames(paste0(col_clash, "_session"), col_clash)
+      rename_map <- stats::setNames(paste0(col_clash, "_session"), col_clash)
       names(ses)[match(names(ses), names(rename_map), nomatch = 0)] <-
         rename_map[na.omit(match(names(ses), names(rename_map)))]
     }

@@ -20,7 +20,7 @@ download_mrr_files <- function(filenames) {
     stop("`filenames` must be a non-empty character vector.", call. = FALSE)
   }
 
-  out <- setNames(vector("list", length(filenames)), filenames)
+  out <- stats::setNames(vector("list", length(filenames)), filenames)
 
   for (i in seq_along(filenames)) {
     fn <- filenames[i]

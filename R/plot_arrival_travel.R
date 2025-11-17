@@ -52,11 +52,11 @@ plot_arrival_travel <- function(timing_list,
     } else {
       df <- arrivals
       arrival_plot <- function() {
-        op <- par(no.readonly = TRUE); on.exit(par(op))
+        op <- graphics::par(no.readonly = TRUE); on.exit(graphics::par(op))
         occs <- levels(df$occasion)
         if (is.null(occs)) occs <- unique(df$occasion)
         n <- length(occs); nr <- ceiling(sqrt(n)); nc <- ceiling(n / nr)
-        par(mfrow = c(max(1, nr), max(1, nc)))
+        graphics::par(mfrow = c(max(1, nr), max(1, nc)))
         for (oc in occs) {
           xx <- sort(df[df$occasion == oc, time_col, drop = TRUE])
           if (length(xx)) {
@@ -66,7 +66,7 @@ plot_arrival_travel <- function(timing_list,
                  ylab = "ECDF", main = oc)
           } else {
             plot(NA, NA, xlab = "", ylab = "", main = oc)
-            text(0.5, 0.5, "no data")
+            graphics::text(0.5, 0.5, "no data")
           }
         }
         invisible(NULL)
@@ -88,9 +88,9 @@ plot_arrival_travel <- function(timing_list,
     } else {
       df <- travel
       travel_plot <- function() {
-        op <- par(no.readonly = TRUE); on.exit(par(op))
-        boxplot(travel_days ~ leg, data = df, las = 2, ylab = "Travel Time (days)",
-                main = "Travel Time Between Occasions")
+        op <- graphics::par(no.readonly = TRUE); on.exit(graphics::par(op))
+        graphics::boxplot(travel_days ~ leg, data = df, las = 2, ylab = "Travel Time (days)",
+                          main = "Travel Time Between Occasions")
         invisible(NULL)
       }
     }

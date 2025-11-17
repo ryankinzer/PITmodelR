@@ -119,7 +119,7 @@ summarize_arrival_travel <- function(tag_history,
   rownames(arrivals_long) <- NULL
 
   # --- wide table of first arrivals per tag ---
-  arrivals_wide <- reshape(
+  arrivals_wide <- stats::reshape(
     arrivals_long[, c(tag_col, "occasion", time_col)],
     idvar = tag_col,
     timevar = "occasion",
@@ -229,8 +229,8 @@ summarize_arrival_travel <- function(tag_history,
   arrivals_long$occasion <- factor(arrivals_long$occasion, levels = occ_order$occasion)
   travel_long$leg <- factor(
     travel_long$leg,
-    levels = apply(combn(occ_order$occasion, 2), 2, function(x) paste(x[1], "->", x[2]))
-    #levels = paste(head(occ_order$occasion, -1), "->", tail(occ_order$occasion, -1))
+    levels = apply(utils::combn(occ_order$occasion, 2), 2, function(x) paste(x[1], "->", x[2]))
+    #levels = paste(utils::head(occ_order$occasion, -1), "->", utils::tail(occ_order$occasion, -1))
   )
 
   # --- return results ---
@@ -241,7 +241,7 @@ summarize_arrival_travel <- function(tag_history,
     occasion_summary  = occasion_summary[order(match(occasion_summary$occasion, occ_order$occasion)), ],
     leg_summary       = leg_summary[order(match(
       leg_summary$leg,
-      paste(head(occ_order$occasion, -1), "->", tail(occ_order$occasion, -1))
+      paste(utils::head(occ_order$occasion, -1), "->", utils::tail(occ_order$occasion, -1))
     )), ],
     mapping           = mapping,
     dropped_summary   = dropped_summary

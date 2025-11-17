@@ -261,7 +261,7 @@ fit_marked_cjs <- function(ch_data,
     } else {
 
       function() {
-        op <- par(no.readonly = TRUE); on.exit(par(op))
+        op <- graphics::par(no.readonly = TRUE); on.exit(graphics::par(op))
 
         plot(
           df$interval, df$estimate,
@@ -272,7 +272,7 @@ fit_marked_cjs <- function(ch_data,
           main = title
         )
 
-        segments(df$interval, df$lcl, df$interval, df$ucl)
+        graphics::segments(df$interval, df$lcl, df$interval, df$ucl)
         invisible(NULL)
       }
     }

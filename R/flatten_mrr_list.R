@@ -22,7 +22,7 @@ flatten_mrr_list <- function(mrr_list,
 
   label_conflict <- match.arg(label_conflict)
 
-  flats <- setNames(vector("list", length(mrr_list)), names(mrr_list))
+  flats <- stats::setNames(vector("list", length(mrr_list)), names(mrr_list))
 
   for (i in seq_along(mrr_list)) {
     flats[[i]] <- flatten_mrr_file(mrr_list[[i]],

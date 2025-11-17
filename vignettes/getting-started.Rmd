@@ -443,7 +443,7 @@ We can then feed the capture history data (`$ch_data` tibble) from `build_mark_h
 
 In this example, both the survival and detection parameters are modeled as functions of `time`. Here, `time` represents encounter occasion, the grouped `locs`. Specifying `~ time` allows survival and detection probabilities to vary among occasions, rather than assuming they are constant across the locations and reaches. We are not including any additional covariates (e.g., fish size, tagging date, flow conditions), so the model assumes that differences in survival and detection arise only from temporal or spatial variation represented by `time`.
 
-```{r eval = TRUE, warning = FALSE, message = FALSE}
+```{r eval = requireNamespace("marked", quietly = TRUE), warning = FALSE, message = FALSE}
 # load marked library
 library(marked)
 
@@ -461,7 +461,7 @@ round(fit$p, 3)    # detection
 
 The `fit_marked_cjs()` function also creates and saves a few standard plots for easy viewing:
 
-```{r eval = TRUE}
+```{r eval = requireNamespace("marked", quietly = TRUE)}
 print(fit$plots$phi)
 ```
 
@@ -474,13 +474,13 @@ For survival, our intervals represent:
 
 For detection, these are simply estimates for ZEN (1), SFG (2), LGR (3), and Down (4). In both cases, our estimates for interval 4 are "non-sensical" i.e., because fish cannot be detected below "Down", the CJS model cannot estimate detection at the final location or in the final reach, so the parameter estimates are not meaningful. The authors recommend not reporting those estimates; however, recognize that estimates downstream of LGR could be obtained by modifying the `locs` provided there are sufficient detection data. 
 
-```{r eval = TRUE}
+```{r eval = requireNamespace("marked", quietly = TRUE)}
 print(fit$plots$p)
 ```
 
 Cumulative survival estimates are also summarized by `fit_marked_cjs()`. Let's examine those as well as some other objects available in our `fit` object:
 
-```{r eval = TRUE}
+```{r eval = requireNamespace("marked", quietly = TRUE)}
 # cumulative survival with CIs
 round(fit$cum_phi, 3)
 

@@ -248,13 +248,16 @@ library(tidyverse)
 
 # create mark group
 mark_group <- events_df %>%
-  filter(species_run_rear_type == "12W",                      # wild summer chinook
-         migration_year == 2025,                              # emigrating in 2025
-         between(release_date, ymd(20240901), ymd(20241231)), # fall trapping period
-         release_site == "SECTRP",                            # Secesh RST
-         pittag != "..........",                              # only records with pit tags (i.e., exclude tallies)
-         !grepl("Recapture", event_type),                     # exclude recapture
-         !grepl("Y", conditional_comments))                   # exclude yearlings
+  dplyr::filter(
+    species_run_rear_type == "12W",              # wild summer chinook
+    migration_year == 2025,                      # emigrating in 2025
+    dplyr::between(release_date, 
+                   lubridate::ymd(20240901), 
+                   lubridate::ymd(20241231)),    # fall trapping period
+    release_site == "SECTRP",                    # Secesh RST
+    pittag != "..........",                      # only records with pit tags (i.e., exclude tallies)
+    !grepl("Recapture", event_type),             # exclude recapture
+    !grepl("Y", conditional_comments))           # exclude yearlings
 
 # number of tags/fish in mark_group
 nrow(mark_group)
@@ -344,7 +347,7 @@ load(system.file("extdata/vignette_data/my_sites.rda",
 ```{r eval = TRUE}
 # view a few useful columns, last 6 records
 tail(my_sites) %>%
-  select(site_code, name, site_type, rkm)
+  dplyr::select(site_code, name, site_type, rkm)
 
 ```
 
@@ -440,7 +443,7 @@ We can then feed the capture history data (`$ch_data` tibble) from `build_mark_h
 
 In this example, both the survival and detection parameters are modeled as functions of `time`. Here, `time` represents encounter occasion, the grouped `locs`. Specifying `~ time` allows survival and detection probabilities to vary among occasions, rather than assuming they are constant across the locations and reaches. We are not including any additional covariates (e.g., fish size, tagging date, flow conditions), so the model assumes that differences in survival and detection arise only from temporal or spatial variation represented by `time`.
 
-```{r eval = requireNamespace("marked", quietly = TRUE), warning = FALSE, message = FALSE}
+```{r eval = TRUE, warning = FALSE, message = FALSE}
 # load marked library
 library(marked)
 

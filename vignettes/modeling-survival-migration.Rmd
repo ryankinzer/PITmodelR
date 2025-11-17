@@ -28,40 +28,46 @@ knitr::opts_chunk$set(
 
 This vignette demonstrates end-to-end workflows for **juvenile survival** and **migration timing** modeling using `PITmodelR`. The examples show how to:
 
-1. Download and tidy PTAGIS detections
-2. Build detection histories suitable for survival models
-3. Fit simple CJS-style survival models
-4. Estimate migration timing metrics (quantiles, cumulative passage)
-5. Visualize results and export summaries
+1. Download and tidy PTAGIS detections,
+2. Build detection histories suitable for survival models,
+3. Fit simple CJS-style survival models,
+4. Estimate migration timing metrics (quantiles, cumulative passage), and
+5. Visualize results and export summaries.
 
-> **Note**  
-> To keep the vignette portable (e.g., CRAN checks), code chunks that require network access or substantial compute are set to `eval = FALSE`. Run them locally after setting up your PTAGIS API key.
+> **Note:** To keep the vignette portable (e.g., CRAN checks), code chunks that require network access or substantial compute are set to `eval = FALSE`. Run them locally after setting up your PTAGIS API key.
 
 ---
 
 # Prerequisites
 
-This vignette will require the package `PITmodelR`, `marked`, and the `tidyverse` set of packages to function correctly. Please install them before moving forward with `install_packages()` or `remotes::install_github()`.
+This vignette will require the packages `marked`, `tidyverse`, and `PITmodelR` to function correctly. Please install them before moving forward. You can use `install_packages()` for [available CRAN packages](https://cran.r-project.org/web/packages/available_packages_by_name.html) and `remotes::install_github()` for packages on [GitHub](https://github.com/):
 
-```{r eval=FALSE}
-install.packages('tidyverse')
-install.packages('marked')
-install.packages("remotes")
+```{r eval = FALSE}
+# install packages from CRAN
+install.packages(c("marked", "tidyverse"))
+
+# install PITmodelR from GitHub
 remotes::install_github("ryankinzer/PITmodelR")
+
 ```
 
-Load the `PITmodelR` library:
+Once installed, load these packages into your library:
 
-```{r}
+```{r eval = TRUE}
+# load packages into library
+library(marked)
+library(tidyverse)
 library(PITmodelR)
 ```
 
 Many functions within the package require a PTAGIS API key to function. Request the key from PTAGIS staff at this [link](https://www.ptagis.org/Contact). The key can be set once per session following:
 
-```{r eval=FALSE}
+```{r eval = FALSE}
 your_api_key = "YOUR-PTAGIS-API-KEY"
 Sys.setenv(PTAGIS_API_KEY = your_api_key)
 ```
+
+Another option is to add `PTAGIS_API_KEY` permanently to your `~/.Renviron` file for persistent use. The steps to do this are not covered in this tutorial. Remember to **keep your API key private** and do not share it publicly.
 
 ---
 
@@ -69,19 +75,19 @@ Sys.setenv(PTAGIS_API_KEY = your_api_key)
 
 We will illustrate a typical juvenile passage workflow at `LGR` for a single year.
 
-```{r eval=FALSE}
-# Example parameters
-site   <- "LGR"
-year   <- 2023
+```{r eval = FALSE}
+# example parameters for get_site_observations()
+site   <- "IR3" # consider changing, GRS is a big download
+year   <- 2024
 
-# Pull site observations (auto-paginates by default)
+# retrieve site observations (auto-paginates by default)
 obs <- get_site_observations(site_code = site, year = year)
 dplyr::glimpse(obs)
 ```
 
 If you already have a list of PIT tags of interest, you can pull event histories individually and bind them:
 
-```{r eval=FALSE}
+```{r eval = FALSE}
 tags <- c("384.1B79726A98", "384.1A2B3C4D5E", "3D9.1F00ABCD123")
 hist_list <- lapply(tags, function(tc) get_tag_history(tag_code = tc))
 hist <- dplyr::bind_rows(hist_list, .id = "tag_index")

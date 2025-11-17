@@ -5,7 +5,7 @@
 #' Optionally filters by year and can automatically fetch all available pages
 #' of data from the API.
 #'
-#' @param year Optional four-digit integer year (e.g., \code{2024}) used as a filter
+#' @param year Four-digit integer year (e.g., \code{2024}) used as a filter
 #'   when supported by the API.
 #' @param page,page_size Integers controlling pagination when \code{all_pages = FALSE}.
 #' @param all_pages Logical; if \code{TRUE} (default), the function automatically

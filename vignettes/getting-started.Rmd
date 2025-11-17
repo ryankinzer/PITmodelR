@@ -52,7 +52,7 @@ vignettes.
 ```{r eval = FALSE}
 # install.packages("remotes") # if not already, installed
 
-# install PITmodelR (faster, saver version)
+# install PITmodelR (faster, safer version)
 remotes::install_github("ryankinzer/PITmodelR")
 
 # to access package vignettes

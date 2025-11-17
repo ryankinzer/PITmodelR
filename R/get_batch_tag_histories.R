@@ -7,9 +7,8 @@
 #' the originating tag.
 #'
 #' @param tag_codes Character vector of PIT tag codes to retrieve.
-#' @param api_key Optional PTAGIS API key. If not supplied, the function will attempt
-#'   to read the key from the session environment.
-#' @param fields Optional character vector of column names to retain after cleaning.
+#'
+#' @inheritParams get_tag_history
 #'
 #' @return A tibble containing the combined tag histories for all requested tag codes,
 #'   including an added \code{tag_code} column.

@@ -5,7 +5,7 @@
 #' Currently supports simple daily aggregation; more advanced methods (e.g., GAM smoothing)
 #' are accepted as arguments but return the same structure in this placeholder.
 #'
-#' @param observations Data frame or tibble of observation events containing a timestamp column.
+#' @param observations A data.frame or tibble of observation events containing a timestamp column.
 #' @param time_col Character; name of the column containing event timestamps (POSIXct or parseable). Default: "event_time".
 #' @param by Character; aggregation unit for counts. Currently only "day" is supported. Default: "day".
 #' @param quantiles Numeric vector of quantiles to compute, in the range \code{[0, 1]}. Default: c(0.1, 0.5, 0.9).

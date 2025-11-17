@@ -6,8 +6,8 @@
 #' schema when there are label conflicts.
 #'
 #' @param flat_list A list of tibbles, typically the output of \code{flatten_mrr_list}.
-#' @param use_codes_on_conflict Logical. If \code{TRUE} (default), code columns (e.g.,
-#'   pdv1, spdv1) are preferred to label columns to ensure a consistent schema.
+#'
+#' @inheritParams get_batch_file_data
 #'
 #' @return A tibble combining all rows of \code{flat_list}, filling missing columns
 #' with NA as needed.

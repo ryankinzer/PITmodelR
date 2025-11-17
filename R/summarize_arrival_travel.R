@@ -6,22 +6,9 @@
 #' Calculates per-tag first arrival and travel times, as well as quantile summaries for each
 #' occassion and migration "leg".
 #'
-#' @param tag_history A data frame or tibble with at least the following columns:
-#'   \describe{
-#'     \item{\code{tag_code}}{Unique identifier for each tagged fish.}
-#'     \item{\code{site_code}}{Detection site code.}
-#'     \item{\code{event_time}}{Timestamp of the detection event.}
-#'   }
-#' @param locs_def Either a character vector defining the ordered occasions
-#'   (e.g., \code{c("SECTRP","ZEN",...)}), or a named list mapping one or more site codes
-#'   to occasions
-#'   (e.g., \code{list(LGR = c("GRJ","GRS"), Down = c("LMN","MCN","BON"))}).
-#' @param site_col Column name containing site codes (default = \code{"site_code"}).
-#' @param tag_col Column name containing tag IDs (default = \code{"tag_code"}).
-#' @param time_col Column name with event timestamps (default = \code{"event_time"}).
 #' @param tz Time zone used when parsing \code{time_col} if it is character (default = \code{"America/Los_Angeles"}, Pacific Standard).
-#' @param keep_unknown Logical; whether to keep events with site codes not found in
-#'   \code{locs_def} (default = \code{FALSE}).
+#'
+#' @inheritParams build_mark_histories
 #'
 #' @return A list with the following elements:
 #' \describe{

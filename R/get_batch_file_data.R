@@ -9,10 +9,10 @@
 #'   Determines how to handle PDV/SPDV label inconsistencies across files.
 #' @param keep_code_cols Logical, default \code{TRUE}. If \code{TRUE}, retains code
 #' columns (pdv*, spdv*) in flattened tibbles. If \code{FALSE}, replaces with user field names.
-#' @param label_conflict Character; one of \code{"suffix"}, \code{"overwrite"}, or \code{"skip"}.
-#'   Determines how to handle column name conflicts arising from labels when flattening MRR files.
 #' @param use_codes_on_conflict Logical, default \code{TRUE}. If \code{TRUE}, code columns are preferred over label-derived columns
 #'   when combining flattened tibbles to ensure a consistent schema.
+#'
+#' @inheritParams flatten_mrr_file
 #'
 #' @return A list with three elements:
 #' \itemize{

@@ -5,11 +5,16 @@
 #' program MARK. Can handle multiple sites per occasion, enforce downstream order,
 #' and optionally drop unknown sites.
 #'
-#' @param tag_history A data.frame or tibble of tag observations. Must contain
-#'   columns for tag codes and site codes. A time column is optional for ordering events.
-#' @param locs_def Either a character vector of occasion labels in downstream order,
-#'   or a named list where names are occasion labels and each element is a vector of site codes
-#'   included in that occasion.
+#' @param tag_history A data frame or tibble with at least the following columns:
+#'   \describe{
+#'     \item{\code{tag_code}}{Unique identifier for each tagged fish.}
+#'     \item{\code{site_code}}{Detection site code.}
+#'     \item{\code{event_time}}{Timestamp of the detection event.}
+#'   }
+#' @param locs_def Either a character vector defining the ordered occasions
+#'   (e.g., \code{c("SECTRP","ZEN",...)}), or a named list mapping one or more site codes
+#'   to occasions
+#'   (e.g., \code{list(LGR = c("GRJ","GRS"), Down = c("LMN","MCN","BON"))}).
 #' @param site_col Character; column name in \code{tag_history} containing site codes.
 #'   Default is \code{"site_code"}.
 #' @param tag_col Character; column name in \code{tag_history} containing PIT tag codes.
@@ -18,8 +23,8 @@
 #'   event timestamps (POSIXct or parseable) used to order events within tag.
 #' @param enforce_order Logical; if TRUE, only the first occurrence of each
 #'   strictly increasing occasion per tag is kept. Default is TRUE.
-#' @param keep_unknown Logical; if FALSE, drop events with sites not in the survival map.
-#'   Default is FALSE.
+#' @param keep_unknown Logical; whether to keep events with site codes not found in
+#'   \code{locs_def} (default = \code{FALSE}).
 #'
 #' @return A list with four elements:
 #' \itemize{

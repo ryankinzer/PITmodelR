@@ -5,17 +5,14 @@
 #' Optionally filters by year and can automatically fetch all available pages
 #' of data from the API.
 #'
-#' @param api_key Optional PTAGIS API key. If omitted, the function attempts to use
-#'   the \code{PTAGIS_API_KEY} environment variable.
-#' @param site_code Character string giving the PTAGIS site code (e.g., \code{"LGR"}).
-#'   Must be a single, non-empty value.
 #' @param year Optional four-digit integer year (e.g., \code{2024}) used as a filter
 #'   when supported by the API.
 #' @param page,page_size Integers controlling pagination when \code{all_pages = FALSE}.
 #' @param all_pages Logical; if \code{TRUE} (default), the function automatically
 #'   retrieves and combines all pages of results.
-#' @param fields Optional character vector specifying a subset of columns to return
-#'   after name cleaning.
+#'
+#' @inheritParams get_site_metadata
+#' @inheritParams get_tag_history
 #'
 #' @return A tibble containing PIT-tag observation events for the requested site
 #'   (and year, if specified). May be zero rows if no data are available.

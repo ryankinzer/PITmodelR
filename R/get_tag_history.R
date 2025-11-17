@@ -9,9 +9,7 @@
 #'   the \code{PTAGIS_API_KEY} environment variable. Must be a single non-empty string.
 #' @param tag_code Character string containing a single PIT tag code (e.g.,
 #'   \code{"384.1B79726A98"}). Case-insensitive; any leading/trailing whitespace is trimmed.
-#' @param fields Optional character vector of column names to retain to reduce
-#'   returned data payload e.g., \code{fields = c("tag_code", "site_code", "event_type",
-#'   "event_date", "event_count")}.
+#' @param fields Optional character vector of column names to retain after cleaning.
 #'
 #' @return A tibble of MRR and observation events for the requested PIT tag. May be zero rows
 #'   if no events are available.

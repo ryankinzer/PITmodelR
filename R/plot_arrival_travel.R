@@ -7,7 +7,8 @@
 #'
 #' @param timing_list Result from `summarize_arrival_travel()` with the objects `$arrivals_long`
 #'   and `$travel_long`.
-#' @param tz Label/timezone for axis formatting (default "America/Los_Angeles" Pacific Standard Time)
+#'
+#' @inheritParams summarize_arrival_travel
 #'
 #' @return A list with `$arrival_ecdf` and `$travel_time` plot objects.
 #'         If ggplot2 is not available, returns functions that draw base plots.

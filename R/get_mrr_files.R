@@ -4,9 +4,10 @@
 #' Retrieve file information submitted by a
 #' mark-recapture-recovery (MRR) project code within a given year.
 #'
-#' @param code A single PTAGIS project code (3 characters), e.g. "LGR".
 #' @param year A four digit year as an integer.
+#'
 #' @inheritParams get_site_observations
+#' @inheritParams get_project_years
 #'
 #' @return A tibble containing metadata for submitted files.
 #'

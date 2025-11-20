@@ -35,7 +35,9 @@ check_pdv_label_consistency <- function(mrr_list,
     scope <- match.arg(scope)
     map <- if (scope == "detail") mrr$detail_pdv_fields else mrr$session_pdv_fields
     if (is.null(map) || !nrow(map)) {
-      return(data.frame(scope = scope, file = character(), code = character(), label = character(),
+      # return(data.frame(scope = scope, file = character(), code = character(), label = character(),
+      #                   stringsAsFactors = FALSE))
+      return(data.frame(scope = scope, file = NA_character_, code = NA_character_, label = NA_character_,
                         stringsAsFactors = FALSE))
     }
     nm <- names(map)

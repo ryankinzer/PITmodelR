@@ -302,7 +302,6 @@ sessionInfo()
 - Ensure vignettes mark long-running or network-dependent chunks with `eval = FALSE`.
 - Consider adding small synthetic datasets in `inst/extdata/` for fully runnable examples without PTAGIS access.
 
-
 ```{r eval=FALSE}
 proc <- process.data(res$ch_data, model = "CJS")
 ddl  <- make.design.data(proc)

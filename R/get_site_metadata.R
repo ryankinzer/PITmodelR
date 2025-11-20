@@ -29,6 +29,7 @@ get_site_metadata <- function(site_code) {
 
   # retrieve
   message("Downloading site metadata for ", site_code, " from PTAGIS...")
+
   out <- ptagis_GET(path)
 
   # convert to tibble

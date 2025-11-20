@@ -20,8 +20,7 @@
 #' @keywords internal
 
 parse_mrr_xml <- function(doc) {
-
-  # strip namespaces to make XPath simple and robust
+  # Strip namespaces to make XPath simple and robust
   xml2::xml_ns_strip(doc)
 
   to_snake <- function(x) {
@@ -31,7 +30,7 @@ parse_mrr_xml <- function(doc) {
   }
   text_or_na <- function(node) if (length(node)) xml2::xml_text(node) else NA_character_
 
-  # robust datetime parser → always returns POSIXct (UTC), NA when unparseable
+  # Robust datetime parser → always returns POSIXct (UTC), NA when unparseable
   parse_datetime_mixed <- function(x) {
     if (is.null(x)) return(as.POSIXct(character(), tz = "UTC"))
     x <- as.character(x)
@@ -66,7 +65,6 @@ parse_mrr_xml <- function(doc) {
     out  # POSIXct vector (UTC), NA where parsing failed
   }
 
-
   numify <- function(v) {
     z <- suppressWarnings(as.numeric(v))
     ifelse(is.na(z) & !is.na(v) & nzchar(v), NA_real_, z)
@@ -92,11 +90,12 @@ parse_mrr_xml <- function(doc) {
   names(session_vals) <- to_snake(nm)
   session <- tibble::as_tibble(as.list(session_vals))
 
-  # coerce common types
+  # Coerce common types
   for (nm_dt in c("created","modified")) {
     if (nm_dt %in% names(session)) session[[nm_dt]] <- parse_datetime_mixed(session[[nm_dt]])
   }
-  #for (nm_num in c("spdv1","spdv2","spdv3","spdv4","spdv5","spdv8"))   if (nm_num %in% names(session)) session[[nm_num]] <- numify(session[[nm_num]])
+  # for (nm_num in c("spdv1","spdv2","spdv3","spdv4","spdv5","spdv8"))
+  #   if (nm_num %in% names(session)) session[[nm_num]] <- numify(session[[nm_num]])
 
   # session PDV field map
   sp_nodes <- xml2::xml_find_all(ses, ".//SessionProjectDefinedFields/SessionProjectDefinedField")
@@ -133,7 +132,7 @@ parse_mrr_xml <- function(doc) {
       vals <- vapply(kids, xml2::xml_text, character(1))
       as.list(stats::setNames(vals, keys))
     })
-    # row-bind, fill missing columns
+    # Row-bind, fill missing columns
     cols <- Reduce(union, lapply(rows, names))
     rows <- lapply(rows, function(r) { r[setdiff(cols, names(r))] <- NA_character_; r[cols] })
     df <- tibble::as_tibble(do.call(rbind, lapply(rows, as.data.frame, stringsAsFactors = FALSE)))
@@ -142,7 +141,8 @@ parse_mrr_xml <- function(doc) {
     for (nm_dt in c("event_date","release_date")) {
       if (nm_dt %in% names(df)) df[[nm_dt]] <- parse_datetime_mixed(df[[nm_dt]])
     }
-    for (nm_num in c("length","weight","mark_temperature","release_temperature","brood_year","migration_year","sequence_number")) {
+    for (nm_num in c("length","weight","mark_temperature","release_temperature",
+                     "brood_year","migration_year","sequence_number")) {
       if (nm_num %in% names(df)) df[[nm_num]] <- numify(df[[nm_num]])
     }
     df

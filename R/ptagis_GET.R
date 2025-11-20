@@ -40,6 +40,7 @@ ptagis_GET <- function(path, query = list(), base_url = "https://api.ptagis.org"
   out
 }
 
+
 #' @keywords internal
 ltrim_slash <- function(x) sub("^/+", "", x)
 

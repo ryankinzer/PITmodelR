@@ -28,9 +28,10 @@ knitr::opts_chunk$set(
 
 `PITmodelR` streamlines access to [PTAGIS](https://www.ptagis.org/) data through API endpoints and provides helper tools for PIT-tag data workflows, including project discovery, site metadata, tag observations, and survival/migration modeling.
 
-The package does not replace the user's responsibility to ensure the data is used properly and subset to a sample of tags representing their group or population of interest. Additionally, the modeling tools within can lead to erroneous results if careful through isn't given at each step and assumptions are violated.
+The package does not replace the user's responsibility to ensure PTAGIS data is used properly and subset to a sample of tags representing their group or population of interest. Additionally, the modeling tools within can lead to erroneous results if careful thought isn't given at each step and if mark-recapture model assumptions are violated.
 
 This vignette demonstrates how to:
+
 * Install the package
 * Configure API authentication
 * Retrieve mark-recapture-recovery (MRR) project codes and available years of data
@@ -143,7 +144,7 @@ After identifying which files are available, we can retrieve all submitted data 
 * session_pdv_fields - session-level *Project Defined Variables (PDVs)*, which are custom fields defined for the session.
 * detail_pdv_fields - detail-level PDVs i.e., custom fields associated with events.
 
-To ease analysis, the list can be flattened into a single data frame using `flatten_mrr_file()`. This function replicates session-level fields across all rows and replaces PDV codes with labeled columns, creating a tidy, wide-format table more suitable for further manipulation.
+To ease analysis, the list can be flattened into a single data frame using `flatten_mrr_file()`. This function replicates session-level fields across all rows and replaces PDV codes with labeled columns, creating a tidy, wide-format table more suitable for further manipulation. 
 
 ```{r eval = FALSE}
 # file from March 22, 2024
@@ -235,11 +236,11 @@ table(events_df$species_run_rear_type)
 
 # Survival Study Set-Up
 
-Survival studies begin with a list of tags (i.e., marks) that represent the group or population of interest that can later be recaptured or observed. The above functions allow us to retrieve data associated with single or multiple MRR files (in this case, mark or tagging files) submitted to PTAGIS. To create a list of tags suitable for a survival study, we first need to clean the MRR data and filter for tags that best represnt our group of interest. This can be completed using functions from the `tidyverse` [packages](https://tidyverse.org/).
+Survival studies begin with a list of tags (i.e., marks) that represent the group or population of interest that can later be recaptured or observed. The above functions allow us to retrieve data associated with single or multiple MRR files (in this case, mark or tagging files) submitted to PTAGIS. To create a list of tags suitable for a survival study, we first need to clean the MRR data and filter for tags that best represent our group of interest. This can be completed using functions from the `tidyverse` [packages](https://tidyverse.org/).
 
 ## Mark List
 
-Creating mark groups requires careful thought and consideration. For instance, you might want to compare survival (and detection probabilities) between parr and smolts from a single location, between smolts between two or more locations, or between parr tagged at a screw trap versus those tagged via electrofishing - which can elucidate differences in tagging mortality or life-history strategies. In other words, consider the research or management question at hand before defining your mark group of interest. Because these decisions directly affect your analysis and interpretation of results, defining and creating mark groups is a critical first step in any survival study.
+Creating mark groups requires careful thought and consideration. For instance, you might want to compare survival (and detection probabilities) between parr and smolts from a single location, or between smolts released at two or more locations, or you might want to look at differences between multiple taggers of a hatchery release group. Either way, carefully consider the research or management question at hand before defining your mark group of interest. Defining and creating mark groups is a critical first step in any survival study and will directly impact your analysis and interpretation of results.
 
 As an example, let's create a mark group for wild summer Chinook salmon juveniles tagged and released during fall 2024 from the Secesh River screw trap. We'll accomplish this by filtering some fields in our `events_df`. 
 
@@ -269,7 +270,7 @@ hist(mark_group$length)
 
 ## Tag Histories
 
-We have our marks - now we need all the observations (i.e., detections) that represent the migration history of each fish. For a single PIT tag, use the `get_tag_history()` function; for multiple tags, use `get_batch_tag_histories()`. Both of these require the user to set `api_key`. The mark and all subsequent observations will eventually be used to create capture histories, which are then used in survival and detection models.
+We have our marks - now we need all the observations (i.e., detections) that represent the migration history of each fish. For a single PIT tag, use the `get_tag_history()` function; for multiple tags, use `get_batch_tag_histories()`. Both of these functions require the user to include a PTAGIS API with the function call. The mark record and all subsequent observations will eventually be used to create capture histories, which are then used in survival and detection models.
 
 ```{r eval = FALSE}
 # single tag
@@ -324,7 +325,7 @@ As an aid, `PITmodelR` also contains helper functions to retrieve metadata for i
 zen_meta <- get_site_metadata("ZEN")
 ```
 
-whereas `get_interrogation_sites()` can be used to retrieve metadata from all sites registered in PTAGIS. By default, `active_only = TRUE` retrieves only sites currently submitting data (seasonal or year-round). Optionally, `active_only` can be set to `FALSE` which will retrieve all sites that have been registered to PTAGIS, past or present. The object could then be filtered to include sites in your `tag_history$site_code`, which can be helpful when assigning sites to study occassions.
+whereas, `get_interrogation_sites()` can be used to retrieve metadata from all sites registered in PTAGIS. By default, `active_only = TRUE` retrieves only sites currently submitting data (seasonal or year-round). Optionally, `active_only` can be set to `FALSE` which will retrieve all sites that have been registered to PTAGIS, past or present. The object could then be filtered to include sites in your `tag_history$site_code`, which can be helpful when assigning sites to study occassions.
 
 ```{r eval = FALSE}
 # active sites only
@@ -335,7 +336,7 @@ obs_sites <- get_interrogation_sites(active_only = FALSE)
 
 # filter to INT sites in tag_history$site_code
 my_sites = obs_sites %>%
-  filter(site_code %in% tag_history$site_code)
+  filter(site_code %in% unique(tag_history$site_code))
 ```
 
 ```{r echo = FALSE}
@@ -355,13 +356,10 @@ Note that `PITmodelR` functions do not return metadata for MRR sites; metadata f
 
 In our example, all detection sites look good i.e., there are no erroneous detections outside the expected downstream migration path; however, it is always a good idea to review sites for potential errant observations. 
 
-Next, we define the occasions (group of sites that we estimate parameters to) and then assign individual sites to each. In this case, we will estimate survivals from SECTRP to ZEN, SFG, and Lower Granite Dam (GRJ and GRS); all locations downstream of LGR can be used to calculate a detection efficiency (and survival) to LGR.
+Next, we define the occasions (group of sites that will produce a single parameter) and then assign individual sites to each. In this case, we will estimate survivals from SECTRP to ZEN, SFG, and Lower Granite Dam (GRJ and GRS); all locations downstream of Lower Granite Dam (LGR) can be used to calculate a detection efficiency (and survival) to LGR.
 
 ```{r eval = TRUE}
-# detection locations (group all sites downstream of LGR)
-locs <- c("SECTRP","ZEN","SFG","LGR","Down")
-
-# assign individual detection sites to locations
+# assign individual detection sites to each model occasion
 locs <- list(
   SECTRP = "SECTRP",
   ZEN    = "ZEN",
@@ -402,7 +400,6 @@ head(ch_list$ch_data)
 
 # did any observations get dropped? No, empty tibble
 ch_list$dropped_summary
-
 ```
 
 Notice that no sites were dropped in `ch_list$droppedsummary`, because we included all detection sites in `locs`. However, you could choose to ignore some detection sites and the `build_mark_histories()` function will drop those observations if `keep_unkown = FALSE`.
@@ -439,9 +436,9 @@ ch_list$ch_freq
 
 We can then feed the capture history data (`$ch_data` tibble) from `build_mark_histories()` into a *Cormack-Jolly-Seber* survival model. To fit the model, we will use the `marked` R package. More information on `marked` can be found at its [journal article](https://besjournals.onlinelibrary.wiley.com/doi/10.1111/2041-210X.12065) and [GitHub website](https://github.com/jlaake/marked).
 
-`PITmodelR` includes the `fit_marked_cjs()` function which calls the `marked::crm()` (capture-recapture model) function and returns some tidy results for survival `Phi` and detection `p` parameters. By default, it uses the `model = "CJS"` option from `crm()`.
+`PITmodelR` includes the `fit_marked_cjs()` function which calls `marked::crm()` (capture-recapture model) and returns tidy results for survival (`Phi`) and detection (`p`) parameters. By default, it uses the `model = "CJS"` option from `crm()`.
 
-In this example, both the survival and detection parameters are modeled as functions of `time`. Here, `time` represents encounter occasion, the grouped `locs`. Specifying `~ time` allows survival and detection probabilities to vary among occasions, rather than assuming they are constant across the locations and reaches. We are not including any additional covariates (e.g., fish size, tagging date, flow conditions), so the model assumes that differences in survival and detection arise only from temporal or spatial variation represented by `time`.
+In this example, both the survival and detection parameters are modeled as functions of `time`. Here, `time` represents encounter occasion for the grouped `locs`. Specifying `~ time` allows survival and detection probabilities to vary among occasions, rather than assuming they are constant across the locations and reaches. We are not including additional covariates (e.g., fish size, tagging date, flow conditions), so the model assumes that differences in survival and detection arise only from temporal and/or spatial variation represented by `time`.
 
 ```{r eval = requireNamespace("marked", quietly = TRUE), warning = FALSE, message = FALSE}
 # load marked library
@@ -465,14 +462,14 @@ The `fit_marked_cjs()` function also creates and saves a few standard plots for 
 print(fit$plots$phi)
 ```
 
-For survival, our intervals represent:
+For survival model and assigned occasions the intervals represent:
 
 * *1:* Release -> ZEN,
 * *2:* ZEN -> SFG,
 * *3:* SFG -> LGR,
 * *4:* LGR -> Down (non-sensical).
 
-For detection, these are simply estimates for ZEN (1), SFG (2), LGR (3), and Down (4). In both cases, our estimates for interval 4 are "non-sensical" i.e., because fish cannot be detected below "Down", the CJS model cannot estimate detection at the final location or in the final reach, so the parameter estimates are not meaningful. The authors recommend not reporting those estimates; however, recognize that estimates downstream of LGR could be obtained by modifying the `locs` provided there are sufficient detection data. 
+For detection, these are simply estimates for ZEN (1), SFG (2), LGR (3), and Down (4). In both cases, our estimates for interval 4 are "non-sensical" i.e., because fish cannot be detected below "Down", the CJS model cannot estimate detection at the final location or in the final reach, so the parameter estimates are not meaningful.
 
 ```{r eval = requireNamespace("marked", quietly = TRUE)}
 print(fit$plots$p)
@@ -546,7 +543,7 @@ timing$dropped_summary
 
 Finally, the `plot_arrival_travel()` function uses the `$arrivals_long` and `$travel_long` objects returned from `summarize_arrival_travel()` to create plots of cumulative arrival timing to occasions and travel times between occasions, respectively.
 
-```{r eval = FALSE}
+```{r eval = TRUE}
 # create plots
 timing_plots <- plot_arrival_travel(timing)
 

@@ -247,7 +247,7 @@ As an example, let's create a mark group for wild summer Chinook salmon juvenile
 library(tidyverse)
 
 # create mark group
-mark_group <- events_df %>%
+mark_group <- events_df |>
   dplyr::filter(
     species_run_rear_type == "12W",              # wild summer chinook
     migration_year == 2025,                      # emigrating in 2025
@@ -334,7 +334,7 @@ obs_sites <- get_interrogation_sites()
 obs_sites <- get_interrogation_sites(active_only = FALSE)
 
 # filter to INT sites in tag_history$site_code
-my_sites = obs_sites %>%
+my_sites = obs_sites |>
   filter(site_code %in% tag_history$site_code)
 ```
 
@@ -346,7 +346,7 @@ load(system.file("extdata/vignette_data/my_sites.rda",
 
 ```{r eval = TRUE}
 # view a few useful columns, last 6 records
-tail(my_sites) %>%
+tail(my_sites) |>
   dplyr::select(site_code, name, site_type, rkm)
 
 ```

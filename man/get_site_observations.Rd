@@ -21,7 +21,7 @@ the \code{PTAGIS_API_KEY} environment variable. Must be a single non-empty strin
 \item{site_code}{Character string giving the PTAGIS site code to query. Must be
 a single, non-empty value (e.g., \code{"JOC"}).}
 
-\item{year}{Optional four-digit integer year (e.g., \code{2024}) used as a filter
+\item{year}{Four-digit integer year (e.g., \code{2024}) used as a filter
 when supported by the API.}
 
 \item{page, page_size}{Integers controlling pagination when \code{all_pages = FALSE}.}

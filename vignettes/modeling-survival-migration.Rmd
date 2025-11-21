@@ -53,7 +53,7 @@ remotes::install_github("ryankinzer/PITmodelR")
 
 Once installed, load these packages into your library:
 
-```{r eval = TRUE}
+```{r eval = FALSE}
 # load packages into library
 library(marked)
 library(tidyverse)

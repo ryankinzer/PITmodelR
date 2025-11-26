@@ -164,7 +164,8 @@ parse_mrr_json <- function(obj) {
     }
     for (nm_num in c(
       "length", "weight", "mark_temperature", "release_temperature",
-      "brood_year", "migration_year", "sequence_number"
+      "brood_year", "migration_year", "sequence_number",
+      "location_latitude", "location_longitude", "location_rkmext"
     )) {
       if (nm_num %in% names(df)) df[[nm_num]] <- numify(df[[nm_num]])
     }

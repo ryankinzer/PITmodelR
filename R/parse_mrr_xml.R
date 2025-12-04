@@ -26,7 +26,18 @@ parse_mrr_xml <- function(doc) {
   to_snake <- function(x) {
     x <- gsub("\\.", "_", x)
     x <- gsub("([a-z0-9])([A-Z])", "\\1_\\2", x)
-    tolower(x)
+    x <- tolower(x)
+
+    # fix known XML/JSON field mismatches; only applied to .xml files to deal with P4 field
+    # names like PITTag, MRRProject, or CWTag.
+    fix <- c(
+      "pittag"     = "pit_tag",
+      "mrrproject" = "mrr_project",
+      "cwtag"      = "cw_tag"
+    )
+    x <- ifelse(x %in% names(fix), fix[x], x)
+    x
+
   }
   text_or_na <- function(node) if (length(node)) xml2::xml_text(node) else NA_character_
 

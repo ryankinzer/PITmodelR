@@ -43,7 +43,7 @@ get_file_data <- function(
 
   x <- ptagis_GET(paste0("files/mrr/", filename))
 
-  # Decide by file extension
+  # Decide by file extension (we'll need to re-think this for many .txt files w/out extensions)
   ext <- tolower(tools::file_ext(filename))
 
   if (ext == "xml") {

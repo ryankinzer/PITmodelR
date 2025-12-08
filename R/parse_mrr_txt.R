@@ -172,10 +172,10 @@ parse_mrr_txt <- function(txt) {
   }
 
   # parse events
-  events <- map_df(event_lines, parse_event_line)
+  events <- purrr::map_df(event_lines, parse_event_line)
 
   # attach inherited session fields to events
-  events <- events %>%
+  events <- events |>
     dplyr::mutate(
       capture_method = capture_method,
       event_date = event_date,
@@ -218,8 +218,9 @@ parse_mrr_txt <- function(txt) {
   )
 
   # TO-DO:
-  # 1. Deal w/ RELEASE TIME VARIABLE & VARIABLE RELEASE TIME DECLARATION RECORDS
-  # 2. Deal w/ Note Records (within events), if needed
+  # 1. Deal w/ lines in Session Notes that start with integer (CDR06078.JCT)
+  # 2. Deal w/ RELEASE TIME VARIABLE & VARIABLE RELEASE TIME DECLARATION RECORDS
+  # 3. Deal w/ Note Records (within events), if needed
   # 4. add event_type, life_stage?
 
 }

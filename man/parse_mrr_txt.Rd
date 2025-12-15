@@ -7,7 +7,7 @@
 parse_mrr_txt(txt)
 }
 \arguments{
-\item{.txt}{A .txt document representing a PTAGIS MRR .txt file.}
+\item{txt}{Character vector containing the contents of a PTAGIS MRR .txt file from P3}
 }
 \value{
 A named list containing:

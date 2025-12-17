@@ -43,44 +43,57 @@ get_file_data <- function(
 
   x <- ptagis_GET(paste0("files/mrr/", filename))
 
-  # Decide by file extension (we'll need to re-think this for many .txt files w/out extensions)
+  # normalize downloaded content to character text when needed
+  as_text <- function(x) {
+    if (inherits(x, "response")) {
+      httr::content(x, as = "text", encoding = "UTF-8")
+    } else if (is.raw(x)) {
+      rawToChar(x)
+    } else if (is.character(x) && length(x) >= 1L) {
+      x[[1L]]
+    } else {
+      stop(
+        "Unexpected object from ptagis_GET(). Classes: ",
+        paste(class(x), collapse = ", "),
+        call. = FALSE
+      )
+    }
+  }
+
+  # decide by file extension (XML & JSON are reliable; TXT is not)
   ext <- tolower(tools::file_ext(filename))
 
   if (ext == "xml") {
     # ---------- XML PATH ----------
-    xml_text <- NULL
-    if (inherits(x, "response")) {
-      xml_text <- httr::content(x, as = "text", encoding = "UTF-8")
-    } else if (is.raw(x)) {
-      xml_text <- rawToChar(x)
-    } else if (is.character(x) && length(x) >= 1L) {
-      xml_text <- x[[1L]]
-    } else {
-      stop("Unexpected object from ptagis_GET(): cannot parse as XML.", call. = FALSE)
-    }
-
+    xml_text <- as_text(x)
     doc <- xml2::read_xml(xml_text)
 
     if (return == "xml") return(doc)
 
     out <- parse_mrr_xml(doc)
+    # xml_text <- NULL
+    # if (inherits(x, "response")) {
+    #   xml_text <- httr::content(x, as = "text", encoding = "UTF-8")
+    # } else if (is.raw(x)) {
+    #   xml_text <- rawToChar(x)
+    # } else if (is.character(x) && length(x) >= 1L) {
+    #   xml_text <- x[[1L]]
+    # } else {
+    #   stop("Unexpected object from ptagis_GET(): cannot parse as XML.", call. = FALSE)
+    # }
+    #
+    # doc <- xml2::read_xml(xml_text)
+    #
+    # if (return == "xml") return(doc)
+    #
+    # out <- parse_mrr_xml(doc)
 
   } else if (ext == "json") {
     # ---------- JSON PATH ----------
-    # ptagis_GET may already return a parsed list, but handle other cases too.
     if (is.list(x) && !inherits(x, "response")) {
       json_obj <- x
-    } else if (inherits(x, "response")) {
-      file_text <- httr::content(x, as = "text", encoding = "UTF-8")
-      json_obj  <- jsonlite::fromJSON(file_text, simplifyVector = FALSE)
-    } else if (is.raw(x)) {
-      json_obj <- jsonlite::fromJSON(rawToChar(x), simplifyVector = FALSE)
-    } else if (is.character(x) && length(x) >= 1L) {
-      json_obj <- jsonlite::fromJSON(x[[1L]], simplifyVector = FALSE)
     } else {
-      stop("Unexpected object from ptagis_GET(): cannot parse as JSON.\n",
-           "Classes: ", paste(class(x), collapse = ", "),
-           call. = FALSE)
+      json_obj <- jsonlite::fromJSON(as_text(x), simplifyVector = FALSE)
     }
 
     if (return == "xml") {
@@ -88,14 +101,55 @@ get_file_data <- function(
     }
 
     out <- parse_mrr_json(json_obj)
+    # ptagis_GET may already return a parsed list, but handle other cases too.
+    # if (is.list(x) && !inherits(x, "response")) {
+    #   json_obj <- x
+    # } else if (inherits(x, "response")) {
+    #   file_text <- httr::content(x, as = "text", encoding = "UTF-8")
+    #   json_obj  <- jsonlite::fromJSON(file_text, simplifyVector = FALSE)
+    # } else if (is.raw(x)) {
+    #   json_obj <- jsonlite::fromJSON(rawToChar(x), simplifyVector = FALSE)
+    # } else if (is.character(x) && length(x) >= 1L) {
+    #   json_obj <- jsonlite::fromJSON(x[[1L]], simplifyVector = FALSE)
+    # } else {
+    #   stop("Unexpected object from ptagis_GET(): cannot parse as JSON.\n",
+    #        "Classes: ", paste(class(x), collapse = ", "),
+    #        call. = FALSE)
+    # }
+    #
+    # if (return == "xml") {
+    #   stop("return = 'xml' is not valid for JSON input.", call. = FALSE)
+    # }
+    #
+    # out <- parse_mrr_json(json_obj)
 
   } else {
-    stop("Unknown file extension. Expected '.xml' or '.json'.", call. = FALSE)
+    # ---------- P3 ASCII / TXT PATH ----------
+    # any non-XML / non-JSON file is treated as a P3 text file
+    txt <- as_text(x)
+
+    # defensive sniff
+    if (grepl("^\\s*<", txt)) {
+      stop(
+        "File appears to be XML but does not have .xml extension.",
+        call. = FALSE
+      )
+    }
+    if (grepl("^\\s*\\{", txt)) {
+      stop(
+        "File appears to be JSON but does not have .json extension.",
+        call. = FALSE
+      )
+    }
+
+    out <- parse_mrr_txt(txt)
+    #stop("Unknown file extension. Expected '.xml' or '.json'.", call. = FALSE)
   }
 
-  switch(return,
-         list    = out,
-         session = out$session,
-         events  = out$events
+  switch(
+    return,
+    list    = out,
+    session = out$session,
+    events  = out$events
   )
 }

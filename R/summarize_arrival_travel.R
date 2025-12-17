@@ -8,8 +8,6 @@
 #'
 #' @param tz Time zone used when parsing \code{time_col} if it is character (default = \code{"America/Los_Angeles"}, Pacific Standard).
 #'
-#' @inheritParams build_mark_histories
-#'
 #' @return A list with the following elements:
 #' \describe{
 #'   \item{\code{arrivals_long}}{First-arrival time per tag × occasion (long format).}

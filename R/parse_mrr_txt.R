@@ -220,8 +220,28 @@ parse_mrr_txt <- function(txt) {
     )
   }
 
-  # parse events
-  events <- purrr::map_df(event_lines, parse_event_line)
+  # create an empty tibble to safeguard against cases where file contains no events
+  empty_events_tbl <- function() {
+    tibble::tibble(
+      sequence_number       = integer(),
+      pit_tag               = character(),
+      length                = integer(),
+      weight                = numeric(),
+      species_run_rear_type = character(),
+      rtv                   = character(),
+      additional_positional = character(),
+      conditional_comments  = character(),
+      text_comments         = character(),
+      nfish                 = integer()
+    )
+  }
+
+  # parse events (with safety, if no events)
+  events <- if (length(event_lines) == 0) {
+    empty_events_tbl()
+  } else {
+    purrr::map_df(event_lines, parse_event_line)
+  }
 
   # attach inherited session fields to events
   events <- events |>

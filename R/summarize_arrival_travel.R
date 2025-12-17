@@ -23,6 +23,9 @@
 #'
 #' @seealso [plot_arrival_travel()]
 #'
+#' @importFrom stats reshape
+#' @importFrom utils head tail
+#'
 #' @export
 
 summarize_arrival_travel <- function(tag_history,

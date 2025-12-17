@@ -15,6 +15,8 @@
 #'
 #' @seealso [summarize_arrival_travel()]
 #'
+#' @importFrom graphics par text boxplot
+#'
 #' @export
 plot_arrival_travel <- function(timing_list,
                                 tz = "America/Los_Angeles") {

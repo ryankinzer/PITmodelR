@@ -207,32 +207,32 @@ parse_mrr_txt <- function(txt) {
     }
 
     list(
-      sequence_number       = as.integer(trimws(substr(x, 1, 4))),
+      sequence_number       = as.numeric(trimws(substr(x, 1, 4))),
       pit_tag               = trimws(substr(x, 7, 20)),
-      length                = suppressWarnings(as.integer(trimws(substr(x, 21, 28)))),
+      length                = suppressWarnings(as.numeric(trimws(substr(x, 21, 28)))),
       weight                = suppressWarnings(as.numeric(trimws(substr(x, 29, 38)))),
       species_run_rear_type = trimws(substr(x, 41, 43)),
       rtv                   = trimws(substr(x, 44, 45)),
       additional_positional = blank_to_na(comments_raw[1]),
       conditional_comments  = blank_to_na(comments_raw[2]),
       text_comments         = blank_to_na(comments_raw[3]),
-      nfish                 = 1
+      nfish                 = "1"
     )
   }
 
   # create an empty tibble to safeguard against cases where file contains no events
   empty_events_tbl <- function() {
     tibble::tibble(
-      sequence_number       = integer(),
+      sequence_number       = numeric(),
       pit_tag               = character(),
-      length                = integer(),
+      length                = numeric(),
       weight                = numeric(),
       species_run_rear_type = character(),
       rtv                   = character(),
       additional_positional = character(),
       conditional_comments  = character(),
       text_comments         = character(),
-      nfish                 = integer()
+      nfish                 = character()
     )
   }
 
@@ -282,8 +282,8 @@ parse_mrr_txt <- function(txt) {
     session_message       = session_message,
     mrr_project           = mrr_project,
     session_note          = session_note,
-    trap_start_date_time  = event_date,
-    trap_end_date_time    = created
+    trap_start_date_time  = as.character(event_date),
+    trap_end_date_time    = as.character(created)
   )
 
   list(

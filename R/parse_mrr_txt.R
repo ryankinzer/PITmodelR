@@ -243,6 +243,11 @@ parse_mrr_txt <- function(txt) {
     purrr::map_df(event_lines, parse_event_line)
   }
 
+  # in the rare case that release_date is not in P3 file
+  if (!"release_date" %in% names(events)) {
+    events$release_date <- as.POSIXct(NA)
+  }
+
   # attach inherited session fields to events
   events <- events |>
     dplyr::mutate(
@@ -259,17 +264,17 @@ parse_mrr_txt <- function(txt) {
       tagger              = tagger,
       location_rkmext     = location_rkmext,
       brood_year          = brood_year
-    ) |>
-    # overwrite release_date if variable release times are provided
-    dplyr::left_join(vrt_table, by = "rtv") |>
-    dplyr::mutate(
-      release_date = dplyr::if_else(
-        !is.na(vrt_datetime),
-        vrt_datetime,
-        release_date
-      )
-    ) |>
-    dplyr::select(-vrt_datetime)
+    )
+
+  # overwrite release_date if variable release times are provided
+  if (nrow(events) > 0 && "rtv" %in% names(events) && nrow(vrt_table) > 0) {
+    events <- events |>
+      dplyr::left_join(vrt_table, by = "rtv") |>
+      dplyr::mutate(
+        release_date = dplyr::coalesce(vrt_datetime, release_date)
+      ) |>
+      dplyr::select(-vrt_datetime)
+  }
 
   #---------------------
   # Build Session Tibble

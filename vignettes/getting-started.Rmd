@@ -347,7 +347,7 @@ load(system.file("extdata/vignette_data/my_sites.rda",
 
 ```{r eval = TRUE}
 # view a few useful columns, last 6 records
-tail(my_sites) %>%
+tail(my_sites) |>
   dplyr::select(site_code, name, site_type, rkm)
 
 ```

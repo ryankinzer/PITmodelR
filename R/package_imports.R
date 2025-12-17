@@ -10,5 +10,5 @@ utils::globalVariables(c(
   "prev_max",                           # used in build_mark_histories()
   "detected", "ch", "freq", "interval",
   "leg", "travel_days", "estimate",
-  "occ_idx"
+  "occ_idx", "vrt_datetime"
 ))

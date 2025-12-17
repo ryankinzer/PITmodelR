@@ -249,7 +249,7 @@ parse_mrr_txt <- function(txt) {
         release_date
       )
     ) |>
-    dplyr::select(-rtv, -vrt_datetime)
+    dplyr::select(-vrt_datetime)
 
   #---------------------
   # Build Session Tibble

@@ -200,6 +200,12 @@ parse_mrr_txt <- function(txt) {
     # make sure we have 3 comments
     comments_raw <- c(comments_raw, rep(NA, 3 - length(comments_raw)))
 
+    # helper for comments columns
+    blank_to_na <- function(x) {
+      x <- trimws(x)
+      ifelse(x == "", NA_character_, x)
+    }
+
     list(
       sequence_number       = as.integer(trimws(substr(x, 1, 4))),
       pit_tag               = trimws(substr(x, 7, 20)),
@@ -207,9 +213,10 @@ parse_mrr_txt <- function(txt) {
       weight                = suppressWarnings(as.numeric(trimws(substr(x, 29, 38)))),
       species_run_rear_type = trimws(substr(x, 41, 43)),
       rtv                   = trimws(substr(x, 44, 45)),
-      additional_positional = trimws(comments_raw[1]),
-      conditional_comments  = trimws(comments_raw[2]),
-      text_comments         = trimws(comments_raw[3])
+      additional_positional = blank_to_na(comments_raw[1]),
+      conditional_comments  = blank_to_na(comments_raw[2]),
+      text_comments         = blank_to_na(comments_raw[3]),
+      nfish                 = 1
     )
   }
 
@@ -219,19 +226,19 @@ parse_mrr_txt <- function(txt) {
   # attach inherited session fields to events
   events <- events |>
     dplyr::mutate(
-      capture_method = capture_method,
-      event_date = event_date,
-      event_site = event_site,
-      mark_method = mark_method,
-      mark_temperature = mark_temperature,
-      migration_year = migration_year,
-      organization = organization,
-      release_date = release_date,
-      release_site = release_site,
+      capture_method      = capture_method,
+      event_date          = event_date,
+      event_site          = event_site,
+      mark_method         = mark_method,
+      mark_temperature    = mark_temperature,
+      migration_year      = migration_year,
+      organization        = organization,
+      release_date        = release_date,
+      release_site        = release_site,
       release_temperature = release_temperature,
-      tagger = tagger,
-      location_rkmext = location_rkmext,
-      brood_year = brood_year
+      tagger              = tagger,
+      location_rkmext     = location_rkmext,
+      brood_year          = brood_year
     ) |>
     # overwrite release_date if variable release times are provided
     dplyr::left_join(vrt_table, by = "rtv") |>
@@ -242,19 +249,21 @@ parse_mrr_txt <- function(txt) {
         release_date
       )
     ) |>
-    dplyr::select(-vrt_datetime)
+    dplyr::select(-rtv, -vrt_datetime)
 
   #---------------------
   # Build Session Tibble
   session <- tibble::tibble(
-    source_system_name = source_system_name,
+    source_system_name    = source_system_name,
     source_system_version = source_system_version,
-    name = name,
-    file_name = file_name,
-    created = created,
-    session_message = session_message,
-    mrr_project = mrr_project,
-    session_note = session_note
+    name                  = name,
+    file_name             = file_name,
+    created               = created,
+    session_message       = session_message,
+    mrr_project           = mrr_project,
+    session_note          = session_note,
+    trap_start_date_time  = event_date,
+    trap_end_date_time    = created
   )
 
   list(

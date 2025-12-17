@@ -23,6 +23,33 @@ knitr::opts_chunk$set(
 
 ```
 
+```{r setup, include = FALSE}
+required_pkgs <- c(
+  "dplyr",
+  "tidyr",
+  "ggplot2",
+  "lubridate",
+  "DT",
+  "marked"
+)
+
+missing <- required_pkgs[!vapply(required_pkgs, requireNamespace, logical(1), quietly = TRUE)]
+
+if (length(missing)) {
+  stop(
+    "The following packages are required to build this vignette but are not installed: ",
+    paste(missing, collapse = ", "),
+    call. = FALSE
+  )
+}
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(lubridate)
+library(DT)
+library(marked)
+```
 
 # Overview
 
@@ -172,7 +199,7 @@ load(system.file("extdata/vignette_data/mrr_df.rda",
                  mustWork = T))
 ```
 
-```{r echo = FALSE}
+```{r echo = FALSE, eval = requireNamespace("DT", quietly = TRUE)}
 DT::datatable(mrr_df, 
               options = list(
                 scrollX = TRUE,
@@ -209,10 +236,10 @@ all_data <- get_batch_file_data(
 )
 
 # --- explore some items in all_data ---
-names(all_data$sessions)              # list of all individual files
+names(all_data$sessions)                 # list of all individual files
 all_data$sessions$"CDR-2024-101-SCT.xml" # info for a single session
-all_data$events                     # combined mark-recapture-recovery events
-all_data$issues                       # label mismatch issues
+all_data$events                          # combined mark-recapture-recovery events
+all_data$issues                          # label mismatch issues
 
 # store all_data$events into a new object
 events_df = all_data$events
@@ -244,11 +271,11 @@ Creating mark groups requires careful thought and consideration. For instance, y
 
 As an example, let's create a mark group for wild summer Chinook salmon juveniles tagged and released during fall 2024 from the Secesh River screw trap. We'll accomplish this by filtering some fields in our `events_df`. 
 
-```{r eval = requireNamespace("tidyverse", quietly = TRUE), warning = FALSE, message = FALSE}
-library(tidyverse)
+```{r warning = FALSE, message = FALSE}
+#library(tidyverse)
 
 # create mark group
-mark_group <- events_df %>%
+mark_group <- events_df |>
   dplyr::filter(
     species_run_rear_type == "12W",              # wild summer chinook
     migration_year == 2025,                      # emigrating in 2025
@@ -300,7 +327,7 @@ Let's take a glance at our `tag_history` object:
 nrow(tag_history)
 ```
 
-```{r echo = FALSE}
+```{r echo = FALSE, eval = requireNamespace("DT", quietly = TRUE)}
 DT::datatable(tag_history, 
               options = list(
                 scrollX = TRUE,
@@ -335,7 +362,7 @@ obs_sites <- get_interrogation_sites()
 obs_sites <- get_interrogation_sites(active_only = FALSE)
 
 # filter to INT sites in tag_history$site_code
-my_sites = obs_sites %>%
+my_sites = obs_sites |>
   filter(site_code %in% unique(tag_history$site_code))
 ```
 
@@ -442,7 +469,7 @@ In this example, both the survival and detection parameters are modeled as funct
 
 ```{r eval = requireNamespace("marked", quietly = TRUE), warning = FALSE, message = FALSE}
 # load marked library
-library(marked)
+#library(marked)
 
 # fit CJS model
 fit <- fit_marked_cjs(ch_list$ch_data,

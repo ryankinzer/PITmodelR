@@ -99,7 +99,7 @@ get_file_data <- function(
 
   # --- enforce canonical event schema i.e., intended from JSON ---
   # NOTE: XML/TXT compatibility will be revisited later
-  out$events <- enforce_event_schema(out$events)
+  out$events <- enforce_schema(out$events)
 
   # --- return ---
   switch(

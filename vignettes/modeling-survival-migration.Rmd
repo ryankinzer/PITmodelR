@@ -24,23 +24,23 @@ knitr::opts_chunk$set(
 ```
 
 ```{r setup, include = FALSE}
-required_pkgs <- c(
-  "dplyr",
-  "tidyr",
-  "ggplot2",
-  "lubridate",
-  "marked"
-)
-
-missing <- required_pkgs[!vapply(required_pkgs, requireNamespace, logical(1), quietly = TRUE)]
-
-if (length(missing)) {
-  stop(
-    "The following packages are required to build this vignette but are not installed: ",
-    paste(missing, collapse = ", "),
-    call. = FALSE
-  )
-}
+# required_pkgs <- c(
+#   "dplyr",
+#   "tidyr",
+#   "ggplot2",
+#   "lubridate",
+#   "marked"
+# )
+# 
+# missing <- required_pkgs[!vapply(required_pkgs, requireNamespace, logical(1), quietly = TRUE)]
+# 
+# if (length(missing)) {
+#   stop(
+#     "The following packages are required to build this vignette but are not installed: ",
+#     paste(missing, collapse = ", "),
+#     call. = FALSE
+#   )
+# }
 
 library(dplyr)
 library(tidyr)

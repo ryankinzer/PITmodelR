@@ -2,31 +2,23 @@
 % Please edit documentation in R/get_file_data.R
 \name{get_file_data}
 \alias{get_file_data}
-\title{Download and Parse a MRR File}
+\title{Download and Parse a PTAGIS MRR File}
 \usage{
 get_file_data(filename, return = c("list", "xml", "session", "events"))
 }
 \arguments{
-\item{filename}{Character; the name of the MRR file to download.}
+\item{filename}{Character; name of the MRR file (e.g., "CDR-2024-072-JCT.json").}
 
-\item{return}{Character; format of the returned object. One of:
-\code{"list"} (default), \code{"xml"}, \code{"session"}, or \code{"events"}.}
+\item{return}{Character; one of "list" (default), "xml", "session", "events".}
 }
 \value{
-If \code{return = "list"}, a list containing:
-\itemize{
-\item \code{session} — one-row tibble of session-level metadata
-\item \code{events} — tibble of MRR event records
-\item \code{session_pdv_fields} — mapping of session-level project-defined fields
-\item \code{detail_pdv_fields} — mapping of event-level project-defined fields
-}
-For other \code{return} values, the corresponding component is returned.
+Parsed MRR data according to \code{return}.
 }
 \description{
-Downloads a single PTAGIS mark–recapture–recovery (MRR) XML file and parses it
-into a structured list of tibbles. The file is retrieved from the PTAGIS API
-using its filename (e.g., \code{"CDR-2024-072-JCT.xml"}).
+Downloads a single PTAGIS mark–recapture–recovery (MRR) file and parses it
+into structured components. Parsing is file-type specific (JSON, XML, TXT),
+while schema enforcement is centralized at the end of this function.
 }
 \author{
-Ryan Kinzer
+Mike Ackerman & Ryan Kinzer
 }

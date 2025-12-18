@@ -1,25 +1,16 @@
-#' @title Download and Parse a MRR File
+#' @title Download and Parse a PTAGIS MRR File
 #'
 #' @description
-#' Downloads a single PTAGIS mark–recapture–recovery (MRR) XML file and parses it
-#' into a structured list of tibbles. The file is retrieved from the PTAGIS API
-#' using its filename (e.g., `"CDR-2024-072-JCT.xml"`).
+#' Downloads a single PTAGIS mark–recapture–recovery (MRR) file and parses it
+#' into structured components. Parsing is file-type specific (JSON, XML, TXT),
+#' while schema enforcement is centralized at the end of this function.
 #'
-#' @param filename Character; the name of the MRR file to download.
-#' @param return Character; format of the returned object. One of:
-#'   `"list"` (default), `"xml"`, `"session"`, or `"events"`.
+#' @param filename Character; name of the MRR file (e.g., "CDR-2024-072-JCT.json").
+#' @param return Character; one of "list" (default), "xml", "session", "events".
 #'
-#' @return
-#' If `return = "list"`, a list containing:
-#' \itemize{
-#'   \item `session` — one-row tibble of session-level metadata
-#'   \item `events` — tibble of MRR event records
-#'   \item `session_pdv_fields` — mapping of session-level project-defined fields
-#'   \item `detail_pdv_fields` — mapping of event-level project-defined fields
-#' }
-#' For other `return` values, the corresponding component is returned.
+#' @return Parsed MRR data according to `return`.
 #'
-#' @author Ryan Kinzer
+#' @author Mike Ackerman & Ryan Kinzer
 #'
 #' @export
 
@@ -33,8 +24,10 @@ get_file_data <- function(
       !is.character(filename) ||
       length(filename) != 1L ||
       !nzchar(filename)) {
-    stop("`filename` must be a single non-empty string (e.g., 'CDR-2024-072-JCT.xml').",
-         call. = FALSE)
+    stop(
+      "`filename` must be a single non-empty string (e.g., 'CDR-2024-072-JCT.json').",
+      call. = FALSE
+    )
   }
 
   return <- match.arg(return)
@@ -43,7 +36,7 @@ get_file_data <- function(
 
   x <- ptagis_GET(paste0("files/mrr/", filename))
 
-  # --- normalize downloaded content to character ---
+  # --- normalize downloaded content ---
   as_text <- function(x) {
     if (inherits(x, "response")) {
       httr::content(x, as = "text", encoding = "UTF-8")
@@ -62,10 +55,10 @@ get_file_data <- function(
 
   ext <- tolower(tools::file_ext(filename))
 
-  # --- parse by file type (JSON, XML, or TXT) ---
-  if(ext == "json") {
+  # --- parse by file type ---
+  if (ext == "json") {
 
-    # P5 JSON PATH
+    # P5 JSON (most recent / canonical)
     if (is.list(x) && !inherits(x, "response")) {
       json_obj <- x
     } else {
@@ -80,7 +73,7 @@ get_file_data <- function(
 
   } else if (ext == "xml") {
 
-    # P4 XML PATH
+    # P4 XML (legacy)
     xml_text <- as_text(x)
     doc <- xml2::read_xml(xml_text)
 
@@ -90,128 +83,22 @@ get_file_data <- function(
 
   } else {
 
-    # P3 ASCII / TXT PATH
+    # P3 ASCII / TXT (oldest, least reliable)
     txt <- as_text(x)
 
     # defensive sniff
     if (grepl("^\\s*<", txt)) {
-      stop(
-        "File appears to be XML but does not have .xml extension.",
-        call. = FALSE
-      )
+      stop("File appears to be XML but lacks a .xml extension.", call. = FALSE)
     }
     if (grepl("^\\s*\\{", txt)) {
-      stop(
-        "File appears to be JSON but does not have .json extension.",
-        call. = FALSE
-      )
+      stop("File appears to be JSON but lacks a .json extension.", call. = FALSE)
     }
 
     out <- parse_mrr_txt(txt)
-
   }
 
-  # force schema function (consider moving to outside internal function later)
-  enforce_event_schema <- function(events) {
-
-    # ---- canonical event schema ----------------------------------------------
-    schema <- list(
-      source_system_name    = character(),
-      source_system_version = character(),
-      name                  = character(),
-      file_name             = character(),
-      created               = as.POSIXct(character(), tz = "UTC"),
-      session_message       = character(),
-      mrr_project           = character(),
-      session_note          = character(),
-      trap_start_date_time  = character(),
-      trap_end_date_time    = character(),
-
-      sequence_number       = numeric(),
-      pit_tag               = character(),
-      length                = numeric(),
-      weight                = numeric(),
-      species_run_rear_type = character(),
-      rtv                   = character(),
-      additional_positional = character(),
-      conditional_comments  = character(),
-      text_comments         = character(),
-      nfish                 = character(),
-
-      capture_method        = character(),
-      event_date            = as.POSIXct(character(), tz = "UTC"),
-      event_site            = character(),
-      mark_method           = character(),
-      mark_temperature      = numeric(),
-      migration_year        = numeric(),
-      organization          = character(),
-      release_date          = as.POSIXct(character(), tz = "UTC"),
-      release_site          = character(),
-      release_temperature   = numeric(),
-      tagger                = character(),
-      location_rkmext       = numeric(),
-      brood_year             = numeric()
-    )
-
-    # ---- empty input safeguard -----------------------------------------------
-    if (is.null(events) || !is.data.frame(events) || nrow(events) == 0) {
-      return(tibble::as_tibble(schema)[0, ])
-    }
-
-    events <- tibble::as_tibble(events)
-
-    # ---- add missing columns --------------------------------------------------
-    for (nm in names(schema)) {
-      if (!nm %in% names(events)) {
-        events[[nm]] <- schema[[nm]]
-      }
-    }
-
-    # ---- coerce existing columns to schema types ------------------------------
-    for (nm in intersect(names(schema), names(events))) {
-
-      target <- schema[[nm]]
-
-      # POSIXct
-      if (inherits(target, "POSIXct")) {
-        if (!inherits(events[[nm]], "POSIXct")) {
-          events[[nm]] <- suppressWarnings(
-            as.POSIXct(events[[nm]], tz = "UTC", origin = "1970-01-01")
-          )
-        }
-
-        # numeric
-      } else if (is.numeric(target)) {
-        if (!is.numeric(events[[nm]])) {
-          events[[nm]] <- suppressWarnings(as.numeric(events[[nm]]))
-        }
-
-        # character
-      } else {
-        if (!is.character(events[[nm]])) {
-          events[[nm]] <- as.character(events[[nm]])
-        }
-      }
-    }
-
-    # ---- normalize blank comment fields --------------------------------------
-    comment_cols <- c(
-      "additional_positional",
-      "conditional_comments",
-      "text_comments"
-    )
-
-    for (cc in intersect(comment_cols, names(events))) {
-      events[[cc]][!nzchar(events[[cc]])] <- NA_character_
-    }
-
-    # ---- final column order ---------------------------------------------------
-    events <- events[, names(schema), drop = FALSE]
-
-    events
-  }
-
-  # --- enforce schema guarantees ---
+  # --- enforce canonical event schema i.e., intended from JSON ---
+  # NOTE: XML/TXT compatibility will be revisited later
   out$events <- enforce_event_schema(out$events)
 
   # --- return ---
@@ -221,7 +108,7 @@ get_file_data <- function(
     session = out$session,
     events  = out$events
   )
-} # end function
+}
 
 # get_file_data <- function(
 #     filename,

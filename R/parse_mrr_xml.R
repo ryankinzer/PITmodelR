@@ -43,7 +43,7 @@ parse_mrr_xml <- function(doc) {
 
   # Robust datetime parser → always returns POSIXct (UTC), NA when unparseable
   parse_datetime_mixed <- function(x) {
-    if (is.null(x) || lenght(x) == 0) return(as.POSIXct(character(), tz = "UTC"))
+    if (is.null(x) || length(x) == 0) return(as.POSIXct(character(), tz = "UTC"))
     x <- as.character(x)
     x[!nzchar(x)] <- NA_character_
 

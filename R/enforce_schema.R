@@ -40,7 +40,7 @@ enforce_schema <- function(out) {
     created               = as.POSIXct(character(), tz = "UTC"),
     modified              = as.POSIXct(character(), tz = "UTC"),
     session_message       = character(),
-    mrr_project            = character(),
+    mrr_project           = character(),
     session_note          = character()
   )
 
@@ -100,46 +100,46 @@ enforce_schema <- function(out) {
 
     df <- tibble::as_tibble(df)
 
-    # add missing columns
+    # add missing columns safely
     for (nm in names(schema)) {
       if (!nm %in% names(df)) {
-        df[[nm]] <- schema[[nm]]
+        target <- schema[[nm]]
+        n <- nrow(df)
+
+        if (inherits(target, "POSIXct")) {
+          df[[nm]] <- as.POSIXct(rep(NA, n), tz = attr(target, "tzone"))
+        } else if (is.numeric(target)) {
+          df[[nm]] <- rep(NA_real_, n)
+        } else if (is.character(target)) {
+          df[[nm]] <- rep(NA_character_, n)
+        } else if (is.logical(target)) {
+          df[[nm]] <- rep(NA, n)
+        } else {
+          df[[nm]] <- rep(NA, n)
+        }
       }
     }
 
     # coerce types
     for (nm in names(schema)) {
-
       target <- schema[[nm]]
       x <- df[[nm]]
 
-      # POSIXct
       if (inherits(target, "POSIXct")) {
         if (!inherits(x, "POSIXct")) {
           df[[nm]] <- suppressWarnings(
             as.POSIXct(x, tz = "UTC", origin = "1970-01-01")
           )
         }
-
-      # numeric
       } else if (is.numeric(target)) {
-        if (!is.numeric(x)) {
-          df[[nm]] <- suppressWarnings(as.numeric(x))
-        }
-
-      # character
+        if (!is.numeric(x)) df[[nm]] <- suppressWarnings(as.numeric(x))
       } else {
-        if (!is.character(x)) {
-          df[[nm]] <- as.character(x)
-        }
+        if (!is.character(x)) df[[nm]] <- as.character(x)
       }
     }
 
     # normalize blank comment fields
-    comment_cols <- intersect(
-      c("conditional_comments", "text_comments"),
-      names(df)
-    )
+    comment_cols <- intersect(c("conditional_comments", "text_comments"), names(df))
     for (cc in comment_cols) {
       df[[cc]][!nzchar(df[[cc]])] <- NA_character_
     }

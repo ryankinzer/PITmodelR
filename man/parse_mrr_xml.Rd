@@ -19,10 +19,10 @@ A named list containing:
 }
 }
 \description{
-Converts a raw PTAGIS MRR XML document into structured tibbles. The function
-strips XML namespaces, extracts session-level metadata, detail-level
-project-defined field (PDV) mappings, and event records, and performs basic
-type coercion (datetime and numeric). This is a low-level helper used by
+Converts a raw PTAGIS MRR XML (P4) document into structured tibbles. The function
+strips XML namespaces, extracts session-level metadata, session- and detail-level
+project-defined field mappings, and event records, and performs basic
+type coercion (datetime and numeric). This is a low-level parser used by
 higher-level MRR import functions.
 }
 \keyword{internal}

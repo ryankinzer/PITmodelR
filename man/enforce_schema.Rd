@@ -2,41 +2,30 @@
 % Please edit documentation in R/enforce_schema.R
 \name{enforce_schema}
 \alias{enforce_schema}
-\title{Enforce schema on PTAGIS MRR file parsed data}
+\title{Enforce Schema on Parsed JSON, XML, TXT Files}
 \usage{
-enforce_schema(parsed, tz = "UTC")
+enforce_schema(out)
 }
 \arguments{
-\item{parsed}{A named list containing at least:
-\describe{
-\item{session}{A tibble with session-level metadata (0–1 rows).}
-\item{events}{A tibble with event-level records (0+ rows).}
-\item{session_pdv_fields}{(optional) Session-level PDV mapping table.}
-\item{detail_pdv_fields}{(optional) Event-level PDV mapping table.}
+\item{out}{A list produced by parse_mrr_json(), parse_mrr_xml(), or
+parse_mrr_txt(), containing:
+\itemize{
+\item session
+\item events
+\item session_pdv_fields
+\item detail_pdv_fields
 }}
-
-\item{tz}{Time zone to enforce for all datetime columns (default \code{"UTC"}).}
 }
 \value{
-The input list with \code{session} and \code{events} coerced to the
-enforced schema. PDV tables are returned unchanged.
+A list with the same structure as \code{out}, but with enforced
+schemas for \code{session} and \code{events}.
 }
 \description{
-Applies a canonical column schema to parsed PTAGIS MRR file outputs.
-This function is intentionally run \emph{after} parsing (JSON, XML, or TXT)
-to standardize column presence, order, and data types in a single place.
+Enforces a canonical column set and data types for parsed PTAGIS MRR data.
+This function should be called exactly once per file, after parsing
+(JSON, XML, or TXT), and before downstream use or row-binding.
 
-Parsers are expected to be flexible and lossless; this function is the
-authoritative schema gatekeeper.
-
-Currently, the enforced schema reflects all known fields available in
-PTAGIS \strong{MRR JSON} files. Additional fields from XML or TXT files may be
-added later.
-}
-\examples{
-\dontrun{
-out <- parse_mrr_json(obj)
-out <- enforce_schema(out)
-}
+Parsers are intentionally flexible; this function is the single point
+where schema is standardized.
 }
 \keyword{internal}

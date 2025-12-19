@@ -1,3 +1,5 @@
+#' Enforce Schema on Parsed JSON, XML, TXT Files
+#'
 #' @description
 #' Enforces a canonical column set and data types for parsed PTAGIS MRR data.
 #' This function should be called exactly once per file, after parsing
@@ -34,14 +36,15 @@ enforce_schema <- function(out) {
     schema                = character(),
     source_system_name    = character(),
     source_system_version = character(),
-    name                  = character(),
     file_name             = character(),
     legacy_file_name      = character(),
-    created               = as.POSIXct(character(), tz = "UTC"),
-    modified              = as.POSIXct(character(), tz = "UTC"),
-    session_message       = character(),
+    file_version          = character(), # P4 XML
     mrr_project           = character(),
-    session_note          = character()
+    name                  = character(),
+    session_message       = character(),
+    session_note          = character(),
+    created               = as.POSIXct(character(), tz = "UTC"),
+    modified              = as.POSIXct(character(), tz = "UTC")
   )
 
   # --- canonical EVENTS schema ---

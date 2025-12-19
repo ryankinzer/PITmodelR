@@ -46,42 +46,6 @@ parse_mrr_xml <- function(doc) {
     if (length(node)) xml2::xml_text(node) else NA_character_
   }
 
-  # robust datetime parser → always returns POSIXct (UTC), NA when unparseable
-  parse_datetime_mixed <- function(x) {
-    if (is.null(x) || length(x) == 0)
-      return(as.POSIXct(character(), tz = "UTC"))
-
-    x <- as.character(x)
-    x[!nzchar(x)] <- NA_character_
-
-    # normalize ISO offsets "-06:00" → "-0600" for %z
-    x_iso <- sub("([+-]\\d{2}):?(\\d{2})$", "\\1\\2", x, perl = TRUE)
-
-    fmts <- c(
-      "%Y-%m-%dT%H:%M:%OS%z",  # ISO with frac sec + tz
-      "%Y-%m-%dT%H:%M:%S%z",   # ISO with tz
-      "%Y-%m-%dT%H:%M:%OS",    # ISO frac sec, no tz
-      "%Y-%m-%dT%H:%M:%S",     # ISO no tz
-      "%Y-%m-%d %H:%M:%OS",    # space sep
-      "%Y-%m-%d %H:%M:%S",
-      "%m/%d/%Y %H:%M:%S",     # US-style (e.g., "03/11/2024 12:00:00")
-      "%m/%d/%Y %H:%M"         # US-style (e.g., "03/11/2024 12:00")
-    )
-
-    out <- as.POSIXct(rep(NA_real_, length(x_iso)), origin = "1970-01-01", tz = "UTC")
-
-    todo <- is.na(out) & !is.na(x_iso)
-    for (f in fmts) {
-      if (!any(todo)) break
-      tmp <- suppressWarnings(as.POSIXct(x_iso[todo], format = f, tz = "UTC"))
-      hit <- !is.na(tmp)
-      if (any(hit)) out[which(todo)[hit]] <- tmp[hit]
-      todo <- is.na(out) & !is.na(x_iso)
-    }
-
-    out
-  }
-
   # numify <- function(v) {
   #   z <- suppressWarnings(as.numeric(v))
   #   ifelse(is.na(z) & !is.na(v) & nzchar(v), NA_real_, z)
@@ -127,7 +91,7 @@ parse_mrr_xml <- function(doc) {
 
   # light coercion only (schema enforcement happens later)
 
-  # Coerce common types
+  # coerce common types
   for (nm_dt in c("created","modified")) {
     if (nm_dt %in% names(session)) {
       session[[nm_dt]] <- parse_datetime_mixed(session[[nm_dt]])

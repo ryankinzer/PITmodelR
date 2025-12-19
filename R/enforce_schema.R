@@ -49,7 +49,7 @@ enforce_schema <- function(out) {
 
   # --- canonical EVENTS schema ---
   events_schema <- list(
-    sequence_number       = numeric(),
+    sequence_number       = integer(),
     pit_tag               = character(),
     event_date            = as.POSIXct(character(), tz = "UTC"),
     event_type            = character(),
@@ -86,7 +86,7 @@ enforce_schema <- function(out) {
     raceway               = character(),
     radio_tag             = character(),
     location_rkm_offset   = numeric(),
-    location_rkm          = numeric(),
+    location_rkm          = character(),
     scale_id              = character(),
     second_pit_tag        = character(),
     spawn_year            = numeric(),

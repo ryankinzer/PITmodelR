@@ -118,9 +118,9 @@ parse_mrr_txt <- function(txt) {
   release_temperature <- extract_field(lines, "RELEASE WATER TEMP")
   tagger              <- extract_field(lines, "TAGGER")
 
-  location_rkmext     <- extract_field(lines, "RELEASE RIVER KM")
-  location_rkmext     <- if (!is.na(location_rkmext)) {
-    sub(".*\\.(\\d{3})$", "\\1", location_rkmext)
+  location_rkm        <- extract_field(lines, "RELEASE RIVER KM")
+  location_rkmext     <- if (!is.na(location_rkm)) {
+    sub(".*\\.(\\d{3})$", "\\1", location_rkm)
   } else NA_character_
 
   # optional P3 session header fields

@@ -52,6 +52,13 @@ parse_mrr_json <- function(obj) {
     lapply(session_vals, text_or_na)
   )
 
+  # coerce session datetime fields
+  for (nm_dt in c("created", "modified")) {
+    if (nm_dt %in% names(session)) {
+      session[[nm_dt]] <- parse_datetime_mixed(session[[nm_dt]])
+    }
+  }
+
   # ---- session PDV fields ----
   sp_list <- obj$sessionProjectDefinedFields
   session_pdv_fields <- if (!is.null(sp_list) && length(sp_list)) {
@@ -118,6 +125,13 @@ parse_mrr_json <- function(obj) {
     ))
   } else {
     tibble::tibble()
+  }
+
+  # coerce event datetime fields
+  for (nm_dt in c("event_date", "release_date")) {
+    if (nm_dt %in% names(events)) {
+      events[[nm_dt]] <- parse_datetime_mixed(events[[nm_dt]])
+    }
   }
 
   list(

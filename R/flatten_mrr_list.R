@@ -1,21 +1,28 @@
-#' @title Flatten Set of Parsed MRR to Tibble
+#' @title Flatten Parsed MRR Files into Session and Event Tables
 #'
 #' @description
-#' Flatten each parsed PTAGIS MRR XML file (output from \code{get_file_data(..., return="list")})
-#' into a tibble. Returns a named list of tibbles, one per MRR file.
+#' Converts a list of parsed MRR file objects into per-file flattened
+#' session and event tables. Optionally attaches PDV/SPDV values as
+#' character columns.
 #'
-#' @inheritParams flatten_mrr_file
-#' @inheritParams check_pdv_label_consistency
+#' @param mrr_list Named list of parsed MRR objects returned by
+#'   \code{download_mrr_files()}.
+#' @param attach_pdvs Logical; if TRUE, attaches PDV/SPDV values to
+#'   session and event tables. Default FALSE.
 #'
-#' @return A named list of tibbles, one per MRR file.
+#' @return A named list where each element contains:
+#'   \itemize{
+#'     \item session – flattened session tibble
+#'     \item events  – flattened events tibble
+#'   }
 #'
-#' @author Ryan Kinzer
+#' @author Mike Ackerman and Ryan Kinzer
 #'
 #' @export
 
 flatten_mrr_list <- function(mrr_list,
                              keep_code_cols = TRUE,
-                             label_conflict = c("suffix","overwrite","skip")) {
+                             label_conflict = c("suffix", "overwrite", "skip")) {
 
   label_conflict <- match.arg(label_conflict)
 

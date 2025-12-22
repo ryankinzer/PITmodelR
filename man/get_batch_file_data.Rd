@@ -6,10 +6,9 @@
 \usage{
 get_batch_file_data(
   filenames,
-  check_labels = c("warn", "error", "ignore"),
-  keep_code_cols = TRUE,
-  label_conflict = c("suffix", "overwrite", "skip"),
-  use_codes_on_conflict = TRUE
+  drop_pdvs = FALSE,
+  attach_pdvs = !drop_pdvs,
+  keep_mapping = attach_pdvs
 )
 }
 \arguments{
@@ -20,14 +19,6 @@ Determines how to handle PDV/SPDV label inconsistencies across files.}
 
 \item{keep_code_cols}{Logical, default \code{TRUE}. If \code{TRUE}, retains code
 columns (pdv*, spdv*) in flattened tibbles. If \code{FALSE}, replaces with user field names.}
-
-\item{label_conflict}{Character indicating how to handle name conflicts when creating
-label-named columns. Options:
-\describe{
-\item{\code{"suffix"}}{Append \code{"_label"}, \code{"_label2"}, etc. (default).}
-\item{\code{"overwrite"}}{Overwrite the existing column.}
-\item{\code{"skip"}}{Do not create the label column if the name already exists.}
-}}
 
 \item{use_codes_on_conflict}{Logical, default \code{TRUE}. If \code{TRUE}, code columns are preferred over label-derived columns
 when combining flattened tibbles to ensure a consistent schema.}

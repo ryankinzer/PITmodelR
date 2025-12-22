@@ -2,7 +2,7 @@
 % Please edit documentation in R/flatten_mrr_list.R
 \name{flatten_mrr_list}
 \alias{flatten_mrr_list}
-\title{Flatten Set of Parsed MRR to Tibble}
+\title{Flatten Parsed MRR Files into Session and Event Tables}
 \usage{
 flatten_mrr_list(
   mrr_list,
@@ -11,27 +11,24 @@ flatten_mrr_list(
 )
 }
 \arguments{
-\item{mrr_list}{named list of parsed MRR objects (output
-from \code{get_file_data(..., return="list")}).}
+\item{mrr_list}{Named list of parsed MRR objects returned by
+\code{download_mrr_files()}.}
 
-\item{keep_code_cols}{Logical; if \code{TRUE}, retain the original PDV*/SPDV* code
-columns in addition to the new label-named columns. Default is \code{FALSE}.}
-
-\item{label_conflict}{Character indicating how to handle name conflicts when creating
-label-named columns. Options:
-\describe{
-\item{\code{"suffix"}}{Append \code{"_label"}, \code{"_label2"}, etc. (default).}
-\item{\code{"overwrite"}}{Overwrite the existing column.}
-\item{\code{"skip"}}{Do not create the label column if the name already exists.}
-}}
+\item{attach_pdvs}{Logical; if TRUE, attaches PDV/SPDV values to
+session and event tables. Default FALSE.}
 }
 \value{
-A named list of tibbles, one per MRR file.
+A named list where each element contains:
+\itemize{
+\item session – flattened session tibble
+\item events  – flattened events tibble
+}
 }
 \description{
-Flatten each parsed PTAGIS MRR XML file (output from \code{get_file_data(..., return="list")})
-into a tibble. Returns a named list of tibbles, one per MRR file.
+Converts a list of parsed MRR file objects into per-file flattened
+session and event tables. Optionally attaches PDV/SPDV values as
+character columns.
 }
 \author{
-Ryan Kinzer
+Mike Ackerman and Ryan Kinzer
 }

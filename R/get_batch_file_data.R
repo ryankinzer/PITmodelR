@@ -25,31 +25,19 @@
 #'
 #' @export
 
-get_batch_file_data <- function(filenames,
-                                check_labels = c("warn","error","ignore"),
-                                keep_code_cols = TRUE,
-                                label_conflict = c("suffix","overwrite","skip"),
-                                use_codes_on_conflict = TRUE) {
+get_batch_file_data <- function(
+    filenames,
+    drop_pdvs = FALSE,
+    attach_pdvs = !drop_pdvs,
+    keep_mapping = attach_pdvs
+) {
 
-  check_labels   <- match.arg(check_labels)
+  mrr_list <- download_mrr_files(filenames, drop_pdvs = drop_pdvs)
 
-  label_conflict <- match.arg(label_conflict)
-
-  mrr_list <- download_mrr_files(filenames)
-
-  issues <- check_pdv_label_consistency(mrr_list,
-                                        which = "both",
-                                        action = check_labels)
-
-  files <- flatten_mrr_list(mrr_list,
-                            keep_code_cols = keep_code_cols,
-                            label_conflict = label_conflict)
-
-  combined <- combine_flattened_mrr(files,
-                                    use_codes_on_conflict = use_codes_on_conflict)
-
-  list(sessions = files,
-       events = combined,
-       issues = issues)
+  collapse_mrr_list(
+    mrr_list,
+    attach_pdvs = attach_pdvs,
+    keep_mapping = keep_mapping
+  )
 
 }

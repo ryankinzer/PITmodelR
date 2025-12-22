@@ -227,7 +227,7 @@ parse_mrr_txt <- function(txt) {
 
   # --- build session tibble ---
   session <- tibble::tibble(
-    ource_system_name    = source_system_name,
+    source_system_name    = source_system_name,
     source_system_version = source_system_version,
     name                  = name,
     file_name             = file_name,

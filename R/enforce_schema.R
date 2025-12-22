@@ -116,7 +116,7 @@ enforce_schema <- function(out) {
 
     if (length(spdv_cols)) {
       pdv_values$session <- tibble::tibble(
-        pdv_column = spdv_cols,
+        spdv_column = spdv_cols,
         value      = vapply(
           out$session[spdv_cols],
           function(x) as.character(x[[1]]),

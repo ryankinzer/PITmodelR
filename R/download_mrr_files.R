@@ -13,7 +13,7 @@
 #'
 #' @export
 
-download_mrr_files <- function(filenames) {
+download_mrr_files <- function(filenames, drop_pdvs = FALSE) {
 
   if (!is.character(filenames) || !length(filenames)) {
     stop("`filenames` must be a non-empty character vector.", call. = FALSE)
@@ -23,9 +23,8 @@ download_mrr_files <- function(filenames) {
 
   for (i in seq_along(filenames)) {
     fn <- filenames[i]
-    out[[i]] <- get_file_data(fn, return = "list")
+    out[[i]] <- get_file_data(fn, drop_pdvs = drop_pdvs)
   }
 
   out
-
 }

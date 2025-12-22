@@ -4,7 +4,7 @@
 \alias{download_mrr_files}
 \title{Download and Parse Multiple MRR XML Files}
 \usage{
-download_mrr_files(filenames)
+download_mrr_files(filenames, drop_pdvs = FALSE)
 }
 \arguments{
 \item{filenames}{A character vector of MRR file names to download and process.}

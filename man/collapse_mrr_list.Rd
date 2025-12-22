@@ -2,25 +2,27 @@
 % Please edit documentation in R/collapse_mrr_list.R
 \name{collapse_mrr_list}
 \alias{collapse_mrr_list}
-\title{Collapse per-file MRR list into combined sessions/events, optionally attaching PDVs}
+\title{Collapse per-file MRR list into combined sessions/events}
 \usage{
-collapse_mrr_list(mrr_list, attach_pdvs = FALSE, keep_mapping = TRUE)
+collapse_mrr_list(mrr_list, pdvs = c("drop", "attach"))
 }
 \arguments{
-\item{mrr_list}{Named list of parsed file objects. Each element contains \code{session} and \code{events},
-and if drop_pdvs=FALSE also \code{session_pdv_fields}, \code{detail_pdv_fields}, \code{pdv_values}.}
+\item{mrr_list}{Named list of parsed file objects. Each element contains at
+least \code{session} and \code{events}. If PDVs were kept, elements may also contain
+\code{session_pdv_fields}, \code{detail_pdv_fields}, and \code{pdv_values}.}
 
-\item{attach_pdvs}{Logical; attach PDVs/SPDVs if present.}
-
-\item{keep_mapping}{Logical; return mapping tibble if present.}
+\item{pdvs}{Character; one of \code{"drop"} (default) or \code{"attach"}.}
 }
 \value{
-A list with \code{sessions}, \code{events}, and (optionally) \code{mapping}.
+A list with \code{sessions} and \code{events}. If \code{pdvs="attach"} and PDVs are
+available, also returns \code{mapping}.
 }
 \description{
 Collapses a list of per-file parsed MRR outputs (from download_mrr_files())
 into combined \code{sessions} (one row per file) and \code{events} (all rows).
-Optionally attaches SPDV values to sessions (wide by spdv1..)
-and PDV values to events (wide by pdv1..), and returns a simple mapping tibble.
+
+If \code{pdvs = "attach"} and PDV structures are present, attaches SPDV values
+to \code{sessions} (wide: spdv1, spdv2, ...) and PDV values to \code{events}
+(wide: pdv1, pdv2, ...), and returns a \code{mapping} tibble.
 }
 \keyword{internal}

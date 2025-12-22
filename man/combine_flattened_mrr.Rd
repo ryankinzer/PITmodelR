@@ -8,9 +8,6 @@ combine_flattened_mrr(flat_list, use_codes_on_conflict = TRUE)
 }
 \arguments{
 \item{flat_list}{A list of tibbles, typically the output of \code{flatten_mrr_list}.}
-
-\item{use_codes_on_conflict}{Logical, default \code{TRUE}. If \code{TRUE}, code columns are preferred over label-derived columns
-when combining flattened tibbles to ensure a consistent schema.}
 }
 \value{
 A tibble combining all rows of \code{flat_list}, filling missing columns

@@ -13,7 +13,8 @@
 #'
 #' @export
 
-download_mrr_files <- function(filenames, drop_pdvs = FALSE) {
+download_mrr_files <- function(filenames,
+                               drop_pdvs = FALSE) {
 
   if (!is.character(filenames) || !length(filenames)) {
     stop("`filenames` must be a non-empty character vector.", call. = FALSE)

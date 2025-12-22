@@ -14,10 +14,8 @@
 #'
 #' @export
 
-get_file_data <- function(
-    filename,
-    drop_pdvs = FALSE
-) {
+get_file_data <- function(filename,
+                          drop_pdvs = FALSE) {
 
   # --- validate filename ---
   if (missing(filename) ||

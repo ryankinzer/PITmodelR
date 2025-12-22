@@ -7,7 +7,7 @@
 download_mrr_files(filenames, drop_pdvs = FALSE)
 }
 \arguments{
-\item{filenames}{A character vector of MRR file names to download and process.}
+\item{filenames}{Character vector of MRR file names to download and process.}
 }
 \value{
 A named list where each element corresponds to one input file.

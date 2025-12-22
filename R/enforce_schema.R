@@ -92,16 +92,52 @@ enforce_schema <- function(out) {
     stock                 = character()
   )
 
-  # --- normalize SPDV and PDV metadata column names
-  if (nrow(out$session_pdv_fields)) {
-    out$session_pdv_fields$pdv_column <-
-      tolower(out$session_pdv_fields$pdv_column)
+  # helper to clean SPDV & PDV labels to snake_case (keep original too)
+  clean_pdv_label <- function(x) {
+    x <- as.character(x)
+    x[!nzchar(x)] <- NA_character_
+
+    x <- gsub("&", " and ", x)
+    x <- gsub("@", " at ", x)
+    x <- gsub("[/]+", " ", x)                     # "a / b" -> "a b"
+    x <- gsub("[()\\[\\]\\{\\}]", " ", x, perl = TRUE)
+    x <- gsub("[,:;]+", " ", x)
+    x <- gsub("\\.+", " ", x)
+    x <- gsub("([a-z0-9])([A-Z])", "\\1_\\2", x)  # camelCase -> snake
+    x <- gsub("[^A-Za-z0-9]+", "_", x)
+    x <- gsub("_+", "_", x)
+    x <- gsub("^_+|_+$", "", x)
+    x <- tolower(x)
+    x <- ifelse(!is.na(x) & grepl("^[0-9]", x), paste0("x_", x), x)
+    x
   }
 
-  if (nrow(out$detail_pdv_fields)) {
-    out$detail_pdv_fields$pdv_column <-
-      tolower(out$detail_pdv_fields$pdv_column)
+  # --- normalize SPDV and PDV metadata column names ---
+  normalize_pdv_map <- function(df) {
+    if (!is.data.frame(df) || nrow(df) == 0) return(tibble::as_tibble(df))
+
+    df <- tibble::as_tibble(df)
+
+    if ("pdv_column" %in% names(df)) {
+      # standardize to canonical lowercase code: spdv1/pdv1/...
+      df$pdv_column <- tolower(trimws(as.character(df$pdv_column)))
+    }
+
+    if ("label" %in% names(df)) {
+      df$label_raw   <- as.character(df$label)
+      df$label <- clean_pdv_label(df$label_raw)
+    } else {
+      df$label_raw   <- NA_character_
+      df$label <- NA_character_
+    }
+
+    if (!"definition" %in% names(df)) df$definition <- NA_character_
+
+    df
   }
+
+  out$session_pdv_fields <- normalize_pdv_map(out$session_pdv_fields)
+  out$detail_pdv_fields  <- normalize_pdv_map(out$detail_pdv_fields)
 
   # --- extract PDV values BEFORE schema enforcement
   pdv_values <- list(
@@ -112,27 +148,36 @@ enforce_schema <- function(out) {
   # --- session PDVs ---
   if (is.data.frame(out$session) && nrow(out$session) == 1) {
 
-    spdv_cols <- grep("^spdv\\d+$", names(out$session), value = TRUE)
+    # if session has > 1 row (shouldn't), take first row defensively
+    if (nrow(out$session) > 1) out$session <- out$session[1, , drop = FALSE]
+
+    spdv_cols <- grep("^spdv\\d+$", names(out$session), value = TRUE, ignore.case = TRUE)
 
     if (length(spdv_cols)) {
+      # standardize extracted column names to lowercase spdv*
+      spdv_cols_lc <- tolower(spdv_cols)
+      names(out$session) <- tolower(names(out$session))
+
       pdv_values$session <- tibble::tibble(
-        spdv_column = spdv_cols,
-        value      = vapply(
-          out$session[spdv_cols],
+        spdv_column = spdv_cols_lc,
+        value       = vapply(
+          out$session[spdv_cols_lc],
           function(x) as.character(x[[1]]),
           character(1)
         )
       )
 
       # remove SPDVs from session before schema enforcement
-      out$session <- out$session[, setdiff(names(out$session), spdv_cols), drop = FALSE]
+      out$session <- out$session[, setdiff(names(out$session), spdv_cols_lc), drop = FALSE]
     }
   }
 
   # --- event PDVs ---
   if (is.data.frame(out$events) && nrow(out$events) > 0) {
 
-    pdv_cols <- grep("^pdv\\d+$", names(out$events), value = TRUE)
+    names(out$events) <- tolower(names(out$events))
+
+    pdv_cols <- grep("^pdv\\d+$", names(out$events), value = TRUE, ignore.case = TRUE)
 
     if (length(pdv_cols)) {
 

@@ -1,43 +1,40 @@
-#' @title Download, Check, Flatten, and Combine MRR Files
+#' @title Download and Combine MRR Files
 #'
 #' @description
-#' A one-call convenience wrapper to download multiple PTAGIS mark-recapture-recovery (MRR) XML files,
-#' check for PDV/SPDV label consistency across files, and return everything as a single list.
+#' Convenience wrapper to download multiple PTAGIS MRR files (JSON/XML/TXT),
+#' enforce schemas via \code{get_file_data()}, and return combined `sessions`
+#' and `events`. Optionally attaches SPDV/PDV values (wide: spdv1.., pdv1..)
+#' and returns a simple per-file mapping tibble.
 #'
-#' @param filenames A character vector of MRR file names to download and process.
-#' @param check_labels Character; one of \code{"warn"}, \code{"error"}, or \code{"ignore"}.
-#'   Determines how to handle PDV/SPDV label inconsistencies across files.
-#' @param keep_code_cols Logical, default \code{TRUE}. If \code{TRUE}, retains code
-#' columns (pdv*, spdv*) in flattened tibbles. If \code{FALSE}, replaces with user field names.
-#' @param use_codes_on_conflict Logical, default \code{TRUE}. If \code{TRUE}, code columns are preferred over label-derived columns
-#'   when combining flattened tibbles to ensure a consistent schema.
+#' @param filenames Character vector of MRR file names to download and process.
+#' @param pdvs Character; one of \code{"drop"} (default) or \code{"attach"}.
+#'   If \code{"drop"}, PDV/SPDV structures are not downloaded/kept upstream (faster, simpler).
+#'   If \code{"attach"}, PDV/SPDV values are retained and attached in the output and
+#'   a mapping tibble is returned.
 #'
-#' @inheritParams flatten_mrr_file
-#'
-#' @return A list with three elements:
+#' @return A list with:
 #' \itemize{
-#'   \item \code{sessions} – named list of flattened tibbles, one per file
-#'   \item \code{events} – a single tibble combining "events" from all files
-#'   \item \code{issues} – a data.frame of PDV/SPDV label inconsistencies detected across files
+#'   \item \code{sessions} – tibble of one row per file/session (optionally with spdv* cols)
+#'   \item \code{events} – tibble of all event rows (optionally with pdv* cols)
+#'   \item \code{mapping} – tibble mapping (file_name, level, pdv_column, label, definition)
+#'     (empty if \code{pdvs="drop"} or if PDV structures are unavailable)
 #' }
 #'
-#' @author Ryan Kinzer
+#' @author Mike Ackerman & Ryan Kinzer
 #'
 #' @export
 
-get_batch_file_data <- function(
-    filenames,
-    drop_pdvs = FALSE,
-    attach_pdvs = !drop_pdvs,
-    keep_mapping = attach_pdvs
-) {
+get_batch_file_data <- function(filenames,
+                                pdvs = c("drop", "attach")) {
 
-  mrr_list <- download_mrr_files(filenames, drop_pdvs = drop_pdvs)
+  pdvs <- match.arg(pdvs)
 
-  collapse_mrr_list(
-    mrr_list,
-    attach_pdvs = attach_pdvs,
-    keep_mapping = keep_mapping
-  )
+  if (!is.character(filenames) || !length(filenames)) {
+    stop("`filenames` must be a non-empty character vector.", call. = FALSE)
+  }
+
+  mrr_list <- download_mrr_files(filenames, drop_pdvs = (pdvs == "drop"))
+
+  collapse_mrr_list(mrr_list, pdvs = pdvs)
 
 }

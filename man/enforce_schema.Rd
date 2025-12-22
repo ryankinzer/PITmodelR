@@ -17,15 +17,11 @@ parse_mrr_txt(), containing:
 }}
 }
 \value{
-A list with the same structure as \code{out}, but with enforced
-schemas for \code{session} and \code{events}.
+A list with enforced schema and preserved SPDV and PDV values (if present).
 }
 \description{
 Enforces a canonical column set and data types for parsed PTAGIS MRR data.
-This function should be called exactly once per file, after parsing
-(JSON, XML, or TXT), and before downstream use or row-binding.
-
 Parsers are intentionally flexible; this function is the single point
-where schema is standardized.
+where schema is standardized and PDVs are safely captured.#'
 }
 \keyword{internal}

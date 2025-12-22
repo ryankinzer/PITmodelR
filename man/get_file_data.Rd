@@ -4,7 +4,7 @@
 \alias{get_file_data}
 \title{Download and Parse a PTAGIS MRR File}
 \usage{
-get_file_data(filename, return = c("list", "xml", "session", "events"))
+get_file_data(filename, drop_pdvs = FALSE)
 }
 \arguments{
 \item{filename}{Character; name of the MRR file (e.g., "CDR-2024-072-JCT.json").}

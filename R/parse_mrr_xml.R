@@ -46,11 +46,6 @@ parse_mrr_xml <- function(doc) {
     if (length(node)) xml2::xml_text(node) else NA_character_
   }
 
-  # numify <- function(v) {
-  #   z <- suppressWarnings(as.numeric(v))
-  #   ifelse(is.na(z) & !is.na(v) & nzchar(v), NA_real_, z)
-  # }
-
   # --- session ---
   ses_nodes <- xml2::xml_find_all(doc, ".//Session")
 
@@ -170,17 +165,6 @@ parse_mrr_xml <- function(doc) {
         df[[nm_dt]] <- parse_datetime_mixed(df[[nm_dt]])
       }
     }
-
-    # for (nm_num in c("length","weight",
-    #                  "mark_temperature","release_temperature",
-    #                  "brood_year","migration_year",
-    #                  "sequence_number",
-    #                  "location_latitude", "location_longitude", "location_rkmext"
-    # )) {
-    #   if (nm_num %in% names(df)) {
-    #     df[[nm_num]] <- numify(df[[nm_num]])
-    #   }
-    # }
 
     df
   } else {

@@ -60,8 +60,6 @@ parse_mrr_txt <- function(txt) {
     if (is.na(x) || !nzchar(x)) return(NA_character_)    # missing or non-numeric
     if (!grepl("^[0-9]{1,2}$", x)) return(NA_character_) # tolerate 1 or 2 digit entries; reject everything else
     sprintf("%02d", as.integer(x))
-    # yy <- as.integer(x)
-    # 2000 + yy # convert 0-99 -> 2000-2099
   }
 
   # --- extract session-level fields ---
@@ -84,8 +82,6 @@ parse_mrr_txt <- function(txt) {
     # limit search to header region
     hdr <- lines[seq_len(min(length(lines), max_lines))]
     dash_idx <- which(stringr::str_count(hdr, "-") >= 15)
-    # dash_count <- stringr::str_count(hdr, "-")
-    # dash_idx   <- which(dash_count >= 15)
     if(length(dash_idx) < 2) return(NA_character_)
 
     # message lines are between first two dashed lines

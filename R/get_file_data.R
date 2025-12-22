@@ -16,7 +16,7 @@
 
 get_file_data <- function(
     filename,
-    return = c("list", "xml", "session", "events")
+    drop_pdvs = FALSE
 ) {
 
   # --- validate filename ---
@@ -29,8 +29,6 @@ get_file_data <- function(
       call. = FALSE
     )
   }
-
-  return <- match.arg(return)
 
   message("Downloading ", filename, " MRR file data...")
 
@@ -65,10 +63,6 @@ get_file_data <- function(
       json_obj <- jsonlite::fromJSON(as_text(x), simplifyVector = FALSE)
     }
 
-    if (return == "xml") {
-      stop("return = 'xml' is not valid for JSON input.", call. = FALSE)
-    }
-
     out <- parse_mrr_json(json_obj)
 
   } else if (ext == "xml") {
@@ -76,8 +70,6 @@ get_file_data <- function(
     # P4 XML (legacy)
     xml_text <- as_text(x)
     doc <- xml2::read_xml(xml_text)
-
-    if (return == "xml") return(doc)
 
     out <- parse_mrr_xml(doc)
 
@@ -98,14 +90,16 @@ get_file_data <- function(
   }
 
   # --- enforce canonical event schema i.e., intended from JSON ---
-  # NOTE: XML/TXT compatibility will be revisited later
   out <- enforce_schema(out)
 
+  # --- optionally drop PDV-related objects
+  if (isTRUE(drop_pdvs)) {
+    out$session_pdv_fields <- NULL
+    out$detail_pdv_fields  <- NULL
+    out$pdv_values         <- NULL
+  }
+
   # --- return ---
-  switch(
-    return,
-    list    = out,
-    session = out$session,
-    events  = out$events
-  )
+  out
+
 }

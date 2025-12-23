@@ -18,7 +18,7 @@
 #' @return A list with elements:
 #'   - arrivals_long:  first-arrival time per tag x occasion (long)
 #'   - arrivals_wide:  first-arrival time per tag (wide by occasion)
-#'   - travel_long:    travel time (days) per tag and leg (o_i -> o_{i+1})
+#'   - travel_long:    travel time (days) per tag and leg (from occasion i to occasion i+1)
 #'   - occasion_summary: arrival-time quantiles by occasion
 #'   - leg_summary:       travel-time quantiles by leg
 #'   - mapping: site_code -> occasion, occ_idx

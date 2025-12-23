@@ -4,9 +4,9 @@
 #' Given raw tag histories e.g., from `get_batch_tag_histories()` and user-defined sequence of
 #' detection locations or occasions, summarizes first-arrival and travel times for tagged fish.
 #' Calculates per-tag first arrival and travel times, as well as quantile summaries for each
-#' occassion and migration "leg".
+#' occasion and migration "leg".
 #'
-#' @param tz Time zone used when parsing \code{time_col} if it is character (default = \code{"America/Los_Angeles"}, Pacific Standard).
+#' @param tz Time zone used when parsing \code{time_col} if it is character (default = \code{"UTC"}).
 #'
 #' @return A list with the following elements:
 #' \describe{
@@ -33,7 +33,7 @@ summarize_arrival_travel <- function(tag_history,
                                      site_col = "site_code",
                                      tag_col  = "tag_code",
                                      time_col = "event_date",
-                                     tz = "America/Los_Angeles",
+                                     tz = "UTC",
                                      keep_unknown = FALSE) {
   # --- validate inputs ---
   stopifnot(is.data.frame(tag_history))

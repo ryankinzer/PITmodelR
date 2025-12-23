@@ -3,7 +3,7 @@
 #' @description
 #' Enforces a canonical column set and data types for parsed PTAGIS MRR data.
 #' Parsers are intentionally flexible; this function is the single point
-#' where schema is standardized and PDVs are safely captured.#'
+#' where schema is standardized and project-defined variables (PDVs) are safely captured.
 #'
 #' @param out A list produced by parse_mrr_json(), parse_mrr_xml(), or
 #'   parse_mrr_txt(), containing:
@@ -92,7 +92,7 @@ enforce_schema <- function(out) {
     stock                 = character()
   )
 
-  # helper to clean SPDV & PDV labels to snake_case (keep original too)
+  # helper to clean SPDV & PDV labels to snake_case
   clean_pdv_label <- function(x) {
     x <- as.character(x)
     x[!nzchar(x)] <- NA_character_
@@ -103,43 +103,40 @@ enforce_schema <- function(out) {
     x <- gsub("[()\\[\\]\\{\\}]", " ", x, perl = TRUE)
     x <- gsub("[,:;]+", " ", x)
     x <- gsub("\\.+", " ", x)
-    x <- gsub("([a-z0-9])([A-Z])", "\\1_\\2", x)  # camelCase -> snake
+    x <- gsub("([a-z0-9])([A-Z])", "\\1_\\2", x)  # camelCase -> snake_case
     x <- gsub("[^A-Za-z0-9]+", "_", x)
     x <- gsub("_+", "_", x)
     x <- gsub("^_+|_+$", "", x)
     x <- tolower(x)
-    x <- ifelse(!is.na(x) & grepl("^[0-9]", x), paste0("x_", x), x)
-    x
+    ifelse(!is.na(x) & grepl("^[0-9]", x), paste0("x_", x), x)
   }
 
-  # --- normalize SPDV and PDV metadata column names ---
+  # --- clean SPDV and PDV column names ---
   normalize_pdv_map <- function(df) {
     if (!is.data.frame(df) || nrow(df) == 0) return(tibble::as_tibble(df))
-
     df <- tibble::as_tibble(df)
 
     if ("pdv_column" %in% names(df)) {
-      # standardize to canonical lowercase code: spdv1/pdv1/...
+      # standardize to canonical lowercase: spdv1/pdv1/...
       df$pdv_column <- tolower(trimws(as.character(df$pdv_column)))
     }
 
     if ("label" %in% names(df)) {
-      df$label_raw   <- as.character(df$label)
-      df$label <- clean_pdv_label(df$label_raw)
+      df$label_raw <- as.character(df$label)
+      df$label     <- clean_pdv_label(df$label_raw)
     } else {
-      df$label_raw   <- NA_character_
-      df$label <- NA_character_
+      df$label_raw <- NA_character_
+      df$label     <- NA_character_
     }
 
     if (!"definition" %in% names(df)) df$definition <- NA_character_
-
     df
   }
 
   out$session_pdv_fields <- normalize_pdv_map(out$session_pdv_fields)
   out$detail_pdv_fields  <- normalize_pdv_map(out$detail_pdv_fields)
 
-  # --- extract PDV values BEFORE schema enforcement
+  # --- extract PDV values BEFORE schema enforcement ---
   pdv_values <- list(
     session = tibble::tibble(),
     events  = tibble::tibble()
@@ -152,40 +149,31 @@ enforce_schema <- function(out) {
     if (nrow(out$session) > 1) out$session <- out$session[1, , drop = FALSE]
 
     spdv_cols <- grep("^spdv\\d+$", names(out$session), value = TRUE, ignore.case = TRUE)
-
     if (length(spdv_cols)) {
-      # standardize extracted column names to lowercase spdv*
-      spdv_cols_lc <- tolower(spdv_cols)
+
       names(out$session) <- tolower(names(out$session))
 
       pdv_values$session <- tibble::tibble(
-        spdv_column = spdv_cols_lc,
+        spdv_column = spdv_cols,
         value       = vapply(
-          out$session[spdv_cols_lc],
+          out$session[spdv_cols],
           function(x) as.character(x[[1]]),
           character(1)
         )
       )
 
       # remove SPDVs from session before schema enforcement
-      out$session <- out$session[, setdiff(names(out$session), spdv_cols_lc), drop = FALSE]
+      out$session <- out$session[, setdiff(names(out$session), spdv_cols), drop = FALSE]
     }
   }
 
   # --- event PDVs ---
   if (is.data.frame(out$events) && nrow(out$events) > 0) {
 
-    names(out$events) <- tolower(names(out$events))
-
     pdv_cols <- grep("^pdv\\d+$", names(out$events), value = TRUE, ignore.case = TRUE)
-
     if (length(pdv_cols)) {
 
-      seq_col <- if ("sequence_number" %in% names(out$events)) {
-        out$events$sequence_number
-      } else {
-        seq_len(nrow(out$events))
-      }
+      seq_col <- if ("sequence_number" %in% names(out$events)) out$events$sequence_number else seq_len(nrow(out$events))
 
       pdv_values$events <- purrr::map_dfr(pdv_cols, function(nm) {
         tibble::tibble(
@@ -200,65 +188,53 @@ enforce_schema <- function(out) {
     }
   }
 
-  # --- internal helper: enforce a schema on a tibble ---
-  enforce_tbl <- function(df, schema) {
+  # --- internal helpers: enforce a schema on a tibble ---
+  na_of_type <- function(proto, n) {
+    if (inherits(proto, "POSIXct")) return(as.POSIXct(rep(NA_real_, n), origin = "1970-01-01", tz = attr(proto, "tzone")))
+    if (is.integer(proto))          return(rep(NA_integer_, n))
+    if (is.numeric(proto))          return(rep(NA_real_, n))
+    if (is.character(proto))        return(rep(NA_character_, n))
+    if (is.logical(proto))          return(rep(NA, n))
+    rep(NA, n)
+  }
 
-    # empty or missing table
+  coerce_to_proto <- function(x, proto) {
+    if (inherits(proto, "POSIXct")) {
+      if (inherits(x, "POSIXct")) return(x)
+      return(suppressWarnings(as.POSIXct(x, tz = "UTC", origin = "1970-01-01")))
+    }
+    if (is.integer(proto)) return(suppressWarnings(as.integer(x)))
+    if (is.numeric(proto)) return(suppressWarnings(as.numeric(x)))
+    if (is.character(proto)) return(as.character(x))
+    x
+  }
+
+  enforce_tbl <- function(df, schema) {
     if (is.null(df) || !is.data.frame(df) || nrow(df) == 0) {
       return(tibble::as_tibble(schema)[0, ])
     }
 
     df <- tibble::as_tibble(df)
+    n  <- nrow(df)
 
-    # add missing columns safely
+    # add missing
     for (nm in names(schema)) {
-      if (!nm %in% names(df)) {
-        target <- schema[[nm]]
-        n <- nrow(df)
-
-        if (inherits(target, "POSIXct")) {
-          df[[nm]] <- as.POSIXct(rep(NA, n), tz = attr(target, "tzone"))
-        } else if (is.numeric(target)) {
-          df[[nm]] <- rep(NA_real_, n)
-        } else if (is.character(target)) {
-          df[[nm]] <- rep(NA_character_, n)
-        } else if (is.logical(target)) {
-          df[[nm]] <- rep(NA, n)
-        } else {
-          df[[nm]] <- rep(NA, n)
-        }
-      }
+      if (!nm %in% names(df)) df[[nm]] <- na_of_type(schema[[nm]], n)
     }
 
-    # coerce types
+    # coerce
     for (nm in names(schema)) {
-      target <- schema[[nm]]
-      x <- df[[nm]]
-
-      if (inherits(target, "POSIXct")) {
-        if (!inherits(x, "POSIXct")) {
-          df[[nm]] <- suppressWarnings(
-            as.POSIXct(x, tz = "UTC", origin = "1970-01-01")
-          )
-        }
-      } else if (is.numeric(target)) {
-        if (!is.numeric(x)) df[[nm]] <- suppressWarnings(as.numeric(x))
-      } else {
-        if (!is.character(x)) df[[nm]] <- as.character(x)
-      }
+      df[[nm]] <- coerce_to_proto(df[[nm]], schema[[nm]])
     }
 
     # normalize blank comment fields
-    comment_cols <- intersect(c("conditional_comments", "text_comments"), names(df))
-    for (cc in comment_cols) {
-      df[[cc]][!nzchar(df[[cc]])] <- NA_character_
+    for (cc in intersect(c("conditional_comments", "text_comments"), names(df))) {
+      df[[cc]] <- dplyr::na_if(trimws(as.character(df[[cc]])), "")
     }
 
-    # enforce column order
     df[, names(schema), drop = FALSE]
   }
 
-  # apply schemas
   out$session    <- enforce_tbl(out$session, session_schema)
   out$events     <- enforce_tbl(out$events,  events_schema)
   out$pdv_values <- pdv_values

@@ -22,6 +22,6 @@ A list with enforced schema and preserved SPDV and PDV values (if present).
 \description{
 Enforces a canonical column set and data types for parsed PTAGIS MRR data.
 Parsers are intentionally flexible; this function is the single point
-where schema is standardized and PDVs are safely captured.#'
+where schema is standardized and project-defined variables (PDVs) are safely captured.
 }
 \keyword{internal}

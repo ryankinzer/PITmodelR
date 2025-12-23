@@ -15,13 +15,7 @@ If \code{"attach"}, PDV/SPDV values are retained and attached in the output and
 a mapping tibble is returned.}
 }
 \value{
-A list with:
-\itemize{
-\item \code{sessions} – tibble of one row per file/session (optionally with spdv* cols)
-\item \code{events} – tibble of all event rows (optionally with pdv* cols)
-\item \code{mapping} – tibble mapping (file_name, level, pdv_column, label, definition)
-(empty if \code{pdvs="drop"} or if PDV structures are unavailable)
-}
+A list with \code{sessions}, \code{events}, and (if \code{pdvs="attach"}) \code{mapping}.
 }
 \description{
 Convenience wrapper to download multiple PTAGIS MRR files (JSON/XML/TXT),

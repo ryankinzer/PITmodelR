@@ -90,7 +90,7 @@ get_file_data <- function(filename,
   # --- enforce canonical event schema i.e., intended from JSON ---
   out <- enforce_schema(out)
 
-  # --- optionally drop PDV-related objects
+  # --- optionally drop PDV-related objects ---
   if (isTRUE(drop_pdvs)) {
     out$session_pdv_fields <- NULL
     out$detail_pdv_fields  <- NULL

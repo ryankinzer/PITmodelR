@@ -15,7 +15,7 @@ least \code{session} and \code{events}. If PDVs were kept, elements may also con
 }
 \value{
 A list with \code{sessions} and \code{events}. If \code{pdvs="attach"} and PDVs are
-available, also returns \code{mapping}.
+available, also returns \code{pdv_map}.
 }
 \description{
 Collapses a list of per-file parsed MRR outputs (from download_mrr_files())
@@ -23,6 +23,8 @@ into combined \code{sessions} (one row per file) and \code{events} (all rows).
 
 If \code{pdvs = "attach"} and PDV structures are present, attaches SPDV values
 to \code{sessions} (wide: spdv1, spdv2, ...) and PDV values to \code{events}
-(wide: pdv1, pdv2, ...), and returns a \code{mapping} tibble.
+(wide: pdv1, pdv2, ...), and returns a \code{pdv_map} tibble.
 }
-\keyword{internal}
+\author{
+Mike Ackerman
+}

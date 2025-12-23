@@ -12,13 +12,7 @@
 #'   If \code{"attach"}, PDV/SPDV values are retained and attached in the output and
 #'   a mapping tibble is returned.
 #'
-#' @return A list with:
-#' \itemize{
-#'   \item \code{sessions} – tibble of one row per file/session (optionally with spdv* cols)
-#'   \item \code{events} – tibble of all event rows (optionally with pdv* cols)
-#'   \item \code{mapping} – tibble mapping (file_name, level, pdv_column, label, definition)
-#'     (empty if \code{pdvs="drop"} or if PDV structures are unavailable)
-#' }
+#' @return A list with `sessions`, `events`, and (if \code{pdvs="attach"}) `mapping`.
 #'
 #' @author Mike Ackerman & Ryan Kinzer
 #'
@@ -33,7 +27,13 @@ get_batch_file_data <- function(filenames,
     stop("`filenames` must be a non-empty character vector.", call. = FALSE)
   }
 
-  mrr_list <- download_mrr_files(filenames, drop_pdvs = (pdvs == "drop"))
+  # avoid double downloads i.e., confusing duplicates
+  filenames <- unique(filenames)
+
+  mrr_list <- download_mrr_files(
+    filenames,
+    drop_pdvs = (pdvs == "drop")
+  )
 
   collapse_mrr_list(mrr_list, pdvs = pdvs)
 

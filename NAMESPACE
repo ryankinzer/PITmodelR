@@ -2,6 +2,7 @@
 
 export(build_detection_histories)
 export(build_mark_histories)
+export(collapse_mrr_list)
 export(combine_flattened_mrr)
 export(download_mrr_files)
 export(fit_marked_cjs)

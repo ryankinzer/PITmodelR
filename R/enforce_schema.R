@@ -17,7 +17,6 @@
 #' @return A list with enforced schema and preserved SPDV and PDV values (if present).
 #'
 #' @keywords internal
-
 enforce_schema <- function(out) {
 
   # --- validation ---

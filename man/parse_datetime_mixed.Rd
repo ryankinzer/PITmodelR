@@ -2,7 +2,7 @@
 % Please edit documentation in R/parse_datetime_mixed.R
 \name{parse_datetime_mixed}
 \alias{parse_datetime_mixed}
-\title{Parse mixed-format datetime strings into POSIXct (UTC)}
+\title{Parse Mixed-Format Datetime Strings into POSIXct (UTC)}
 \usage{
 parse_datetime_mixed(x)
 }

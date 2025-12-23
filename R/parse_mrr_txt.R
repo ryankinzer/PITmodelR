@@ -1,7 +1,7 @@
 #' @title Parse a PTAGIS MRR TXT Document
 #'
 #' @description
-#' Converts a raw PTAGIS MRR .txt document into structured tibbles. The function
+#' Converts a raw PTAGIS MRR TXT (P3) document into structured tibbles. The function
 #' strips namespaces, extracts session-level metadata and event records, and performs
 #' basic type coercion (datetime and numeric). This is a low-level helper used by
 #' higher-level MRR import functions.
@@ -17,7 +17,6 @@
 #' }
 #'
 #' @keywords internal
-
 parse_mrr_txt <- function(txt) {
 
   stopifnot(is.character(txt), length(txt) >= 1)
@@ -247,4 +246,3 @@ parse_mrr_txt <- function(txt) {
     detail_pdv_fields  = tibble::tibble()
   )
 }
-

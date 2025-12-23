@@ -1,25 +1,39 @@
-#' @title Collapse per-file MRR list into combined sessions/events
+#' @title Collapse Per-File MRR Results into Combined Sessions and Events
 #'
 #' @description
-#' Collapses a list of per-file parsed MRR outputs (from download_mrr_files())
-#' into combined `sessions` (one row per file) and `events` (all rows).
+#' Collapse a named list of per-file parsed PTAGIS mark–recapture–recovery (MRR)
+#' results (typically from \code{\link{download_mrr_files}}) into two combined tibbles:
+#' \code{sessions} (one row per file) and \code{events} (all event rows).
 #'
-#' If `pdvs = "attach"` and PDV structures are present, attaches SPDV values
-#' to `sessions` (wide: spdv1, spdv2, ...) and PDV values to `events`
-#' (wide: pdv1, pdv2, ...), and returns a `pdv_map` tibble.
+#' If \code{pdvs = "attach"} and PDV values were retained upstream (i.e.,
+#' the per-file objects include \code{pdv_values}), SPDV values are attached to
+#' \code{sessions} in wide format (\code{spdv1}, \code{spdv2}, ...), and PDV values
+#' are attached to \code{events} in wide format (\code{pdv1}, \code{pdv2}, ...).
+#' In that case, a per-file \code{pdv_map} is also returned, mapping PDV code columns
+#' to cleaned labels and definitions.
 #'
-#' @param mrr_list Named list of parsed file objects. Each element contains at
-#'   least `session` and `events`. If PDVs were kept, elements may also contain
-#'   `session_pdv_fields`, `detail_pdv_fields`, and `pdv_values`.
-#' @param pdvs Character; one of `"drop"` (default) or `"attach"`.
+#' @param mrr_list Named list of per-file MRR objects (output of \code{\link{get_file_data}}),
+#'   typically from \code{\link{download_mrr_files}}. Names should be filenames.
+#'   Each element must contain \code{session} and \code{events}. If PDVs were retained
+#'   upstream, elements also contain \code{session_pdv_fields}, \code{detail_pdv_fields},
+#'   and \code{pdv_values}.
+#' @param pdvs Character; one of \code{"drop"} (default) or \code{"attach"}.
+#'   If \code{"drop"}, return only \code{sessions} and \code{events}.
+#'   If \code{"attach"}, attach \code{spdv*}/\code{pdv*} code columns when available,
+#'   and return \code{pdv_map}.
 #'
-#' @return A list with `sessions` and `events`. If `pdvs="attach"` and PDVs are
-#'   available, also returns `pdv_map`.
+#' @return A list with:
+#' \itemize{
+#'   \item \code{sessions}: tibble with one row per file/session (optionally with \code{spdv*} columns)
+#'   \item \code{events}: tibble of all event rows (optionally with \code{pdv*} columns)
+#'   \item \code{pdv_map}: tibble mapping (only when \code{pdvs="attach"})
+#' }
+#' The \code{pdv_map} contains \code{file_name}, \code{level} (session/event),
+#' \code{pdv_column}, \code{label_raw}, \code{label} (cleaned), and \code{definition}.
 #'
 #' @author Mike Ackerman
 #'
 #' @export
-
 collapse_mrr_list <- function(mrr_list,
                               pdvs = c("drop", "attach")) {
 

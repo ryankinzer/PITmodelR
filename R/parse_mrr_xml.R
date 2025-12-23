@@ -18,7 +18,6 @@
 #' }
 #'
 #' @keywords internal
-
 parse_mrr_xml <- function(doc) {
 
   # strip namespaces to make XPath simple and robust

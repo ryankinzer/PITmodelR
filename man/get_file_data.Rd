@@ -2,22 +2,42 @@
 % Please edit documentation in R/get_file_data.R
 \name{get_file_data}
 \alias{get_file_data}
-\title{Download and Parse a PTAGIS MRR File}
+\title{Download and parse a single PTAGIS MRR file}
 \usage{
 get_file_data(filename, drop_pdvs = FALSE)
 }
 \arguments{
-\item{filename}{Character; name of the MRR file (e.g., "CDR-2024-072-JCT.json").}
+\item{filename}{Character scalar. Name of the MRR file to download
+(e.g., \code{"CDR-2024-072-JCT.json"}, \code{"NPC-2019-073-001.xml"}, \code{"CDR06078.JCT"}).}
 
-\item{return}{Character; one of "list" (default), "xml", "session", "events".}
+\item{drop_pdvs}{Logical, default \code{FALSE}. If \code{TRUE}, drops PDV-related
+components from the returned object (\code{session_pdv_fields},
+\code{detail_pdv_fields}, and \code{pdv_values}). The standardized \code{session}
+and \code{events} outputs are always returned.}
 }
 \value{
-Parsed MRR data according to \code{return}.
+A named list with at least:
+\itemize{
+\item \code{session}: a one-row tibble of session metadata (standardized schema)
+\item \code{events}: a tibble of event records (standardized schema)
+}
+If \code{drop_pdvs = FALSE}, also includes:
+\itemize{
+\item \code{session_pdv_fields}: tibble mapping session SPDVs (pdv_column, label_raw, label, definition)
+\item \code{detail_pdv_fields}: tibble mapping event PDVs (pdv_column, label_raw, label, definition)
+\item \code{pdv_values}: list with \code{session} and \code{events} long-form PDV value tables
+}
 }
 \description{
 Downloads a single PTAGIS mark–recapture–recovery (MRR) file and parses it
-into structured components. Parsing is file-type specific (JSON, XML, TXT),
-while schema enforcement is centralized at the end of this function.
+into standardized tibbles. Parsing is file-type specific (JSON, XML, or TXT),
+while schema enforcement and PDV/SPDV capture are centralized in
+\code{\link{enforce_schema}}.
+}
+\details{
+The function determines file type from \code{filename}'s extension:
+JSON (P5), XML (P4), or legacy TXT/ASCII (P3). If a file appears to be XML/JSON
+but lacks the expected extension, an error is raised.
 }
 \author{
 Mike Ackerman & Ryan Kinzer

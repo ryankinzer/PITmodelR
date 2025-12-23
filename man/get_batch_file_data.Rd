@@ -2,32 +2,43 @@
 % Please edit documentation in R/get_batch_file_data.R
 \name{get_batch_file_data}
 \alias{get_batch_file_data}
-\title{Download and Combine MRR Files}
+\title{Download and combine PTAGIS MRR files}
 \usage{
 get_batch_file_data(filenames, pdvs = c("drop", "attach"), map_pdvs = FALSE)
 }
 \arguments{
-\item{filenames}{Character vector of MRR file names to download and process.}
+\item{filenames}{Character vector of MRR file names to download and process.
+Duplicate filenames are dropped (only the first occurrence is used).}
 
 \item{pdvs}{Character; one of \code{"drop"} (default) or \code{"attach"}.
-If \code{"drop"}, PDV/SPDV structures are not downloaded/kept upstream.
-If \code{"attach"}, PDV/SPDV values are retained/attached and \code{pdv_map}
-is returned.}
+If \code{"drop"}, PDV-related components are removed (faster/smaller output).
+If \code{"attach"}, PDV values are retained/attached and \code{pdv_map} is returned.}
 
-\item{map_pdvs}{Logical; if TRUE and \code{pdvs="attach"}, map spdv*/pdv* code
-columns to label-based columns using \code{pdv_map}, and drop code columns.}
+\item{map_pdvs}{Logical; if \code{TRUE} and \code{pdvs = "attach"}, map \code{spdv*}/\code{pdv*}
+code columns to label-based columns using \code{pdv_map} and drop the code columns.}
 }
 \value{
-A list with \code{sessions} and \code{events}. If \code{pdvs="attach"},
-also returns \code{pdv_map}. If \code{map_pdvs=TRUE}, sessions/events will
-include mapped label columns and code columns will be removed.
+A list with:
+\itemize{
+\item \code{sessions}: tibble with one row per file/session
+\item \code{events}: tibble with all event rows
+\item \code{pdv_map}: tibble mapping (only when \code{pdvs = "attach"})
+}
+If \code{map_pdvs = TRUE}, \code{sessions}/\code{events} include mapped label columns
+and \code{spdv*}/\code{pdv*} code columns are removed.
 }
 \description{
-Convenience wrapper to download multiple PTAGIS MRR files (JSON/XML/TXT),
-enforce schemas via \code{get_file_data()}, and return combined \code{sessions}
-and \code{events}. If \code{pdvs="attach"}, SPDV/PDV values are attached in wide
-format (spdv1.., pdv1..) and a per-file \code{pdv_map} is returned. Optionally,
-PDV/SPDV code columns can be mapped to label-based columns using \code{pdv_map}.
+Convenience wrapper to download multiple PTAGIS mark–recapture–recovery (MRR)
+files (JSON, XML, or legacy TXT/ASCII), parse them via \code{\link{get_file_data}},
+and return combined \code{sessions} (one row per file) and \code{events} (all rows).
+
+If \code{pdvs = "attach"}, SPDV/PDV values are attached in wide format
+(\code{spdv1}, \code{spdv2}, ... on \code{sessions}; \code{pdv1}, \code{pdv2}, ...
+on \code{events}) and a per-file \code{pdv_map} is returned.
+
+If \code{map_pdvs = TRUE} (and \code{pdvs = "attach"}), SPDV/PDV code columns
+are mapped to label-based columns using \code{pdv_map$label}, and the original
+\code{spdv*}/\code{pdv*} code columns are removed. The \code{pdv_map} is preserved.
 }
 \author{
 Mike Ackerman & Ryan Kinzer

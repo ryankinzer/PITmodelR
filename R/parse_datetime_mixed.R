@@ -1,8 +1,7 @@
-#' Parse mixed-format datetime strings into POSIXct (UTC)
+#' @title Parse Mixed-Format Datetime Strings into POSIXct (UTC)
 #'
 #' @description
 #' Robust datetime parser - always returns POSIXct (UTC), NA when not parseable.
-#'
 #'
 #' @keywords internal
 parse_datetime_mixed <- function(x) {

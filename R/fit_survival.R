@@ -21,7 +21,6 @@
 #' @author Ryan Kinzer
 #'
 #' @export
-
 fit_survival <- function(histories,
                          model = "cjs",
                          formula = ~ 1) {

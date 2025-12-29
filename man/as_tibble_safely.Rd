@@ -2,7 +2,7 @@
 % Please edit documentation in R/as_tibble_safely.R
 \name{as_tibble_safely}
 \alias{as_tibble_safely}
-\title{Internal: Coerce PTAGIS API content into a tibble}
+\title{Coerce PTAGIS API content into a tibble}
 \usage{
 as_tibble_safely(x)
 }

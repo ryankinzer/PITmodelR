@@ -13,7 +13,6 @@
 #' @author Ryan Kinzer
 #'
 #' @export
-#'
 get_site_metadata <- function(site_code) {
 
   # --- validate site_code ---

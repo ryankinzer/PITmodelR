@@ -40,7 +40,6 @@
 #' @author Ryan Kinzer
 #'
 #' @export
-
 build_mark_histories <- function(tag_history,
                                  locs_def,
                                  site_col = "site_code",

@@ -1,4 +1,4 @@
-#' Internal: HTTP GET with retries for PTAGIS API
+#' @title HTTP GET with retries for PTAGIS API
 #'
 #' @description
 #' Performs a GET request to the PTAGIS API with retries and user-agent handling.
@@ -15,9 +15,6 @@
 #' @author Ryan Kinzer
 #'
 #' @keywords internal
-#'
-#' @export
-
 ptagis_GET <- function(path, query = list(), base_url = "https://api.ptagis.org", ...) {
 
   stopifnot(is.character(path), length(path) == 1L)

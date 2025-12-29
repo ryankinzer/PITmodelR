@@ -19,7 +19,7 @@
 #'
 #' @export
 plot_arrival_travel <- function(timing_list,
-                                tz = "America/Los_Angeles") {
+                                tz = "UTC") {
 
   arrivals <- timing_list$arrivals_long
   travel   <- timing_list$travel_long

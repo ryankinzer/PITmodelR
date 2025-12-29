@@ -14,7 +14,6 @@
 #' \dontrun{ get_project_years("LGR") }
 #'
 #' @export
-
 get_project_years <- function(code) {
 
   # ---- validate code ----

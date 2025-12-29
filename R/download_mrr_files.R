@@ -16,6 +16,7 @@
 #'   \code{session_pdv_fields}, \code{detail_pdv_fields}, and \code{pdv_values}.
 #'
 #' @author Ryan Kinzer & Mike Ackerman
+#'
 #' @export
 download_mrr_files <- function(filenames,
                                drop_pdvs = FALSE) {

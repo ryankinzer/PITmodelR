@@ -19,3 +19,6 @@ Provides a concise display of results from \code{fit_marked_cjs()}, including
 the model name, the first several survival (\code{phi}) estimates, and the
 first several detection (\code{p}) estimates.
 }
+\author{
+Ryan Kinzer
+}

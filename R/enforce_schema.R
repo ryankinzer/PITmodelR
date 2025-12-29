@@ -1,4 +1,4 @@
-#' Enforce Schema on Parsed JSON, XML, TXT Files
+#' @title Enforce Schema on Parsed JSON, XML, TXT Files
 #'
 #' @description
 #' Enforces a canonical column set and data types for parsed PTAGIS MRR data.
@@ -36,7 +36,7 @@ enforce_schema <- function(out) {
     source_system_version = character(),
     file_name             = character(),
     legacy_file_name      = character(),
-    file_version          = character(), # P4 XML
+    file_version          = character(),
     mrr_project           = character(),
     name                  = character(),
     session_message       = character(),

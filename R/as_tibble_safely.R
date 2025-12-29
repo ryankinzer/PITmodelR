@@ -1,4 +1,4 @@
-#' Internal: Coerce PTAGIS API content into a tibble
+#' @title Coerce PTAGIS API content into a tibble
 #'
 #' @description
 #' Converts parsed PTAGIS API responses into a tibble, handling multiple possible
@@ -15,7 +15,6 @@
 #' @return A tibble representing the content.
 #'
 #' @keywords internal
-
 as_tibble_safely <- function(x) {
   out <- NULL
 

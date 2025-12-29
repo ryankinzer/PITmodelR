@@ -43,7 +43,7 @@ parse_mrr_txt <- function(txt) {
       lubridate::parse_date_time(
         x,
         orders = c("mdy HM", "mdy HMS"),
-        tz = "UTC"
+        tz = "America/Los_Angeles"       # Pacific Standard Time (PST): the standard for P3 files
       )
     )
     if (is.na(dt)) return(NA)

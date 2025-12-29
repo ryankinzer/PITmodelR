@@ -13,7 +13,6 @@
 #' @author Ryan Kinzer
 #'
 #' @export
-
 plot_timing <- function(timing) {
 
   pc <- if (is.list(timing) && !is.null(timing$daily)) passage_curve(timing) else timing

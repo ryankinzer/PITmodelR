@@ -16,7 +16,6 @@
 #' \dontrun{ get_project_codes() }
 #'
 #' @export
-
 get_project_codes <- function() {
 
   # ---- message ----

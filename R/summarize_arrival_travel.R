@@ -27,7 +27,6 @@
 #' @importFrom utils head tail
 #'
 #' @export
-
 summarize_arrival_travel <- function(tag_history,
                                      locs_def,
                                      site_col = "site_code",

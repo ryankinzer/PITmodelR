@@ -26,7 +26,6 @@
 #' @author Ryan Kinzer
 #'
 #' @export
-
 build_detection_histories <- function(observations,
                                       route_sites,
                                       tag_col = "tag_code",

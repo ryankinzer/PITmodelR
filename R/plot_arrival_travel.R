@@ -13,7 +13,7 @@
 #'
 #' @author Ryan Kinzer
 #'
-#' @seealso [summarize_arrival_travel()]
+#' @seealso [PITmodelR::summarize_arrival_travel()]
 #'
 #' @importFrom graphics par text boxplot
 #'

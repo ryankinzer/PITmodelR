@@ -1,4 +1,4 @@
-#' @title Retrieve PTAGIS Project Codes
+#' @title Retrieve PTAGIS MRR Project Codes
 #'
 #' @description
 #' Retrieves a character vector of all mark-recapture-recovery (MRR)

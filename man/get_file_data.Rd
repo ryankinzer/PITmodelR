@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_file_data.R
 \name{get_file_data}
 \alias{get_file_data}
-\title{Download and parse a single PTAGIS MRR file}
+\title{Download and Parse a Single PTAGIS MRR file}
 \usage{
 get_file_data(filename, drop_pdvs = FALSE)
 }

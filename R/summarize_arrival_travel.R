@@ -21,7 +21,7 @@
 #'
 #' @author Ryan Kinzer
 #'
-#' @seealso [plot_arrival_travel()]
+#' @seealso [PITmodelR::plot_arrival_travel()]
 #'
 #' @importFrom stats reshape
 #' @importFrom utils head tail

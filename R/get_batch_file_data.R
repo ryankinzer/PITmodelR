@@ -1,4 +1,4 @@
-#' @title Download and combine PTAGIS MRR files
+#' @title Download, Parse, and Combine Multiple PTAGIS MRR Files
 #'
 #' @description
 #' Convenience wrapper to download multiple PTAGIS mark–recapture–recovery (MRR)

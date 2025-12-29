@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_batch_file_data.R
 \name{get_batch_file_data}
 \alias{get_batch_file_data}
-\title{Download and combine PTAGIS MRR files}
+\title{Download, Parse, and Combine Multiple PTAGIS MRR Files}
 \usage{
 get_batch_file_data(filenames, pdvs = c("drop", "attach"), map_pdvs = FALSE)
 }

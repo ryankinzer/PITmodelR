@@ -7,7 +7,7 @@
 get_mrr_files(code, year = NULL, page = 1, page_size = 1000, all_pages = TRUE)
 }
 \arguments{
-\item{code}{A single PTAGIS project code (3 characters), e.g. "LGR".}
+\item{code}{A single PTAGIS project code (3 characters), e.g. "CDR","LGR", etc.}
 
 \item{year}{A four digit year as an integer.}
 

@@ -1,4 +1,4 @@
-#' @title Download and parse a single PTAGIS MRR file
+#' @title Download and Parse a Single PTAGIS MRR file
 #'
 #' @description
 #' Downloads a single PTAGIS mark–recapture–recovery (MRR) file and parses it

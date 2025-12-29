@@ -2,12 +2,12 @@
 % Please edit documentation in R/get_project_years.R
 \name{get_project_years}
 \alias{get_project_years}
-\title{Retrieve Years for a PTAGIS Project}
+\title{Retrieve Years for a PTAGIS MRR Project}
 \usage{
 get_project_years(code)
 }
 \arguments{
-\item{code}{A single PTAGIS project code (3 characters), e.g. "LGR".}
+\item{code}{A single PTAGIS project code (3 characters), e.g. "CDR","LGR", etc.}
 }
 \value{
 An integer vector of available years (sorted, unique).

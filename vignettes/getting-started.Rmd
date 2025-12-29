@@ -47,22 +47,20 @@ library(lubridate)
 
 # Overview
 
-`PITmodelR` streamlines access to [PTAGIS](https://www.ptagis.org/) data through API endpoints and provides helper tools for PIT-tag data workflows, including project discovery, mark–recapture–recovery (MRR) data retrievals, site metadata, tag observations, and survival/migration modeling. MRR data are returned in standardized `sessions` and `events` tables, with optional support for project-defined variables (PDVs).
+`PITmodelR` streamlines access to [PTAGIS](https://www.ptagis.org/) data through API endpoints and provides tools for PIT-tag data workflows, including project discovery, mark–recapture–recovery (MRR) data retrievals, site metadata, tag observations, and survival/migration modeling. 
 
-The package does not replace the user's responsibility to ensure PTAGIS data is used properly and subset to a sample of tags representing their group or population of interest. Additionally, the modeling tools within can lead to erroneous results if careful thought isn't given at each step and if mark-recapture model assumptions are violated.
+The package does not replace the user's responsibility to ensure PTAGIS data are used properly and subset to a sample of tags representing their group or population of interest. Additionally, the modeling tools within can lead to erroneous results if careful thought isn't given at each step and if mark-recapture model assumptions are violated.
 
 This vignette demonstrates how to:
 
 * Install the package
 * Configure API authentication
-* Retrieve mark-recapture-recovery (MRR) project codes and available years of data
+* Retrieve mark-recapture-recovery project codes, including available years of data for each code
 * Explore MRR and interrogation site metadata
-* Download MRR and observation PIT-tag data
+* Download MRR and PIT-tag observation data
 * Retrieve tag event histories
 
-> **Note:** Code chunks below requiring network calls or an API key are set
-to `eval = FALSE` to keep this vignette runnable on CRAN. Try them locally
-after setting up your API key.
+> **Note:** Code chunks below requiring network calls or an API key are set to `eval = FALSE` to keep this vignette runnable. Try them locally after setting up your API key.
 
 ---
 
@@ -84,13 +82,13 @@ remotes::install_github("ryankinzer/PITmodelR", build_vignettes = TRUE)
 
 As for any R package, it must be loaded into the session environment using the before the functions will operate.
 
-```{r}
+```{r eval = TRUE}
 # load PITmodelR package to access functions
 library(PITmodelR)
 
 ```
 
-If `PITmodelR` was installed using `build_vignettes = TRUE`, vignettes can be access using:
+If `PITmodelR` was installed using `build_vignettes = TRUE`, vignettes can be accessed using:
 
 ```{r eval = FALSE}
 # see available vignettes
@@ -105,7 +103,7 @@ vignette("getting-started", package = "PITmodelR")
 
 # Authentication (API key)
 
-Some PTAGIS endpoints require an API key, which is a unique string that identifies you as an authorized user - like a password that allows the `PITmodelR` package to access data on your behalf. Many of the functions in `PITmodelR` require an API key to successfully reach out to these PTAGIS endpoints. You can request a key from PTAGIS staff at this [link](https://www.ptagis.org/Contact). You can pass it directly to functions as a character string using the argument `api_key` (when needed), or set it once for your R session as an environmental variable: 
+Some [PTAGIS endpoints](https://api.ptagis.org/) require an API key, which is a unique string that identifies you as an authorized user i.e., a password that allows the `PITmodelR` package to access data on your behalf. Many of the functions in `PITmodelR` require an API key to successfully reach out to these PTAGIS endpoints. You can request a key from PTAGIS staff at this [link](https://www.ptagis.org/Contact). You can then pass it directly to functions as a character string using the argument `api_key` (when needed), or set it once for your R session as an environmental variable: 
 
 ```{r eval = FALSE}
 Sys.setenv(PTAGIS_API_KEY = "YOUR-PTAGIS-API-KEY")
@@ -134,7 +132,7 @@ yrs <- get_project_years(code = "CDR") # "Craig Rabe Projects"
 
 ```
 
-Individual mark-recapture-recovery (MRR) files submitted for a given project and year can be retrieved with `get_mrr_files()`. The function returns a small data frame (i.e., tibble) containing metadata about the submitted files: 
+Individual mark-recapture-recovery (MRR) files submitted to PTAGIS by a given project and year can be retrieved with `get_mrr_files()`. The function returns a small data frame (i.e., tibble) containing metadata about the submitted files: 
 
 ```{r eval = FALSE}
 files <- get_mrr_files(code = "CDR", year = 2024)
@@ -147,7 +145,7 @@ load(system.file("extdata/vignette_data/files.rda",
                  mustWork = T))
 ```
 
-```{r}
+```{r eval = TRUE}
 # number of files submitted for code and year
 nrow(files)
 
@@ -161,22 +159,20 @@ head(files$name)
 After identifying which files are available, we can retrieve all submitted data from a specific file using `get_file_data()`.
 By default, this function returns a structured list containing:
 
-* `session` – information about the session.
+* `session` – information about the MRR session.
 * `events` – each individual mark, recapture, or recovery event recorded during the session.
 * `session_pdv_fields` – metadata describing session-level project-defined variables (if present).
 * `detail_pdv_fields` – metadata describing event-level project-defined variables (if present).
 * `pdv_values` – extracted PDV values stored in long format.
 
-PDVs are not automatically attached to the data at this stage. Attaching and mapping PDVs is handled at the batch retrieval level using `get_batch_file_data()`. If the user is not interested in retaining PDV metadata and values, `drop_pdvs = TRUE` can be set and only `session` and `events` will be returned.
-
 ```{r eval = FALSE}
-# file from March 22, 2024
+# Johnson Creek screw trap file from March 22, 2024
 mrr_data <- get_file_data("CDR-2024-082-JCT.xml")
 
 # alternately, using files$name from above
 mrr_data <- get_file_data(files$name[16]) # sixteenth element in files$name
 
-# default, view each object in mrr_data
+# view each object in mrr_data
 mrr_data$session
 mrr_data$events
 mrr_data$session_pdv_fields
@@ -184,63 +180,83 @@ mrr_data$detail_pdv_fields
 mrr_data$pdv_values$session
 mrr_data$pdv_values$events
 
+```
+
+If the user is not interested in retaining project-defined variables (PDV) metadata and values, `drop_pdvs = TRUE` can be set, in which case only `session` and `events` will be returned.
+
+```{r eval = FALSE}
 # drop pdv metadata and values
-mrr_no_pdv <- get_file_data("CDR-2024-082-JCT.xml", drop_pdvs = TRUE)
+mrr_no_pdvs <- get_file_data("CDR-2024-082-JCT.xml", drop_pdvs = TRUE)
 
 ```
+
+> **Note:** PDVs are not automattically attached to the `session` and `events` at this stage. Attaching and mapping PDVs is handled at the batch retrieval level using `get_batch_file_data()` desribed below.
 
 ## Batch Retrieve MRR Data
 
-Multiple MRR files can be downloaded and combined using `get_batch_file_data()`. The function returns a list with:
+Multiple MRR files can be retrieved from PTAGIS and combined using `get_batch_file_data()`. The function returns a list with:
 
-* **sessions** - one row per MRR file/session.
-* **events** - all event records combined across files.
-* **pdv_map** — (only when `pdvs = "attach"`) a mapping table describing project-defined variables.
+* `sessions` - one row per MRR file/session.
+* `events` - all MRR event records combined across files.
+* `pdv_map` — (only when `pdvs = "attach"`) a mapping table describing project-defined variables.
 
-> **Note:** User defined fields may contain dates, numbers, or character strings, as such, all data in those fields are returned as a character string. Additional data formatting may be necessary if user defined fields require a specific format.
+By default, `get_batch_file_data()` will only return `sessions` and `events`. However, the argument `pdvs = "attach"` can easily be used to retain session-level and event-level PDVs in which case `pdv_map` will also be returned providing metadata and mapping information for PDVs.
 
-Project-defined variables (PDVs) are optional and may vary across files. When requested, PDVs are attached using standardized code columns (e.g., `spdv1`, `pdv1`) and can optionally be mapped to descriptive label-based columns.
+If `pdvs = "attach"` is used, then argument `map_pdvs` can be set to either `FALSE` or `TRUE`. If `map_pdvs = FALSE`, PDVs are attached using standardized, coded column names e.g., `spdv1`, `spdv2` for session-level PDVs and `pdv1`, `pdv2` for event-level PDVs. If `map_pdvs = TRUE`, PDVs are mapped to their descriptive label-based columns.
 
-As an example, let's compile all data submitted by project "CDR" during 2024 from the Secesh River rotary screw trap:
+Here we can explore these behaviors by compiling all data submitted by project "CDR" during 2024 from the Secesh River rotary screw trap:
 
 ```{r eval = FALSE}
 # get file names containing "SCT" (Secesh Trap)
-file_names <- files$name[grepl("SCT", files$name)]
+secesh_rst_files <- files$name[grepl("SCT", files$name)]
 
-# retrieve data for all file_names
-all_data <- get_batch_file_data(
-  filenames = file_names,
-  pdvs = "attach",        # should we keep PDV metadata and data?
-  map_pdvs = TRUE         # map PDVs to labeled columns?
-)
+# default behavior, returns just sessions and events
+all_data <- get_batch_file_data(filenames = secesh_rst_files)
 
-# --- explore items in all_data ---
+# retain pdvs, map to coded column names
+all_data <- get_batch_file_data(filenames = secesh_rst_files,
+                                pdvs = "attach",
+                                map_pdvs = FALSE)
+
+# retain pdvs, map to labeled column names
+all_data <- get_batch_file_data(filenames = secesh_rst_files,
+                                pdvs = "attach",
+                                map_pdvs = TRUE)
+
+# explore items in all_data
 all_data$sessions
 all_data$events
-all_data$pdv_map
+all_data$pdv_map    # if pdvs = "attach"
 
 ```
+
+> **Note:** Project-defined variables (PDVs) are optional and may (often) vary across files. Because user defined fields may contain dates, numbers, character strings, etc., all data in those fields are returned as a character string. Additional data formatting may be necessary after if user defined fields require a specific format.
 
 ```{r echo = FALSE}
-load(system.file("extdata/vignette_data/events_df.rda",
+load(system.file("extdata/vignette_data/all_data.rda",
                  package = "PITmodelR",
-                 mustWork = TRUE))
+                 mustWork = T))
+
 ```
 
-### Joining Session and Event Data
+## Joining Session and Event Data
 
-Each MRR file corresponds to one session. As a result, `file_name` provides a reliable key for joining session information onto event records.
+At this point, the `sessions` and `events` can easily be joined into a single data frame, if desired, using the `file_name` column.
 
-```{r eval = FALSE}
-events_df <- all_data$events |>
-  left_join(all_data$sessions, by = "file_name")
+```{r eval = TRUE}
+# join events to sessions
+events_df <- all_data$sessions |>
+  left_join(all_data$events, by = "file_name")
+
 ```
+
+
 
 ```{r eval = TRUE}
 # summarize a couple columns
 table(events_df$event_type)
-
 table(events_df$species_run_rear_type)
+table(events_df$event_type, events_df$species_run_rear_type)
 
 ```
 
@@ -268,8 +284,8 @@ mark_group <- events_df |>
                    lubridate::ymd(20240901), 
                    lubridate::ymd(20241231)),    # fall trapping period
     release_site == "SECTRP",                    # Secesh RST
-    pit_tag != "..........",                      # only records with pit tags (i.e., exclude tallies)
-    !grepl("Recapture", event_type),             # exclude recapture
+    pit_tag != "..........",                     # only records with pit tags (i.e., exclude tallies)
+    !grepl("Recapture", event_type),             # exclude recaptures
     !grepl("Y", conditional_comments))           # exclude yearlings
 
 # number of tags/fish in mark_group
@@ -282,7 +298,7 @@ hist(mark_group$length)
 
 ## Tag Histories
 
-We have our marks - now we need all the observations (i.e., detections) that represent the migration history of each fish. For a single PIT tag, use the `get_tag_history()` function; for multiple tags, use `get_batch_tag_histories()`. Both of these functions require the user to include a PTAGIS API with the function call. The mark record and all subsequent observations will eventually be used to create capture histories, which are then used in survival and detection models.
+We have our marks, now we need all the observations (i.e., detections) that represent the migration history of each fish. For a single PIT tag, use the `get_tag_history()` function; for multiple tags, use `get_batch_tag_histories()`. Both of these functions require the user to include a PTAGIS API key using the argument `api_key`. The mark record and all subsequent observations will eventually be used to create capture histories, which are then used in survival and detection models.
 
 ```{r eval = FALSE}
 # single tag
@@ -337,7 +353,7 @@ As an aid, `PITmodelR` also contains helper functions to retrieve metadata for i
 zen_meta <- get_site_metadata("ZEN")
 ```
 
-whereas, `get_interrogation_sites()` can be used to retrieve metadata from all sites registered in PTAGIS. By default, `active_only = TRUE` retrieves only sites currently submitting data (seasonal or year-round). Optionally, `active_only` can be set to `FALSE` which will retrieve all sites that have been registered to PTAGIS, past or present. The object could then be filtered to include sites in your `tag_history$site_code`, which can be helpful when assigning sites to study occassions.
+whereas, `get_interrogation_sites()` can be used to retrieve metadata from all sites registered in PTAGIS. By default, `active_only = TRUE` retrieves only sites currently submitting data (seasonal or year-round). Optionally, `active_only` can be set to `FALSE` which will retrieve all sites that have been registered to PTAGIS, past or present. The object could then be filtered to include only sites in your `tag_history$site_code`, which can be helpful when assigning sites to study occassions.
 
 ```{r eval = FALSE}
 # active sites only
@@ -414,7 +430,7 @@ head(ch_list$ch_data)
 ch_list$dropped_summary
 ```
 
-Notice that no sites were dropped in `ch_list$droppedsummary`, because we included all detection sites in `locs`. However, you could choose to ignore some detection sites and the `build_mark_histories()` function will drop those observations if `keep_unkown = FALSE`.
+Notice that no sites were dropped in `ch_list$dropped_summary`, because we included all detection sites in `locs`. However, you could choose to ignore some detection sites and the `build_mark_histories()` function will drop those observations if `keep_unkown = FALSE`.
 
 ```{r eval = TRUE}
 # remove a couple sites from locs
@@ -474,7 +490,7 @@ The `fit_marked_cjs()` function also creates and saves a few standard plots for 
 print(fit$plots$phi)
 ```
 
-For survival model and assigned occasions the intervals represent:
+For our survival model with assigned occasions the intervals represent:
 
 * *1:* Release -> ZEN,
 * *2:* ZEN -> SFG,

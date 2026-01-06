@@ -4,17 +4,15 @@
 #' Given raw tag histories e.g., from `get_batch_tag_histories()` and user-defined sequence of
 #' detection locations or occasions, summarizes first-arrival and travel times for tagged fish.
 #' Calculates per-tag first arrival and travel times, as well as quantile summaries for each
-#' occassion and migration "leg".
+#' occasion and migration "leg".
 #'
-#' @param tz Time zone used when parsing \code{time_col} if it is character (default = \code{"America/Los_Angeles"}, Pacific Standard).
-#'
-#' @inheritParams build_mark_histories
+#' @param tz Time zone used when parsing \code{time_col} if it is character (default = \code{"UTC"}).
 #'
 #' @return A list with the following elements:
 #' \describe{
 #'   \item{\code{arrivals_long}}{First-arrival time per tag × occasion (long format).}
 #'   \item{\code{arrivals_wide}}{First-arrival time per tag (wide format).}
-#'   \item{\code{travel_long}}{Travel time (days) per tag and leg (\eqn{occasion_i \to occasion_{i+1}}).}
+#'   \item{\code{travel_long}}{Travel time (days) per tag and leg (from occasion i to occasion i+1).}
 #'   \item{\code{occasion_summary}}{Quantile summaries of arrival times by occasion.}
 #'   \item{\code{leg_summary}}{Quantile summaries of travel times by migration leg.}
 #'   \item{\code{mapping}}{Mapping of \code{site_code} to occasion and occasion index.}
@@ -23,16 +21,18 @@
 #'
 #' @author Ryan Kinzer
 #'
-#' @seealso [plot_arrival_travel()]
+#' @seealso [PITmodelR::plot_arrival_travel()]
+#'
+#' @importFrom stats reshape
+#' @importFrom utils head tail
 #'
 #' @export
-
 summarize_arrival_travel <- function(tag_history,
                                      locs_def,
                                      site_col = "site_code",
                                      tag_col  = "tag_code",
                                      time_col = "event_date",
-                                     tz = "America/Los_Angeles",
+                                     tz = "UTC",
                                      keep_unknown = FALSE) {
   # --- validate inputs ---
   stopifnot(is.data.frame(tag_history))

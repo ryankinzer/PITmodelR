@@ -22,3 +22,6 @@ Extracts the cumulative passage curve from the output of \code{fit_timing()}.
 The curve consists of the aggregation date and cumulative proportion of total
 observations up to that date.
 }
+\author{
+Ryan Kinzer
+}

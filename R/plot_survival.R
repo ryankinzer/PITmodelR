@@ -14,7 +14,6 @@
 #' @author Ryan Kinzer
 #'
 #' @export
-
 plot_survival <- function(surv_tbl) {
 
   if (!is.data.frame(surv_tbl) || !all(c("reach","phi") %in% names(surv_tbl))) {

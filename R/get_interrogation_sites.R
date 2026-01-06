@@ -12,7 +12,6 @@
 #' @author Ryan Kinzer
 #'
 #' @export
-
 get_interrogation_sites <- function(active_only = TRUE) {
 
   # --- set URL to API endpoint ---

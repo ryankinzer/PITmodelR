@@ -2,48 +2,44 @@
 % Please edit documentation in R/get_batch_file_data.R
 \name{get_batch_file_data}
 \alias{get_batch_file_data}
-\title{Download, Check, Flatten, and Combine MRR Files}
+\title{Download, Parse, and Combine Multiple PTAGIS MRR Files}
 \usage{
-get_batch_file_data(
-  filenames,
-  check_labels = c("warn", "error", "ignore"),
-  keep_code_cols = TRUE,
-  label_conflict = c("suffix", "overwrite", "skip"),
-  use_codes_on_conflict = TRUE
-)
+get_batch_file_data(filenames, pdvs = c("drop", "attach"), map_pdvs = FALSE)
 }
 \arguments{
-\item{filenames}{A character vector of MRR file names to download and process.}
+\item{filenames}{Character vector of MRR file names to download and process.
+Duplicate filenames are dropped (only the first occurrence is used).}
 
-\item{check_labels}{Character; one of \code{"warn"}, \code{"error"}, or \code{"ignore"}.
-Determines how to handle PDV/SPDV label inconsistencies across files.}
+\item{pdvs}{Character; one of \code{"drop"} (default) or \code{"attach"}.
+If \code{"drop"}, PDV-related components are removed (faster/smaller output).
+If \code{"attach"}, PDV values are retained/attached and \code{pdv_map} is returned.}
 
-\item{keep_code_cols}{Logical, default \code{TRUE}. If \code{TRUE}, retains code
-columns (pdv*, spdv*) in flattened tibbles. If \code{FALSE}, replaces with user field names.}
-
-\item{label_conflict}{Character indicating how to handle name conflicts when creating
-label-named columns. Options:
-\describe{
-\item{\code{"suffix"}}{Append \code{"_label"}, \code{"_label2"}, etc. (default).}
-\item{\code{"overwrite"}}{Overwrite the existing column.}
-\item{\code{"skip"}}{Do not create the label column if the name already exists.}
-}}
-
-\item{use_codes_on_conflict}{Logical, default \code{TRUE}. If \code{TRUE}, code columns are preferred over label-derived columns
-when combining flattened tibbles to ensure a consistent schema.}
+\item{map_pdvs}{Logical; if \code{TRUE} and \code{pdvs = "attach"}, map \code{spdv*}/\code{pdv*}
+code columns to label-based columns using \code{pdv_map} and drop the code columns.}
 }
 \value{
-A list with three elements:
+A list with:
 \itemize{
-\item \code{sessions} – named list of flattened tibbles, one per file
-\item \code{events} – a single tibble combining "events" from all files
-\item \code{issues} – a data.frame of PDV/SPDV label inconsistencies detected across files
+\item \code{sessions}: tibble with one row per file/session
+\item \code{events}: tibble with all event rows
+\item \code{pdv_map}: tibble mapping (only when \code{pdvs = "attach"})
 }
+If \code{map_pdvs = TRUE}, \code{sessions}/\code{events} include mapped label columns
+and \code{spdv*}/\code{pdv*} code columns are removed.
 }
 \description{
-A one-call convenience wrapper to download multiple PTAGIS mark-recapture-recovery (MRR) XML files,
-check for PDV/SPDV label consistency across files, and return everything as a single list.
+Convenience wrapper to download multiple PTAGIS mark–recapture–recovery (MRR)
+files (JSON, XML, or legacy TXT/ASCII), parse them via \code{\link{get_file_data}},
+and return combined \code{sessions} (one row per file) and \code{events} (all rows).
+
+If \code{pdvs = "attach"}, SPDV/PDV values are attached in wide format
+(\code{spdv1}, \code{spdv2}, ... on \code{sessions}; \code{pdv1}, \code{pdv2}, ...
+on \code{events}) and a per-file \code{pdv_map} is returned.
+
+If \code{map_pdvs = TRUE} (and \code{pdvs = "attach"}), SPDV/PDV code columns
+are mapped to label-based columns using \code{pdv_map$label}, and the original
+\code{spdv*}/\code{pdv*} code columns are removed. The \code{pdv_map} is preserved.
 }
 \author{
-Ryan Kinzer
+Mike Ackerman & Ryan Kinzer
 }

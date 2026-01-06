@@ -10,8 +10,9 @@
 #'
 #' @return Invisibly returns the input object \code{z}.
 #'
+#' @author Ryan Kinzer
+#'
 #' @export
-
 print_fit_marked_cjs <- function(z, ...) {
 
   cat("CJS model (marked::crm)\n")

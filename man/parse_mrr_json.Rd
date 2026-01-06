@@ -19,7 +19,7 @@ A named list containing:
 }
 }
 \description{
-Converts a raw PTAGIS MRR JSON document into structured tibbles. The function
+Converts a raw PTAGIS MRR JSON (P5) document into structured tibbles. The function
 strips json namespaces, extracts session-level metadata, detail-level
 project-defined field (PDV) mappings, and event records, and performs basic
 type coercion (datetime and numeric). This is a low-level helper used by

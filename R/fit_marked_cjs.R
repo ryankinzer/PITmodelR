@@ -42,7 +42,6 @@
 #' @author Ryan Kinzer
 #'
 #' @export
-
 fit_marked_cjs <- function(ch_data,
                            phi_formula = ~ time,
                            p_formula   = ~ time,

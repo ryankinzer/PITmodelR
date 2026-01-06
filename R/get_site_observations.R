@@ -20,7 +20,6 @@
 #' @author Ryan Kinzer
 #'
 #' @export
-
 get_site_observations <- function(api_key = NULL,
                                   site_code,
                                   year = NULL,

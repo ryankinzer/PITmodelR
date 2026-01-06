@@ -28,7 +28,6 @@
 #' }
 #'
 #' @export
-
 get_tag_history <- function(api_key = NULL, tag_code, fields = NULL) {
 
   # ---- resolve / validate api_key ----

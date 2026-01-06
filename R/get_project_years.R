@@ -1,10 +1,10 @@
-#' @title Retrieve Years for a PTAGIS Project
+#' @title Retrieve Years for a PTAGIS MRR Project
 #'
 #' @description
 #' Retrieves the years for which data were submitted for a given
 #' PTAGIS project code.
 #'
-#' @param code A single PTAGIS project code (3 characters), e.g. "LGR".
+#' @param code A single PTAGIS project code (3 characters), e.g. "CDR","LGR", etc.
 #'
 #' @return An integer vector of available years (sorted, unique).
 #'
@@ -14,7 +14,6 @@
 #' \dontrun{ get_project_years("LGR") }
 #'
 #' @export
-
 get_project_years <- function(code) {
 
   # ---- validate code ----

@@ -8,18 +8,18 @@
 #' @param timing_list Result from `summarize_arrival_travel()` with the objects `$arrivals_long`
 #'   and `$travel_long`.
 #'
-#' @inheritParams summarize_arrival_travel
-#'
 #' @return A list with `$arrival_ecdf` and `$travel_time` plot objects.
 #'         If ggplot2 is not available, returns functions that draw base plots.
 #'
 #' @author Ryan Kinzer
 #'
-#' @seealso [summarize_arrival_travel()]
+#' @seealso [PITmodelR::summarize_arrival_travel()]
+#'
+#' @importFrom graphics par text boxplot
 #'
 #' @export
 plot_arrival_travel <- function(timing_list,
-                                tz = "America/Los_Angeles") {
+                                tz = "UTC") {
 
   arrivals <- timing_list$arrivals_long
   travel   <- timing_list$travel_long

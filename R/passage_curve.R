@@ -14,8 +14,9 @@
 #'   \item{\code{prop}}{Cumulative proportion of total events through that date.}
 #' }
 #'
+#' @author Ryan Kinzer
+#'
 #' @export
-
 passage_curve <- function(timing) {
 
   if (!is.list(timing) || is.null(timing$daily)) {

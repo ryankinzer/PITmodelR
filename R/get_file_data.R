@@ -1,101 +1,122 @@
-#' @title Download and Parse a MRR File
+#' @title Download and Parse a Single PTAGIS MRR file
 #'
 #' @description
-#' Downloads a single PTAGIS mark–recapture–recovery (MRR) XML file and parses it
-#' into a structured list of tibbles. The file is retrieved from the PTAGIS API
-#' using its filename (e.g., `"CDR-2024-072-JCT.xml"`).
+#' Downloads a single PTAGIS mark–recapture–recovery (MRR) file and parses it
+#' into standardized tibbles. Parsing is file-type specific (JSON, XML, or TXT),
+#' while schema enforcement and PDV/SPDV capture are centralized in
+#' \code{\link{enforce_schema}}.
 #'
-#' @param filename Character; the name of the MRR file to download.
-#' @param return Character; format of the returned object. One of:
-#'   `"list"` (default), `"xml"`, `"session"`, or `"events"`.
+#' @param filename Character scalar. Name of the MRR file to download
+#'   (e.g., \code{"CDR-2024-072-JCT.json"}, \code{"NPC-2019-073-001.xml"}, \code{"CDR06078.JCT"}).
+#' @param drop_pdvs Logical, default \code{FALSE}. If \code{TRUE}, drops PDV-related
+#'   components from the returned object (\code{session_pdv_fields},
+#'   \code{detail_pdv_fields}, and \code{pdv_values}). The standardized \code{session}
+#'   and \code{events} outputs are always returned.
 #'
-#' @return
-#' If `return = "list"`, a list containing:
+#' @return A named list with at least:
 #' \itemize{
-#'   \item `session` — one-row tibble of session-level metadata
-#'   \item `events` — tibble of MRR event records
-#'   \item `session_pdv_fields` — mapping of session-level project-defined fields
-#'   \item `detail_pdv_fields` — mapping of event-level project-defined fields
+#'   \item \code{session}: a one-row tibble of session metadata (standardized schema)
+#'   \item \code{events}: a tibble of event records (standardized schema)
 #' }
-#' For other `return` values, the corresponding component is returned.
+#' If \code{drop_pdvs = FALSE}, also includes:
+#' \itemize{
+#'   \item \code{session_pdv_fields}: tibble mapping session SPDVs (pdv_column, label_raw, label, definition)
+#'   \item \code{detail_pdv_fields}: tibble mapping event PDVs (pdv_column, label_raw, label, definition)
+#'   \item \code{pdv_values}: list with \code{session} and \code{events} long-form PDV value tables
+#' }
 #'
-#' @author Ryan Kinzer
+#' @details
+#' The function determines file type from \code{filename}'s extension:
+#' JSON (P5), XML (P4), or legacy TXT/ASCII (P3). If a file appears to be XML/JSON
+#' but lacks the expected extension, an error is raised.
+#'
+#' @author Mike Ackerman & Ryan Kinzer
 #'
 #' @export
+get_file_data <- function(filename,
+                          drop_pdvs = FALSE) {
 
-get_file_data <- function(
-    filename,
-    return = c("list", "xml", "session", "events")
-) {
-
-  # validate filename
+  # --- validate filename ---
   if (missing(filename) ||
       !is.character(filename) ||
       length(filename) != 1L ||
       !nzchar(filename)) {
-    stop("`filename` must be a single non-empty string (e.g., 'CDR-2024-072-JCT.xml').",
-         call. = FALSE)
+    stop(
+      "`filename` must be a single non-empty string (e.g., 'CDR-2024-072-JCT.json').",
+      call. = FALSE
+    )
   }
 
-  return <- match.arg(return)
-
-  message("Downloading ", filename, " data...")
+  message("Downloading ", filename, " MRR file data...")
 
   x <- ptagis_GET(paste0("files/mrr/", filename))
 
-  # Decide by file extension
+  # --- normalize downloaded content ---
+  as_text <- function(x) {
+    if (inherits(x, "response")) {
+      httr::content(x, as = "text", encoding = "UTF-8")
+    } else if (is.raw(x)) {
+      rawToChar(x)
+    } else if (is.character(x) && length(x) >= 1L) {
+      x[[1L]]
+    } else {
+      stop(
+        "Unexpected object from ptagis_GET(). Classes: ",
+        paste(class(x), collapse = ", "),
+        call. = FALSE
+      )
+    }
+  }
+
   ext <- tolower(tools::file_ext(filename))
 
-  if (ext == "xml") {
-    # ---------- XML PATH ----------
-    xml_text <- NULL
-    if (inherits(x, "response")) {
-      xml_text <- httr::content(x, as = "text", encoding = "UTF-8")
-    } else if (is.raw(x)) {
-      xml_text <- rawToChar(x)
-    } else if (is.character(x) && length(x) >= 1L) {
-      xml_text <- x[[1L]]
-    } else {
-      stop("Unexpected object from ptagis_GET(): cannot parse as XML.", call. = FALSE)
-    }
+  # --- parse by file type ---
+  if (ext == "json") {
 
-    doc <- xml2::read_xml(xml_text)
-
-    if (return == "xml") return(doc)
-
-    out <- parse_mrr_xml(doc)
-
-  } else if (ext == "json") {
-    # ---------- JSON PATH ----------
-    # ptagis_GET may already return a parsed list, but handle other cases too.
+    # P5 JSON (most recent / canonical)
     if (is.list(x) && !inherits(x, "response")) {
       json_obj <- x
-    } else if (inherits(x, "response")) {
-      file_text <- httr::content(x, as = "text", encoding = "UTF-8")
-      json_obj  <- jsonlite::fromJSON(file_text, simplifyVector = FALSE)
-    } else if (is.raw(x)) {
-      json_obj <- jsonlite::fromJSON(rawToChar(x), simplifyVector = FALSE)
-    } else if (is.character(x) && length(x) >= 1L) {
-      json_obj <- jsonlite::fromJSON(x[[1L]], simplifyVector = FALSE)
     } else {
-      stop("Unexpected object from ptagis_GET(): cannot parse as JSON.\n",
-           "Classes: ", paste(class(x), collapse = ", "),
-           call. = FALSE)
-    }
-
-    if (return == "xml") {
-      stop("return = 'xml' is not valid for JSON input.", call. = FALSE)
+      json_obj <- jsonlite::fromJSON(as_text(x), simplifyVector = FALSE)
     }
 
     out <- parse_mrr_json(json_obj)
 
+  } else if (ext == "xml") {
+
+    # P4 XML (legacy)
+    xml_text <- as_text(x)
+    doc <- xml2::read_xml(xml_text)
+
+    out <- parse_mrr_xml(doc)
+
   } else {
-    stop("Unknown file extension. Expected '.xml' or '.json'.", call. = FALSE)
+
+    # P3 ASCII / TXT (oldest, least reliable)
+    txt <- as_text(x)
+
+    # defensive sniff
+    if (grepl("^\\s*<", txt)) {
+      stop("File appears to be XML but lacks a .xml extension.", call. = FALSE)
+    }
+    if (grepl("^\\s*\\{", txt)) {
+      stop("File appears to be JSON but lacks a .json extension.", call. = FALSE)
+    }
+
+    out <- parse_mrr_txt(txt)
   }
 
-  switch(return,
-         list    = out,
-         session = out$session,
-         events  = out$events
-  )
+  # --- enforce canonical event schema i.e., intended from JSON ---
+  out <- enforce_schema(out)
+
+  # --- optionally drop PDV-related objects ---
+  if (isTRUE(drop_pdvs)) {
+    out$session_pdv_fields <- NULL
+    out$detail_pdv_fields  <- NULL
+    out$pdv_values         <- NULL
+  }
+
+  # --- return ---
+  out
+
 }

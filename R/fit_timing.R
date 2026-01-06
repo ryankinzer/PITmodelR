@@ -25,18 +25,19 @@
 #' @author Ryan Kinzer
 #'
 #' @export
-
 fit_timing <- function(observations,
                        time_col = "event_time",
                        by = "day",
                        quantiles = c(0.1, 0.5, 0.9),
                        method = c("quantile", "gam")) {
+
   stopifnot(is.data.frame(observations))
   method <- match.arg(method)
   if (!time_col %in% names(observations)) {
     stop("`observations` is missing column: ", time_col, call. = FALSE)
   }
   dat <- observations
+
   # Parse/ensure POSIXct
   if (!inherits(dat[[time_col]], "POSIXt")) {
     suppressWarnings(dat[[time_col]] <- as.POSIXct(dat[[time_col]], tz = "UTC"))

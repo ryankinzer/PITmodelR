@@ -23,6 +23,31 @@ knitr::opts_chunk$set(
 
 ```
 
+```{r setup, include = FALSE}
+required_pkgs <- c(
+  "dplyr",
+  "tidyr",
+  "ggplot2",
+  "lubridate",
+  "marked"
+)
+
+missing <- required_pkgs[!vapply(required_pkgs, requireNamespace, logical(1), quietly = TRUE)]
+
+if (length(missing)) {
+  stop(
+    "The following packages are required to build this vignette but are not installed: ",
+    paste(missing, collapse = ", "),
+    call. = FALSE
+  )
+}
+
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(lubridate)
+library(marked)
+```
 
 # Overview
 
@@ -40,11 +65,11 @@ This vignette demonstrates end-to-end workflows for **juvenile survival** and **
 
 # Prerequisites
 
-This vignette will require the packages `marked`, `tidyverse`, and `PITmodelR` to function correctly. Please install them before moving forward. You can use `install_packages()` for [available CRAN packages](https://cran.r-project.org/web/packages/available_packages_by_name.html) and `remotes::install_github()` for packages on [GitHub](https://github.com/):
+This vignette will require the packages `marked` and `PITmodelR` (among others) to function correctly. Please install them before moving forward. You can use `install_packages()` for [available CRAN packages](https://cran.r-project.org/web/packages/available_packages_by_name.html) and `remotes::install_github()` for packages on [GitHub](https://github.com/):
 
 ```{r eval = FALSE}
 # install packages from CRAN
-install.packages(c("marked", "tidyverse"))
+install.packages(c("marked", "dplyr", "tidyr", "ggplot2", "lubridate"))
 
 # install PITmodelR from GitHub
 remotes::install_github("ryankinzer/PITmodelR")
@@ -54,9 +79,7 @@ remotes::install_github("ryankinzer/PITmodelR")
 Once installed, load these packages into your library:
 
 ```{r eval = TRUE}
-# load packages into library
-library(marked)
-library(tidyverse)
+# load PITmodelR into library
 library(PITmodelR)
 ```
 
@@ -315,7 +338,7 @@ summary(mod)
 mod$results
 mod$results$reals$Phi
 
-est_preds = predict(mod) %>% 
+est_preds = predict(mod) |>
       map(.f = as_tibble)
 ```
 
@@ -353,9 +376,7 @@ df <- all_data$combined
 # label mismatch issues
 all_data$issues
 
-library(tidyverse)
-
-mark_group <- df %>%
+mark_group <- df |>
   filter(species_run_rear_type == '12W',
          migration_year == 2025,
          between(release_date, ymd(20240901), ymd(20241231)),

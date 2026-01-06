@@ -1,4 +1,4 @@
-#' Internal: HTTP GET with retries for PTAGIS API
+#' @title HTTP GET with retries for PTAGIS API
 #'
 #' @description
 #' Performs a GET request to the PTAGIS API with retries and user-agent handling.
@@ -15,9 +15,6 @@
 #' @author Ryan Kinzer
 #'
 #' @keywords internal
-#'
-#' @export
-
 ptagis_GET <- function(path, query = list(), base_url = "https://api.ptagis.org", ...) {
 
   stopifnot(is.character(path), length(path) == 1L)
@@ -32,10 +29,29 @@ ptagis_GET <- function(path, query = list(), base_url = "https://api.ptagis.org"
   )
   httr::stop_for_status(resp)
 
+  # safe multi-encoding function
+  decode_with_fallback <- function(raw_bytes) {
+    txt <- rawToChar(raw_bytes)
+
+    # try UTF-8
+    try_utf8 <- iconv(txt, from = "", to = "UTF-8")
+    if (!any(is.na(try_utf8))) return(try_utf8)
+
+    # if UTF-8 fails, try Latin-1 / Windows-1252
+    try_latin1 <- iconv(txt, from = "latin1", to = "UTF-8")
+    if (!any(is.na(try_latin1))) return(try_latin1)
+
+    # last resort: keep the original with substitution chars
+    iconv(txt, from = "ASCII", to = "UTF-8", sub = "?")
+  }
+
   # try to parse JSON, but fall back to text if needed
   out <- try(httr::content(resp, as = "parsed", type = "application/json"), silent = TRUE)
   if (inherits(out, "try-error") || is.null(out)) {
-    out <- httr::content(resp, as = "text", encoding = "UTF-8")
+    # use decode_with_fallback for safer encoding
+    raw_txt <- httr::content(resp, as = "raw")
+    out     <- decode_with_fallback(raw_txt)
+    #out <- httr::content(resp, as = "text", encoding = "UTF-8")
   }
   out
 }

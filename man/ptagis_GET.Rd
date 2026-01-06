@@ -2,7 +2,7 @@
 % Please edit documentation in R/ptagis_GET.R
 \name{ptagis_GET}
 \alias{ptagis_GET}
-\title{Internal: HTTP GET with retries for PTAGIS API}
+\title{HTTP GET with retries for PTAGIS API}
 \usage{
 ptagis_GET(path, query = list(), base_url = "https://api.ptagis.org", ...)
 }

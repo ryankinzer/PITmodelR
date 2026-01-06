@@ -19,7 +19,6 @@
 #' @author Ryan Kinzer
 #'
 #' @export
-
 summarize_survival <- function(fit, level = 0.95) {
 
   if (!is.list(fit) || is.null(fit$survival)) {

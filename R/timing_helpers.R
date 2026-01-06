@@ -1,5 +1,6 @@
-#' Summarize arrival times and travel times between locations
+#' @title Summarize arrival times and travel times between locations
 #'
+#' @description
 #' Given raw tag events and a survival-location definition, returns:
 #' - First-arrival time at each occasion per tag
 #' - Travel time between consecutive occasions per tag
@@ -15,14 +16,16 @@
 #' @param time_col Column name with event timestamps (default "event_time").
 #' @param tz       Time zone used when parsing `time_col` if it is character (default "UTC").
 #' @param keep_unknown logical; keep events whose site_code is not in `locs_def`? (default FALSE).
+#'
 #' @return A list with elements:
 #'   - arrivals_long:  first-arrival time per tag x occasion (long)
 #'   - arrivals_wide:  first-arrival time per tag (wide by occasion)
-#'   - travel_long:    travel time (days) per tag and leg (o_i -> o_{i+1})
+#'   - travel_long:    travel time (days) per tag and leg (from occasion i to occasion i+1)
 #'   - occasion_summary: arrival-time quantiles by occasion
 #'   - leg_summary:       travel-time quantiles by leg
 #'   - mapping: site_code -> occasion, occ_idx
 #'   - dropped_summary: counts of unknown sites (if removed)
+#'
 #' @export
 summarize_arrival_travel <- function(tag_history,
                                      locs_def,

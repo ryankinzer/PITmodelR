@@ -2,7 +2,7 @@
 % Please edit documentation in R/get_project_codes.R
 \name{get_project_codes}
 \alias{get_project_codes}
-\title{Retrieve PTAGIS Project Codes}
+\title{Retrieve PTAGIS MRR Project Codes}
 \usage{
 get_project_codes()
 }

@@ -46,7 +46,7 @@ A list with the following elements:
 \describe{
 \item{\code{arrivals_long}}{First-arrival time per tag × occasion (long format).}
 \item{\code{arrivals_wide}}{First-arrival time per tag (wide format).}
-\item{\code{travel_long}}{Travel time (days) per tag and leg (\eqn{occasion_i \to occasion_{i+1}}).}
+\item{\code{travel_long}}{Travel time (days) per tag and leg (from occasion i to occasion i+1).}
 \item{\code{occasion_summary}}{Quantile summaries of arrival times by occasion.}
 \item{\code{leg_summary}}{Quantile summaries of travel times by migration leg.}
 \item{\code{mapping}}{Mapping of \code{site_code} to occasion and occasion index.}
@@ -57,7 +57,7 @@ A list with elements:
 \itemize{
 \item arrivals_long:  first-arrival time per tag x occasion (long)
 \item arrivals_wide:  first-arrival time per tag (wide by occasion)
-\item travel_long:    travel time (days) per tag and leg (o_i -> o_{i+1})
+\item travel_long:    travel time (days) per tag and leg (from occasion i to occasion i+1)
 \item occasion_summary: arrival-time quantiles by occasion
 \item leg_summary:       travel-time quantiles by leg
 \item mapping: site_code -> occasion, occ_idx
@@ -68,7 +68,7 @@ A list with elements:
 Given raw tag histories e.g., from \code{get_batch_tag_histories()} and user-defined sequence of
 detection locations or occasions, summarizes first-arrival and travel times for tagged fish.
 Calculates per-tag first arrival and travel times, as well as quantile summaries for each
-occassion and migration "leg".
+occasion and migration "leg".
 
 Given raw tag events and a survival-location definition, returns:
 \itemize{

@@ -1,55 +1,61 @@
-#' @title Download, Check, Flatten, and Combine MRR Files
+#' @title Download, Parse, and Combine Multiple PTAGIS MRR Files
 #'
 #' @description
-#' A one-call convenience wrapper to download multiple PTAGIS mark-recapture-recovery (MRR) XML files,
-#' check for PDV/SPDV label consistency across files, and return everything as a single list.
+#' Convenience wrapper to download multiple PTAGIS mark–recapture–recovery (MRR)
+#' files (JSON, XML, or legacy TXT/ASCII), parse them via \code{\link{get_file_data}},
+#' and return combined \code{sessions} (one row per file) and \code{events} (all rows).
 #'
-#' @param filenames A character vector of MRR file names to download and process.
-#' @param check_labels Character; one of \code{"warn"}, \code{"error"}, or \code{"ignore"}.
-#'   Determines how to handle PDV/SPDV label inconsistencies across files.
-#' @param keep_code_cols Logical, default \code{TRUE}. If \code{TRUE}, retains code
-#' columns (pdv*, spdv*) in flattened tibbles. If \code{FALSE}, replaces with user field names.
-#' @param use_codes_on_conflict Logical, default \code{TRUE}. If \code{TRUE}, code columns are preferred over label-derived columns
-#'   when combining flattened tibbles to ensure a consistent schema.
+#' If \code{pdvs = "attach"}, SPDV/PDV values are attached in wide format
+#' (\code{spdv1}, \code{spdv2}, ... on \code{sessions}; \code{pdv1}, \code{pdv2}, ...
+#' on \code{events}) and a per-file \code{pdv_map} is returned.
 #'
-#' @inheritParams flatten_mrr_file
+#' If \code{map_pdvs = TRUE} (and \code{pdvs = "attach"}), SPDV/PDV code columns
+#' are mapped to label-based columns using \code{pdv_map$label}, and the original
+#' \code{spdv*}/\code{pdv*} code columns are removed. The \code{pdv_map} is preserved.
 #'
-#' @return A list with three elements:
+#' @param filenames Character vector of MRR file names to download and process.
+#'   Duplicate filenames are dropped (only the first occurrence is used).
+#' @param pdvs Character; one of \code{"drop"} (default) or \code{"attach"}.
+#'   If \code{"drop"}, PDV-related components are removed (faster/smaller output).
+#'   If \code{"attach"}, PDV values are retained/attached and \code{pdv_map} is returned.
+#' @param map_pdvs Logical; if \code{TRUE} and \code{pdvs = "attach"}, map \code{spdv*}/\code{pdv*}
+#'   code columns to label-based columns using \code{pdv_map} and drop the code columns.
+#'
+#' @return A list with:
 #' \itemize{
-#'   \item \code{sessions} – named list of flattened tibbles, one per file
-#'   \item \code{events} – a single tibble combining "events" from all files
-#'   \item \code{issues} – a data.frame of PDV/SPDV label inconsistencies detected across files
+#'   \item \code{sessions}: tibble with one row per file/session
+#'   \item \code{events}: tibble with all event rows
+#'   \item \code{pdv_map}: tibble mapping (only when \code{pdvs = "attach"})
 #' }
+#' If \code{map_pdvs = TRUE}, \code{sessions}/\code{events} include mapped label columns
+#' and \code{spdv*}/\code{pdv*} code columns are removed.
 #'
-#' @author Ryan Kinzer
+#' @author Mike Ackerman & Ryan Kinzer
 #'
 #' @export
-
 get_batch_file_data <- function(filenames,
-                                check_labels = c("warn","error","ignore"),
-                                keep_code_cols = TRUE,
-                                label_conflict = c("suffix","overwrite","skip"),
-                                use_codes_on_conflict = TRUE) {
+                                pdvs = c("drop", "attach"),
+                                map_pdvs = FALSE) {
 
-  check_labels   <- match.arg(check_labels)
+  pdvs <- match.arg(pdvs)
 
-  label_conflict <- match.arg(label_conflict)
+  if (!is.character(filenames) || !length(filenames)) {
+    stop("`filenames` must be a non-empty character vector.", call. = FALSE)
+  }
 
-  mrr_list <- download_mrr_files(filenames)
+  # avoid double downloads i.e., confusing duplicates
+  filenames <- unique(filenames)
 
-  issues <- check_pdv_label_consistency(mrr_list,
-                                        which = "both",
-                                        action = check_labels)
+  mrr_list <- download_mrr_files(
+    filenames,
+    drop_pdvs = (pdvs == "drop")
+  )
 
-  files <- flatten_mrr_list(mrr_list,
-                            keep_code_cols = keep_code_cols,
-                            label_conflict = label_conflict)
+  out <- collapse_mrr_list(mrr_list, pdvs = pdvs)
 
-  combined <- combine_flattened_mrr(files,
-                                    use_codes_on_conflict = use_codes_on_conflict)
+  if (isTRUE(map_pdvs) && pdvs == "attach") {
+    out <- map_pdvs_to_cols(out)
+  }
 
-  list(sessions = files,
-       events = combined,
-       issues = issues)
-
+  out
 }

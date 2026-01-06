@@ -2,21 +2,31 @@
 % Please edit documentation in R/download_mrr_files.R
 \name{download_mrr_files}
 \alias{download_mrr_files}
-\title{Download and Parse Multiple MRR XML Files}
+\title{Download and Parse Multiple PTAGIS MRR Files}
 \usage{
-download_mrr_files(filenames)
+download_mrr_files(filenames, drop_pdvs = FALSE)
 }
 \arguments{
-\item{filenames}{A character vector of MRR file names to download and process.}
+\item{filenames}{Character vector of MRR file names to download and process.
+File names are used as names in the returned list.}
+
+\item{drop_pdvs}{Logical, default \code{FALSE}. If \code{TRUE}, drops PDV-related
+components from the returned object (\code{session_pdv_fields},
+\code{detail_pdv_fields}, and \code{pdv_values}). The standardized \code{session}
+and \code{events} outputs are always returned.}
 }
 \value{
 A named list where each element corresponds to one input file.
-Each element contains the parsed output from \code{get_file_data(..., return = "list")}.
+Each element is the parsed output from \code{\link{get_file_data}} and
+contains at least \code{session} and \code{events}. If PDVs are retained
+upstream (i.e., \code{drop_pdvs = FALSE}), elements also contain
+\code{session_pdv_fields}, \code{detail_pdv_fields}, and \code{pdv_values}.
 }
 \description{
-Downloads and parses multiple mark-recapture-recovery (MRR) XML files.
-Each file is read using \code{get_file_data()} and returned as a list.
+Downloads and parses multiple PTAGIS mark–recapture–recovery (MRR) files
+(JSON, XML, or legacy TXT/ASCII). Each file is processed independently via
+\code{\link{get_file_data}} and returned as a named list.
 }
 \author{
-Ryan Kinzer
+Ryan Kinzer & Mike Ackerman
 }

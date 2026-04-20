@@ -227,18 +227,18 @@ build_mark_histories <- function(tag_history,
   missing_cols <- setdiff(occasion_cols, names(ch_data))
   if (length(missing_cols)) ch_data[missing_cols] <- 0L
 
-  # ch_data <- ch_data |>
-  #   dplyr::select(dplyr::all_of(tag_col), dplyr::all_of(occasion_cols)) |>
-  #   dplyr::arrange(.data[[tag_col]]) |>
-  #   dplyr::mutate(
-  #     ch = do.call(paste0, lapply(dplyr::across(dplyr::all_of(occasion_cols)), as.character))
-  #   ) |>
-  #   dplyr::select(dplyr::all_of(tag_col), ch)
-
   ch_data <- ch_data |>
+    dplyr::select(dplyr::all_of(tag_col), dplyr::all_of(occasion_cols)) |>
+    dplyr::arrange(.data[[tag_col]]) |>
     dplyr::mutate(
       ch = do.call(paste0, lapply(dplyr::across(dplyr::all_of(occasion_cols)), as.character))
-    )
+    ) |>
+    dplyr::select(dplyr::all_of(tag_col), ch)
+
+  # ch_data <- ch_data |>
+  #   dplyr::mutate(
+  #     ch = do.call(paste0, lapply(dplyr::across(dplyr::all_of(occasion_cols)), as.character))
+  #   )
 
   # ---- collapsed frequency table ----
   ch_freq <- ch_data |>

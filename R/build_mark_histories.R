@@ -3,13 +3,23 @@
 #' @description
 #' Converts tag-level observation events into capture histories compatible with
 #' program MARK. Can handle multiple sites per occasion, enforce downstream order,
-#' and optionally drop unknown sites.
+#' and optionally apply censoring rules that remove fish from availability after
+#' a specified event.
+#'
+#' @details
+#' If \code{censor_col} is supplied, rows where the column evaluates to \code{TRUE}
+#' are treated as terminal detections. The detection at that occasion is retained,
+#' but all subsequent detections for that tag are removed from the encounter history.
+#'
+#' This is useful in cases where a fish is detected for parameter estimation but
+#' is no longer available for detection at downstream sites (e.g., removal,
+#' transport, or mortality events).
 #'
 #' @param tag_history A data frame or tibble with at least the following columns:
 #'   \describe{
 #'     \item{\code{tag_code}}{Unique identifier for each tagged fish.}
 #'     \item{\code{site_code}}{Detection site code.}
-#'     \item{\code{event_time}}{Timestamp of the detection event.}
+#'     \item{\code{event_time}}{Timestamp of the detection event (used if \code{time_col} is provided).}
 #'   }
 #' @param locs_def Either a character vector defining the ordered occasions
 #'   (e.g., \code{c("SECTRP","ZEN",...)}), or a named list mapping one or more site codes
@@ -21,6 +31,10 @@
 #'   Default is \code{"tag_code"}.
 #' @param time_col Character; optional column name in \code{tag_history} containing
 #'   event timestamps (POSIXct or parseable) used to order events within tag.
+#' @param censor_col Character; optional column name indicating whether an event
+#'   is censored. Must be logical or coercible to logical. If \code{TRUE}, the fish
+#'   is considered removed after that detection and is not available for subsequent
+#'   occasions. The detection itself is retained. Default is \code{NULL}.
 #' @param enforce_order Logical; if TRUE, only the first occurrence of each
 #'   strictly increasing occasion per tag is kept. Default is TRUE.
 #' @param keep_unknown Logical; whether to keep events with site codes not found in
@@ -45,11 +59,16 @@ build_mark_histories <- function(tag_history,
                                  site_col = "site_code",
                                  tag_col  = "tag_code",
                                  time_col = NULL,
+                                 censor_col = NULL,
                                  enforce_order = TRUE,
                                  keep_unknown  = FALSE) {
 
   stopifnot(is.data.frame(tag_history))
   stopifnot(all(c(site_col, tag_col) %in% names(tag_history)))
+
+  if (!is.null(censor_col) && !censor_col %in% names(tag_history)) {
+    stop("censor_col was supplied but is not in tag_history.", call. = FALSE)
+  }
 
   # ---- build mapping: site_code -> (occasion, occ_idx) ----
   if (is.list(locs_def)) {
@@ -96,6 +115,11 @@ build_mark_histories <- function(tag_history,
   df[[site_col]] <- toupper(trimws(as.character(df[[site_col]])))
   df[[tag_col]]  <- as.character(df[[tag_col]])
 
+  if (!is.null(censor_col)) {
+    df[[censor_col]] <- as.logical(df[[censor_col]])
+    df[[censor_col]][is.na(df[[censor_col]])] <- FALSE
+  }
+
   df2 <- dplyr::left_join(
     df,
     mapping,
@@ -135,6 +159,34 @@ build_mark_histories <- function(tag_history,
       dplyr::select(-prev_max) |>
       dplyr::ungroup()
   }
+
+  # ---- apply censoring: keep censored detection, drop later detections ----
+  if (!is.null(censor_col)) {
+
+    # order again within tag so "first censored event" is well defined
+    if (!is.null(time_col) && time_col %in% names(df2)) {
+      df2 <- df2[order(df2[[tag_col]], df2[[time_col]], df2$occ_idx), , drop = FALSE]
+    } else {
+      df2 <- df2[order(df2[[tag_col]], df2$occ_idx), , drop = FALSE]
+    }
+
+    censor_df <- df2 |>
+      dplyr::group_by(.data[[tag_col]]) |>
+      dplyr::summarise(
+        first_censor_occ = if (any(.data[[censor_col]], na.rm = TRUE)) {
+          min(occ_idx[.data[[censor_col]]], na.rm = TRUE)
+        } else {
+          Inf
+        },
+        .groups = "drop"
+      )
+
+    df2 <- df2 |>
+      dplyr::left_join(censor_df, by = tag_col) |>
+      dplyr::filter(occ_idx <= first_censor_occ) |>
+      dplyr::select(-first_censor_occ)
+  }
+
 
   # ---- reduce to (tag, occ_idx) and deduplicate ----
   surv_dat <- df2 |>

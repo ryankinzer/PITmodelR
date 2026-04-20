@@ -188,5 +188,15 @@ DART_site_config <- function(configDate = Sys.Date()) {
   parsed_df <- parsed_df[, names(parsed_df) != "releasecode3"]
 
 
+  # Need to remove the records where exceptions exist.
+
+  # site_config <- DART_site_config() %>%
+  #   rename(obs_site = sitecode, antenna_id = arraycodes) %>%
+  #   separate_rows(antenna_id, sep = "\\s+") %>%
+  #   arrange(desc(exception)) %>%
+  #   group_by(across(obs_site:date_end)) %>%
+  #   slice(1) %>%
+  #   ungroup()
+
   return(parsed_df)
 }

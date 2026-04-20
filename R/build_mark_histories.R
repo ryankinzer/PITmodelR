@@ -8,8 +8,9 @@
 #'
 #' @details
 #' If \code{censor_col} is supplied, rows where the column evaluates to \code{TRUE}
-#' are treated as terminal detections. The detection at that occasion is retained,
-#' but all subsequent detections for that tag are removed from the encounter history.
+#' are treated as terminal detections. The detection at that occasion is retained
+#' and encoded as \code{2} in the encounter history, while subsequent occasions are
+#' encoded as \code{0} because the fish is no longer available for detection.
 #'
 #' This is useful in cases where a fish is detected for parameter estimation but
 #' is no longer available for detection at downstream sites (e.g., removal,
@@ -43,7 +44,9 @@
 #' @return A list with four elements:
 #' \itemize{
 #'   \item \code{ch_data} – tibble with one row per tag and a \code{ch} column for
-#'     encounter history, plus 0/1 columns per occasion.
+#'     encounter history, where \code{1} indicates detection, \code{2} indicates
+#'     detection with censoring at that occasion, and \code{0} indicates no detection
+#'     or not available for detection.
 #'   \item \code{ch_freq} – tibble of encounter history strings and their frequencies.
 #'   \item \code{mapping} – tibble mapping \code{site_code} to \code{occasion} and numeric
 #'     \code{occ_idx}.
@@ -163,12 +166,17 @@ build_mark_histories <- function(tag_history,
   # ---- apply censoring: keep censored detection, drop later detections ----
   if (!is.null(censor_col)) {
 
-    # order again within tag so "first censored event" is well defined
+    # order again within tag so first censored event is well defined
     if (!is.null(time_col) && time_col %in% names(df2)) {
       df2 <- df2[order(df2[[tag_col]], df2[[time_col]], df2$occ_idx), , drop = FALSE]
     } else {
       df2 <- df2[order(df2[[tag_col]], df2$occ_idx), , drop = FALSE]
     }
+
+    df2 <- df2 |>
+      dplyr::mutate(
+        encounter = dplyr::if_else(.data[[censor_col]], 2L, 1L)
+      )
 
     censor_df <- df2 |>
       dplyr::group_by(.data[[tag_col]]) |>
@@ -185,13 +193,21 @@ build_mark_histories <- function(tag_history,
       dplyr::left_join(censor_df, by = tag_col) |>
       dplyr::filter(occ_idx <= first_censor_occ) |>
       dplyr::select(-first_censor_occ)
+
+  } else {
+
+    df2 <- df2 |>
+      dplyr::mutate(encounter = 1L)
   }
 
 
   # ---- reduce to (tag, occ_idx) and deduplicate ----
   surv_dat <- df2 |>
-    dplyr::distinct(.data[[tag_col]], occ_idx, .keep_all = FALSE) |>
-    dplyr::select(all_of(tag_col), occ_idx)
+    dplyr::group_by(.data[[tag_col]], occ_idx) |>
+    dplyr::summarise(
+      encounter = max(encounter, na.rm = TRUE),
+      .groups = "drop"
+    )
 
   # ---- build encounter histories ----
   n_occasions   <- length(unique(mapping$occ_idx))
@@ -199,27 +215,30 @@ build_mark_histories <- function(tag_history,
 
   ch_data <- surv_dat |>
     dplyr::mutate(
-      detected = 1L,
-      occ_idx  = as.character(occ_idx)
+      occ_idx = as.character(occ_idx)
     ) |>
     tidyr::pivot_wider(
       id_cols     = dplyr::all_of(tag_col),
       names_from  = occ_idx,
-      values_from = detected,
+      values_from = encounter,
       values_fill = 0L
     )
 
-  # ensure all columns exist & in order
   missing_cols <- setdiff(occasion_cols, names(ch_data))
   if (length(missing_cols)) ch_data[missing_cols] <- 0L
 
+  # ch_data <- ch_data |>
+  #   dplyr::select(dplyr::all_of(tag_col), dplyr::all_of(occasion_cols)) |>
+  #   dplyr::arrange(.data[[tag_col]]) |>
+  #   dplyr::mutate(
+  #     ch = do.call(paste0, lapply(dplyr::across(dplyr::all_of(occasion_cols)), as.character))
+  #   ) |>
+  #   dplyr::select(dplyr::all_of(tag_col), ch)
+
   ch_data <- ch_data |>
-    dplyr::select(dplyr::all_of(tag_col), dplyr::all_of(occasion_cols)) |>
-    dplyr::arrange(.data[[tag_col]]) |>
     dplyr::mutate(
       ch = do.call(paste0, lapply(dplyr::across(dplyr::all_of(occasion_cols)), as.character))
-    ) |>
-    dplyr::select(dplyr::all_of(tag_col), ch)
+    )
 
   # ---- collapsed frequency table ----
   ch_freq <- ch_data |>

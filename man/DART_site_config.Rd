@@ -2,7 +2,7 @@
 % Please edit documentation in R/DART_site_config.R
 \name{DART_site_config}
 \alias{DART_site_config}
-\title{Load PTAGIS interrogation site configuration}
+\title{Load interrogation site configuration file.}
 \usage{
 DART_site_config(configDate = Sys.Date())
 }
@@ -13,20 +13,8 @@ DART_site_config(configDate = Sys.Date())
 A tibble of site observations.
 }
 \description{
-Download site configuration file from DART (https://www.cbr.washington.edu/paramest/docs/pitpro/updates/sites_config.txt) and format as a data frame.
-}
-\examples{
-\dontrun{
-# recommended: store your key once per session
-Sys.setenv(PTAGIS_API_KEY = "YOUR-KEY-HERE")
-get_tag_history(tag_code = "384.1B79726A98")
-
-# or pass the key manually, and reduce fields
-get_tag_history(api_key = "YOUR-KEY-HERE", tag_code = "384.1B79726A98",
-                fields = c("tag_code", "site_code", "event_type", "event_date"))
-}
-
+Download site configuration file from DART (https://www.cbr.washington.edu/paramest/docs/pitpro/updates/sites_config.txt) and format as a data frame. The function was originally written by Ryan Vosbigian and contained in the 'https://github.com/ryanvosbigian/space4time' R package.
 }
 \author{
-Ryan Vosbigian
+Ryan N. Kinzer
 }

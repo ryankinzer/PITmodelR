@@ -1,164 +1,117 @@
-#' @title Load PTAGIS interrogation site configuration
+#' @title Load interrogation site configuration file.
 #'
 #' @description
-#' Download site configuration file from DART (https://www.cbr.washington.edu/paramest/docs/pitpro/updates/sites_config.txt) and format as a data frame.
+#' Download site configuration file from DART (https://www.cbr.washington.edu/paramest/docs/pitpro/updates/sites_config.txt) and format as a data frame. The function was originally written by Ryan Vosbigian and contained in the 'https://github.com/ryanvosbigian/space4time' R package.
 #'
 #' @param configDate last day of configuration
 #'
 #' @return A tibble of site observations.
 #'
-#' @author Ryan Vosbigian
-#'
-#' @examples
-#' \dontrun{
-#' # recommended: store your key once per session
-#' Sys.setenv(PTAGIS_API_KEY = "YOUR-KEY-HERE")
-#' get_tag_history(tag_code = "384.1B79726A98")
-#'
-#' # or pass the key manually, and reduce fields
-#' get_tag_history(api_key = "YOUR-KEY-HERE", tag_code = "384.1B79726A98",
-#'                 fields = c("tag_code", "site_code", "event_type", "event_date"))
-#' }
+#' @author Ryan N. Kinzer
 #'
 #' @export
 
-DART_site_config <- function(configDate = Sys.Date()) {
+DART_site_config <- function(configDate = Sys.Date()){
 
-  DART_config <- 'https://www.cbr.washington.edu/paramest/docs/pitpro/updates/sites_config.txt'
+  DART_config <- "https://www.cbr.washington.edu/paramest/docs/pitpro/updates/sites_config.txt"
 
-  lines <- tryCatch(readLines(DART_config),
-                    error = function(err) stop(paste0("DART site configuration file failed: ",DART_config)))
+  lines <- tryCatch(
+    readLines(DART_config),
+    error = function(err) stop("DART site configuration file failed: ", DART_config)
+  )
 
-  message(paste0("Obtained the PTAGIS site configuration formatted by DART from:\n",DART_config))
+  # removes some special characters
+  lines <- iconv(lines, from = "latin1", to = "UTF-8", sub = "")
 
-  parsed_df <- data.frame(sitecode = as.character(NA),
-                          arrayname = as.character(NA),
-                          arraycodes = as.character(NA),
-                          date_start = as.Date(NA),
-                          date_end = as.Date(NA),
-                          releasecode1 = as.character(NA),
-                          releasecode2 = as.character(NA),
-                          releasecode3 = as.character(NA),
-                          exception = as.logical(NA),
-                          stringsAsFactors = FALSE)[0,]
+  message("Obtained the PTAGIS site configuration formatted by DART from:\n", DART_config)
 
-  # Find the start and end of the desired section
-  suppressWarnings(start_line <- which(grepl("# Detector Configuration", lines)) + 2)
-  suppressWarnings(end_line <- which(grepl("# Interrogation Site Configuration", lines)) - 2)
-
-  detector_config_lines <- lines[start_line:end_line]
-
-  code_start <- grep("code:",detector_config_lines)
-  code_end <- c(code_start[-1]-1,length(detector_config_lines))
-
-
-  for (c in 1:length(code_start)) {
-
-
-
-    tmp_code_lines <- detector_config_lines[code_start[c]:code_end[c]]
-    tmp_openparanth <- grep("[{]$",tmp_code_lines)
-    tmp_cloparanth <- grep("[}]$",tmp_code_lines)
-    tmp_range <- grep("range:",tmp_code_lines)
-
-
-
-    # or length tmp_range
-    for (r in 1:(length(tmp_range))) {
-      # Present <- Sys.Date()
-
-
-      # tmp_code_lines[tmp_range[p-1]]
-      tmpdate_range <- gsub("^.*range: ","",tmp_code_lines[tmp_range[r]])
-
-      tmp_startdate <- as.Date(stringr::str_split_i(tmpdate_range," ",1),format = "%d-%b-%y")
-
-      #
-      tmp_enddate <- ifelse(stringr::str_split_i(tmpdate_range," ",2) == "Present",as.Date(configDate),as.Date(stringr::str_split_i(tmpdate_range," ",2),format = "%d-%b-%y"))
-
-      next_closed_paran <- min(tmp_cloparanth[which(tmp_cloparanth-tmp_range[r] > 0)])
-
-      tmp_array_lines <- tmp_code_lines[seq(tmp_range[r] + 2,next_closed_paran-1)]
-
-      arraynames <- stringr::str_split_i(tmp_array_lines,pattern = " : ",i = 3)
-      arraycodes <- stringr::str_split_i(tmp_array_lines,pattern = " : ",i = 4)
-
-      releasecode1 <- stringr::str_split_i(tmp_array_lines,pattern = ": ",i = 1)
-      releasecode1 <- gsub(" ","",releasecode1)
-
-      releasecode2 <- stringr::str_split_i(tmp_array_lines,pattern = ":",i = 2)
-
-      releasecode2 <- gsub(" ","",releasecode2)
-
-      releasecode3 <- stringr::str_split_i(tmp_array_lines,pattern = ":",i = 3)
-      releasecode3 <- gsub(" ","",releasecode3)
-
-      new_row <- data.frame(sitecode = gsub("code: ","",tmp_code_lines[1]),
-                            arrayname = arraynames,
-                            arraycodes = arraycodes,
-                            date_start = tmp_startdate,
-                            date_end =as.Date(tmp_enddate),
-                            releasecode1 = releasecode1,
-                            releasecode2 = releasecode2,
-                            releasecode3 = releasecode3,
-                            exception = FALSE,
-                            stringsAsFactors = FALSE)
-
-      parsed_df <- rbind(parsed_df, new_row)
-    }
-
-    # deal with exceptions:
-    if (sum(grepl("exception",tmp_code_lines)) > 0) {
-      # stop()
-      tmp_exception_lines <- tmp_code_lines[grepl("exception",tmp_code_lines)]
-
-      format_tmp_exception_lines <- gsub("^.*exception: ","",tmp_exception_lines)
-
-      tmp_date_start <- stringr::str_split_i(format_tmp_exception_lines," ",1)
-      tmp_date_end <- stringr::str_split_i(format_tmp_exception_lines," ",2)
-
-
-      tmp_date_start <- as.Date(tmp_date_start,format = "%d-%b-%y")
-      tmp_date_end <- as.Date(ifelse(tmp_date_end == "Present",as.Date(configDate),as.Date(tmp_date_end,format = "%d-%b-%y")))
-
-      format2_tmp_exc_lines <- gsub(".*[{] | [}]","",format_tmp_exception_lines)
-
-      arraynames <- stringr::str_split_i(format2_tmp_exc_lines,pattern = " : ",i = 3)
-      arraycodes <- stringr::str_split_i(format2_tmp_exc_lines,pattern = " : ",i = 4)
-
-      releasecode1 <- stringr::str_split_i(format2_tmp_exc_lines,pattern = ": ",i = 1)
-
-      releasecode2 <- stringr::str_split_i(format2_tmp_exc_lines,pattern = ":",i = 2)
-
-      releasecode2 <- gsub(" ","",releasecode2)
-
-      releasecode3 <- stringr::str_split_i(format2_tmp_exc_lines,pattern = ":",i = 3)
-
-      releasecode3 <- gsub(" ","",releasecode3)
-
-      new_row <- data.frame(sitecode = gsub("code: ","",tmp_code_lines[1]),
-                            arrayname = arraynames,
-                            arraycodes = arraycodes,
-                            date_start = tmp_date_start,
-                            date_end =tmp_date_end,
-                            releasecode1 = releasecode1,
-                            releasecode2 = releasecode2,
-                            releasecode3 = releasecode3,
-                            exception = TRUE,
-                            stringsAsFactors = FALSE)
-
-      parsed_df <- rbind(parsed_df, new_row)
-
-
-    }
-
-
+  parse_date <- function(x) {
+    ifelse(
+      x == "Present",
+      as.character(configDate),
+      as.character(as.Date(x, format = "%d-%b-%y"))
+    ) |>
+      as.Date()
   }
 
-  parsed_df$date_start <- as.Date(parsed_df$date_start)
-  parsed_df$date_end <- as.Date(parsed_df$date_end)
+  parse_array_lines <- function(x, obs_site, date_start, date_end, exception = FALSE) {
+    data.frame(
+      obs_site = obs_site,
+      antenna_name = stringr::str_split_i(x, " : ", 3),
+      antenna_id = stringr::str_split_i(x, " : ", 4),
+      date_start = as.Date(date_start),
+      date_end = as.Date(date_end),
+      release_code = gsub(" ", "", stringr::str_split_i(x, ": ", 1)),
+      life_stage = gsub(" ", "", stringr::str_split_i(x, ":", 2)),
+      antenna_order = gsub(" ", "", stringr::str_split_i(x, ":", 3)),
+      exception = exception,
+      stringsAsFactors = FALSE
+    )
+  }
 
-  parsed_df$disposition <- c(
+  # isolate detector configuration section
+  start_line <- which(grepl("# Detector Configuration", lines)) + 2
+  end_line   <- which(grepl("# Interrogation Site Configuration", lines)) - 2
+
+  detector_lines <- lines[start_line:end_line]
+
+  code_start <- grep("code:", detector_lines)
+  code_end   <- c(code_start[-1] - 1, length(detector_lines))
+
+  parsed_df <- do.call(rbind, lapply(seq_along(code_start), function(i) {
+
+    code_lines <- detector_lines[code_start[i]:code_end[i]]
+    obs_site <- gsub("code: ", "", code_lines[1])
+
+    close_paren <- grep("[}]$", code_lines)
+    range_lines <- grep("range:", code_lines)
+
+    range_df <- do.call(rbind, lapply(range_lines, function(r) {
+
+      date_range <- strsplit(gsub("^.*range: ", "", code_lines[r]), "\\s+")[[1]]
+
+      date_start <- parse_date(date_range[1])
+      date_end   <- parse_date(date_range[2])
+
+      next_close <- min(close_paren[close_paren > r])
+      array_lines <- code_lines[(r + 2):(next_close - 1)]
+
+      parse_array_lines(
+        x = array_lines,
+        obs_site = obs_site,
+        date_start = date_start,
+        date_end = date_end,
+        exception = FALSE
+      )
+    }))
+
+    exception_lines <- code_lines[grepl("exception", code_lines)]
+
+    exception_df <- if (length(exception_lines)) {
+
+      exc <- gsub("^.*exception: ", "", exception_lines)
+
+      date_start <- parse_date(stringr::str_split_i(exc, "\\s+", 1))
+      date_end   <- parse_date(stringr::str_split_i(exc, "\\s+", 2))
+
+      array_lines <- gsub(".*[{] | [}]", "", exc)
+
+      parse_array_lines(
+        x = array_lines,
+        obs_site = obs_site,
+        date_start = date_start,
+        date_end = date_end,
+        exception = TRUE
+      )
+
+    } else {
+      NULL
+    }
+
+    rbind(range_df, exception_df)
+  }))
+
+  disposition_map <- c(
     R = "Returned to River",
     U = "Unknown",
     B = "Bypass",
@@ -166,9 +119,9 @@ DART_site_config <- function(configDate = Sys.Date()) {
     T = "Transported",
     H = "Held",
     X = "Unknown"
-  )[parsed_df$releasecode1]
+  )
 
-  parsed_df$censored <- c(
+  censored_map <- c(
     R = FALSE,
     U = TRUE,
     B = TRUE,
@@ -176,27 +129,30 @@ DART_site_config <- function(configDate = Sys.Date()) {
     T = FALSE,
     H = TRUE,
     X = TRUE
-  )[parsed_df$releasecode1]
+  )
 
-  parsed_df <- parsed_df[, names(parsed_df) != "releasecode1"]
+  parsed_df$disposition <- disposition_map[parsed_df$release_code]
+  parsed_df$censored    <- censored_map[parsed_df$release_code]
+  parsed_df$release_code <- NULL
 
-  parsed_df$lifestage <- parsed_df$releasecode2
-  parsed_df <- parsed_df[, names(parsed_df) != "releasecode2"]
+  # split antenna_id into one row per antenna
+  split_antennas <- strsplit(parsed_df$antenna_id, "\\s+")
 
+  site_config <- parsed_df[
+    rep(seq_len(nrow(parsed_df)), lengths(split_antennas)),
+  ]
 
-  parsed_df$array_order <- parsed_df$releasecode3
-  parsed_df <- parsed_df[, names(parsed_df) != "releasecode3"]
+  site_config$antenna_id <- unlist(split_antennas)
 
+  # keep exception rows when duplicate config records exist
+  site_config <- site_config[order(site_config$exception, decreasing = TRUE), ]
 
-  # Need to remove the records where exceptions exist.
+  group_cols <- names(site_config)[
+    match("obs_site", names(site_config)):match("date_end", names(site_config))
+  ]
 
-  # site_config <- DART_site_config() %>%
-  #   rename(obs_site = sitecode, antenna_id = arraycodes) %>%
-  #   separate_rows(antenna_id, sep = "\\s+") %>%
-  #   arrange(desc(exception)) %>%
-  #   group_by(across(obs_site:date_end)) %>%
-  #   slice(1) %>%
-  #   ungroup()
+  site_config <- site_config[!duplicated(site_config[group_cols]), ]
+  row.names(site_config) <- NULL
 
-  return(parsed_df)
+  return(site_config)
 }

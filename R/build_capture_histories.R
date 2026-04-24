@@ -1,4 +1,4 @@
-#' @title Build MARK Capture Histories from Tag Events
+#' @title Build Capture Histories from Tag Events
 #'
 #' @description
 #' Converts tag-level observation events into capture histories compatible with
@@ -54,10 +54,10 @@
 #'     their site was not in the "study design".
 #' }
 #'
-#' @author Ryan Kinzer
+#' @author Ryan N. Kinzer
 #'
 #' @export
-build_mark_histories <- function(tag_history,
+build_capture_histories <- function(tag_history,
                                  locs_def,
                                  site_col = "site_code",
                                  tag_col  = "tag_code",

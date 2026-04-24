@@ -10,8 +10,9 @@
 #'   columns for tag codes, site codes, and event timestamps.
 #' @param route_sites Character vector of site codes defining the downstream route order.
 #'   Example: \code{c("LGR","LGS","LMN","MCN")}.
-#'
-#' @inheritParams build_mark_histories
+#' @param tag_col name of the field containing tag codes
+#' @param time_col name of the field containing the detection/observation date time
+#' @param site_col name of the field containing the site code
 #'
 #' @return A list with two elements:
 #' \itemize{

@@ -48,8 +48,8 @@ build_multistate_histories <- function(ch_data) {
   }
 
   out <- data.frame(
-    tag_code = ch_data[[tag_code]],
-    ch = vapply(ch_data[[ch]], convert_ch, character(1)),
+    tag_code = ch_data$tag_code,
+    ch = vapply(ch_data$ch, convert_ch, character(1)),
     stringsAsFactors = FALSE
   )
 

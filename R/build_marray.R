@@ -20,7 +20,7 @@
 build_marray <- function(ch_data,
                          locs_def = NULL) {
 
-  ch_vec <- ch_data[[ch]]
+  ch_vec <- ch_data$ch
   n_occ <- nchar(ch_vec[1])
 
   if (is.null(locs_def)) {

@@ -2,21 +2,50 @@
 % Please edit documentation in R/build_multistate_histories.R
 \name{build_multistate_histories}
 \alias{build_multistate_histories}
-\title{Build capture histories for a multi-state model using \code{marked}}
+\title{Build Multistate Histories for \code{marked}}
 \usage{
-build_multistate_histories(ch_data)
+build_multistate_histories(
+  ch_data,
+  tag_col = "tag_code",
+  ch_col = "ch",
+  keep_cols = TRUE
+)
 }
 \arguments{
-\item{ch_data}{Data frame or tibble with at least the following columns:
-\describe{
-\item{\code{tag_code}}{Unique identifier for each tagged individual.}
-\item{\code{ch}}{Encounter history string (e.g., "11001"). The value
-1 = released/detected, 0 = not observed, and a 2 = detected but removed and not available for observation at the next site.}
-}}
+\item{ch_data}{Data frame with at least \code{tag_code} and \code{ch}.}
+
+\item{tag_col}{Character; tag column name. Default \code{"tag_code"}.}
+
+\item{ch_col}{Character; encounter history column name. Default \code{"ch"}.}
+
+\item{keep_cols}{Logical; if \code{TRUE}, retain additional columns such as
+group covariates. Default \code{TRUE}.}
+}
+\value{
+Data frame with \code{tag_code}, converted \code{ch}, and optionally
+additional covariates.
 }
 \description{
-Converts capture histories from \code{build_capture_histories} to a format
-usable for multi-state modeling in package \code{marked}.
+Converts encounter histories coded as \code{0}, \code{1}, and \code{2} to
+multistate histories for \code{marked::crm(..., model = "hmmMSCJS")}.
+}
+\details{
+Input coding:
+\itemize{
+\item \code{1}: detected and released
+\item \code{2}: detected and then censored/removed
+\item \code{0}: not detected
+}
+
+Output coding:
+\itemize{
+\item \code{A}: alive/available and detected
+\item \code{C}: censored/removed and unavailable
+\item \code{0}: not detected
+}
+
+Because removal occurs after detection, a \code{2} is coded as \code{A} at
+that occasion and \code{C} for all subsequent occasions.
 }
 \author{
 Ryan N. Kinzer

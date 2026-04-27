@@ -11,72 +11,56 @@ build_capture_histories(
   tag_col = "tag_code",
   time_col = NULL,
   censor_col = NULL,
+  covariate_cols = NULL,
   enforce_order = TRUE,
   keep_unknown = FALSE
 )
 }
 \arguments{
-\item{tag_history}{A data frame or tibble with at least the following columns:
-\describe{
-\item{\code{tag_code}}{Unique identifier for each tagged fish.}
-\item{\code{site_code}}{Detection site code.}
-\item{\code{event_time}}{Timestamp of the detection event (used if \code{time_col} is provided).}
-}}
+\item{tag_history}{Data frame with one row per tag event.}
 
-\item{locs_def}{Either a character vector defining the ordered occasions
-(e.g., \code{c("SECTRP","ZEN",...)}), or a named list mapping one or more site codes
-to occasions
-(e.g., \code{list(LGR = c("GRJ","GRS"), Down = c("LMN","MCN","BON"))}).}
+\item{locs_def}{Character vector of ordered occasions, or a named list mapping
+one or more site codes to each occasion.}
 
-\item{site_col}{Character; column name in \code{tag_history} containing site codes.
-Default is \code{"site_code"}.}
+\item{site_col}{Character; column containing site codes. Default is
+\code{"site_code"}.}
 
-\item{tag_col}{Character; column name in \code{tag_history} containing PIT tag codes.
-Default is \code{"tag_code"}.}
+\item{tag_col}{Character; column containing tag IDs. Default is
+\code{"tag_code"}.}
 
-\item{time_col}{Character; optional column name in \code{tag_history} containing
-event timestamps (POSIXct or parseable) used to order events within tag.}
+\item{time_col}{Character; optional column containing event times used for
+within-tag ordering.}
 
-\item{censor_col}{Character; optional column name indicating whether an event
-is censored. Must be logical or coercible to logical. If \code{TRUE}, the fish
-is considered removed after that detection and is not available for subsequent
-occasions. The detection itself is retained. Default is \code{NULL}.}
+\item{censor_col}{Character; optional logical column indicating censoring or
+removal after detection.}
 
-\item{enforce_order}{Logical; if TRUE, only the first occurrence of each
-strictly increasing occasion per tag is kept. Default is TRUE.}
+\item{covariate_cols}{Character vector of individual covariate columns to keep
+in \code{ch_data}. If \code{NULL}, all non-event columns not used internally
+are retained when constant within tag.}
 
-\item{keep_unknown}{Logical; whether to keep events with site codes not found in
-\code{locs_def} (default = \code{FALSE}).}
+\item{enforce_order}{Logical; if \code{TRUE}, only strictly increasing
+occasions are retained per tag. Default is \code{TRUE}.}
+
+\item{keep_unknown}{Logical; whether to keep events whose site is not in
+\code{locs_def}. Default is \code{FALSE}.}
 }
 \value{
-A list with four elements:
-\itemize{
-\item \code{ch_data} – tibble with one row per tag and a \code{ch} column for
-encounter history, where \code{1} indicates detection, \code{2} indicates
-detection with censoring at that occasion, and \code{0} indicates no detection
-or not available for detection.
-\item \code{ch_freq} – tibble of encounter history strings and their frequencies.
-\item \code{mapping} – tibble mapping \code{site_code} to \code{occasion} and numeric
-\code{occ_idx}.
-\item \code{dropped_summary} – tibble summarizing the number of events dropped because
-their site was not in the "study design".
-}
+A list with \code{ch_data}, \code{ch_freq}, \code{m_array},
+\code{mapping}, and \code{dropped_summary}.
 }
 \description{
 Converts tag-level observation events into capture histories compatible with
-program MARK. Can handle multiple sites per occasion, enforce downstream order,
-and optionally apply censoring rules that remove fish from availability after
-a specified event.
+CJS, M-array, and multistate CJS analyses. Can handle multiple sites per
+occasion, enforce downstream order, retain individual covariates, and encode
+censored/removal events.
 }
 \details{
-If \code{censor_col} is supplied, rows where the column evaluates to \code{TRUE}
-are treated as terminal detections. The detection at that occasion is retained
-and encoded as \code{2} in the encounter history, while subsequent occasions are
-encoded as \code{0} because the fish is no longer available for detection.
-
-This is useful in cases where a fish is detected for parameter estimation but
-is no longer available for detection at downstream sites (e.g., removal,
-transport, or mortality events).
+Encounter history coding:
+\itemize{
+\item \code{1}: detected and released/available for later detection
+\item \code{2}: detected and censored/removed after detection
+\item \code{0}: not detected or unavailable
+}
 }
 \author{
 Ryan N. Kinzer

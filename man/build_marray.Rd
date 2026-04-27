@@ -2,28 +2,33 @@
 % Please edit documentation in R/build_marray.R
 \name{build_marray}
 \alias{build_marray}
-\title{Create an M-array of releases, detections, and removals.}
+\title{Create a Burnham-style M-array}
 \usage{
 build_marray(ch_data, locs_def = NULL)
 }
 \arguments{
-\item{ch_data}{Data frame or tibble with at least the following columns:
-\describe{
-\item{\code{tag_code}}{Unique identifier for each tagged individual.}
-\item{\code{ch}}{Encounter history string (e.g., "11001"). The value
-1 = released/detected, 0 = not observed, and a 2 = detected but removed and not available for observation at the next site.}
-}}
+\item{ch_data}{Data frame with at least \code{tag_code} and \code{ch}.}
 
-\item{locs_def}{Either a character vector defining the ordered occasions
-(e.g., \code{c("SECTRP","ZEN",...)}), or a named list mapping one or more site codes
-to occasions
-(e.g., \code{list(LGR = c("GRJ","GRS"), Down = c("LMN","MCN","BON"))}).}
+\item{locs_def}{Optional character vector of occasion labels.}
 }
 \value{
-a data.frame
+Data frame with release occasion, site, observed, released, M-array
+first-detection counts, and never-seen-again counts.
 }
 \description{
-Builds a matrix of marks released, observed, and never seen.
+Builds an M-array of releases, downstream first detections, removals, and
+never-seen-again counts from encounter histories.
+}
+\details{
+Encounter history coding:
+\itemize{
+\item \code{1}: detected and released
+\item \code{2}: detected but removed/censored after detection
+\item \code{0}: not observed
+}
+
+Fish coded \code{2} are counted as observed at that occasion but are not counted
+as released from that occasion.
 }
 \author{
 Ryan N. Kinzer

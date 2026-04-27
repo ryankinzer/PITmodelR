@@ -2,22 +2,23 @@
 % Please edit documentation in R/fit_marray_cjs.R
 \name{fit_marray_cjs}
 \alias{fit_marray_cjs}
-\title{Fit a CJS Model Using an M-array.}
+\title{Fit a CJS Model Using an M-array}
 \usage{
-fit_marray_cjs(m_array)
+fit_marray_cjs(m_array, conf_level = 0.95)
 }
 \arguments{
-\item{m_array}{Data frame or tibble produced by \code{build_array}.}
+\item{m_array}{Data frame from \code{build_marray()}.}
+
+\item{conf_level}{Confidence level for Wald intervals.}
+}
+\value{
+List with \code{model}, \code{phi}, \code{cum_phi}, \code{p},
+\code{lambda}, \code{estimates}, \code{plots}, and \code{covariance_mode}.
 }
 \description{
-Fits a Cormack-Jolly-Seber (CJS) capture-recapture model using the M-array approach
-as described in Burnham et al. 1987. The approach allows for censored data
-(i.e., fish removed at a detection site for sampling or transportion). The
-function returns tidy results for survival (\code{Phi}), detection (\code{p}),
-and lambda (i.e., the product of survival and detection at the last reach and site).
-
-Cumulative survival estimates are computed with covariance-aware confidence intervals
-when possible; otherwise, an independence-based fallback is used.
+Fits a CJS-style likelihood from a Burnham-style M-array. The final interval is
+parameterized as \code{lambda_last = S_last * p_final}, because the final
+survival and final detection probability are not separately identifiable.
 }
 \author{
 Ryan N. Kinzer

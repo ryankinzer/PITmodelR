@@ -2,34 +2,43 @@
 % Please edit documentation in R/fit_marked_mscjs.R
 \name{fit_marked_mscjs}
 \alias{fit_marked_mscjs}
-\title{Fit a Multi-state CJS Model Using \code{marked}}
+\title{Fit a Multistate CJS Model Using \code{marked}}
 \usage{
-fit_marked_mscjs(ms_data)
+fit_marked_mscjs(
+  ms_data,
+  s_formula = ~time,
+  p_formula = ~time,
+  psi_formula = ~-1 + stratum:tostratum,
+  hessian = TRUE,
+  conf_level = 0.95,
+  ...
+)
 }
 \arguments{
-\item{ms_data}{Data frame or tibble with at least the following columns:
-\describe{
-\item{\code{tag_code}}{Unique identifier for each tagged individual.}
-\item{\code{ch}}{Encounter history string (e.g., "AA0A0CC"). The value A
-equal alive and detected, 0 equal not detected, and C equals censored or
-removed after being detected.}
-}}
+\item{ms_data}{Data frame from \code{build_multistate_histories()} with
+\code{tag_code}, \code{ch}, and optional covariates.}
+
+\item{s_formula}{Formula for survival. Default \code{~ time}.}
+
+\item{p_formula}{Formula for detection. Default \code{~ time}.}
+
+\item{psi_formula}{Formula for transition probabilities. Default
+\code{~ -1 + stratum:tostratum}.}
+
+\item{hessian}{Logical; passed to \code{marked::crm()}.}
+
+\item{conf_level}{Confidence level for intervals.}
+
+\item{...}{Additional arguments passed to \code{marked::crm()}.}
 }
 \value{
-a data frame
+List with \code{model}, \code{phi}, \code{cum_phi}, \code{p},
+\code{psi}, \code{plots}, and \code{covariance_mode}.
 }
 \description{
-Fits a Cormack-Jolly-Seber (CJS) capture-recapture model with right censored
-observations using the \code{marked} package and the model \code{hmmMSCJS}. The function
-returns tidy results for survival (\code{Phi}) and detection (\code{p}) parameters.
-Cumulative survival estimates are computed with covariance-aware confidence intervals
-when possible; otherwise, an independence-based fallback is used.
-}
-\details{
-This function wraps the \code{marked::crm} and sets the model fit to \code{hmmMSCJS}.
-}
-\seealso{
-\link[marked:crm]{marked::crm}
+Fits a multistate CJS model using \code{marked::crm()} with
+\code{model = "hmmMSCJS"}. Designed for encounter histories where censored or
+removed fish are represented as a separate absorbing state.
 }
 \author{
 Ryan N. Kinzer

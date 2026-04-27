@@ -14,53 +14,27 @@ fit_marked_cjs(
 )
 }
 \arguments{
-\item{ch_data}{Data frame or tibble with at least the following columns:
-\describe{
-\item{\code{tag_code}}{Unique identifier for each tagged individual.}
-\item{\code{ch}}{Encounter history string (e.g., "11001").}
-}}
+\item{ch_data}{Data frame with \code{tag_code}, \code{ch}, and optional
+individual covariates.}
 
-\item{phi_formula}{Formula specifying the model for survival (\code{Phi}); default \code{~ time}.}
+\item{phi_formula}{Formula for survival. Default \code{~ time}.}
 
-\item{p_formula}{Formula specifying the model for detection probability (\code{p}); default \code{~ time}.}
+\item{p_formula}{Formula for detection. Default \code{~ time}.}
 
-\item{hessian}{Passed to \code{marked::crm()}. If \code{TRUE} (default), compute the Hessian so that uncertainty and variance-covariance matrices can be extracted.}
+\item{hessian}{Logical; passed to \code{marked::crm()}.}
 
-\item{conf_level}{Numeric; confidence level for Wald intervals (default 0.95).}
+\item{conf_level}{Confidence level for intervals.}
 
-\item{...}{Additional arguments passed to marked::crm().}
+\item{...}{Additional arguments passed to \code{marked::crm()}.}
 }
 \value{
-A list with components:
-\describe{
-\item{\code{model}}{The fitted \code{marked} CJS model object.}
-\item{\code{phi}}{Data frame of interval survival estimates with columns \code{estimate}, \code{se}, \code{lcl}, \code{ucl}, and interval index.}
-\item{\code{cum_phi}}{Data frame of cumulative survival estimates across intervals with confidence intervals.}
-\item{\code{p}}{Data frame of interval detection probabilities with columns \code{estimate}, \code{se}, \code{lcl}, \code{ucl}, and interval index.}
-\item{\code{plots}}{List of plots for \code{phi}, \code{p}, and \code{cum_phi}. Uses \code{ggplot2} if available, otherwise base R.}
-\item{\code{covariance_mode}}{Character indicating whether cumulative survival used "full" covariance or the "independence_fallback".}
-}
+List with \code{model}, \code{phi}, \code{cum_phi}, \code{p},
+\code{plots}, and \code{covariance_mode}.
 }
 \description{
-Fits a Cormack-Jolly-Seber (CJS) capture-recapture model using the \code{marked} package
-and returns tidy results for survival (\code{Phi}) and detection (\code{p}) parameters.
-Cumulative survival estimates are computed with covariance-aware confidence intervals
-when possible; otherwise, an independence-based fallback is used.
-}
-\details{
-This function wraps the \code{marked::crm} workflow for CJS models, extracts tidy parameter
-tables, and computes cumulative survival across intervals. If the covariance matrix
-for \code{Phi} parameters is available, cumulative survival confidence intervals
-account for correlations; otherwise, a simple product-of-bounds approach is used.
-}
-\note{
-Additional arguments are passed directly to \code{marked::crm()}. This feature
-is experimental and not fully tested; supplying unsupported arguments
-may cause errors or unexpected behavior.
-}
-\seealso{
-\link[marked:crm]{marked::crm}
+Fits a Cormack-Jolly-Seber model using \code{marked} and returns tidy survival,
+cumulative survival, and detection estimates.
 }
 \author{
-Ryan Kinzer
+Ryan N. Kinzer
 }

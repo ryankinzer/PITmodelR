@@ -63,9 +63,15 @@ fit_marked_mscjs <- function(ms_data,
     ...
   )
 
-  pred_s   <- marked::predict.crm(mod, parameter = "S")$S
-  pred_p   <- marked::predict.crm(mod, parameter = "p")$p
-  pred_psi <- marked::predict.crm(mod, parameter = "Psi")$Psi
+  pred <- predict(mod)
+
+  pred_s   <- pred$S
+  pred_p   <- pred$p
+  pred_psi <- pred$Psi
+
+  # pred_s   <- marked::predict.crm(mod, parameter = "S")$S
+  # pred_p   <- marked::predict.crm(mod, parameter = "p")$p
+  # pred_psi <- marked::predict.crm(mod, parameter = "Psi")$Psi
 
   phi_df <- data.frame(
     interval = seq_len(nrow(pred_s)),

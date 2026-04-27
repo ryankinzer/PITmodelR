@@ -45,8 +45,13 @@ fit_marked_cjs <- function(ch_data,
     ...
   )
 
-  pred_phi <- marked::predict.crm(mod, parameter = "Phi")$Phi
-  pred_p   <- marked::predict.crm(mod, parameter = "p")$p
+  pred <- predict(mod)
+
+  pred_phi <- pred$Phi
+  pred_p   <- pred$p
+
+  # pred_phi <- marked::predict.crm(mod, parameter = "Phi")$Phi
+  # pred_p   <- marked::predict.crm(mod, parameter = "p")$p
 
   tidy_pred <- function(x) {
     data.frame(

@@ -47,7 +47,7 @@ build_marray <- function(ch_data,
   ch_mat <- do.call(rbind, strsplit(ch_vec, ""))
   storage.mode(ch_mat) <- "integer"
 
-  observed <- colSums(ch_mat %in% c(1L, 2L))
+  observed <- colSums(ch_mat == 1L | ch_mat == 2L)
   released <- colSums(ch_mat == 1L)
 
   m_array <- matrix(

@@ -34,9 +34,8 @@ within-tag ordering.}
 \item{censor_col}{Character; optional logical column indicating censoring or
 removal after detection.}
 
-\item{covariate_cols}{Character vector of individual covariate columns to keep
-in \code{ch_data}. If \code{NULL}, all non-event columns not used internally
-are retained when constant within tag.}
+\item{covariate_cols}{Character vector of individual covariate columns to retain
+in ch_data. Default NULL keeps no covariates.}
 
 \item{enforce_order}{Logical; if \code{TRUE}, only strictly increasing
 occasions are retained per tag. Default is \code{TRUE}.}

@@ -25,9 +25,8 @@
 #'   within-tag ordering.
 #' @param censor_col Character; optional logical column indicating censoring or
 #'   removal after detection.
-#' @param covariate_cols Character vector of individual covariate columns to keep
-#'   in \code{ch_data}. If \code{NULL}, all non-event columns not used internally
-#'   are retained when constant within tag.
+#' @param covariate_cols Character vector of individual covariate columns to retain
+#'   in ch_data. Default NULL keeps no covariates.
 #' @param enforce_order Logical; if \code{TRUE}, only strictly increasing
 #'   occasions are retained per tag. Default is \code{TRUE}.
 #' @param keep_unknown Logical; whether to keep events whose site is not in
@@ -200,10 +199,12 @@ build_capture_histories <- function(tag_history,
   candidate_covars <- setdiff(names(tag_history), c(event_cols, site_col))
 
   if (is.null(covariate_cols)) {
-    covariate_cols <- setdiff(candidate_covars, tag_col)
+    covariate_cols <- character(0)
   }
 
-  if (length(covariate_cols)) {
+  # retain requested covariates only
+  if (length(covariate_cols) > 0) {
+
     covars <- tag_history |>
       dplyr::select(dplyr::all_of(c(tag_col, covariate_cols))) |>
       dplyr::distinct()

@@ -254,10 +254,15 @@ build_capture_histories <- function(tag_history,
     tibble::tibble(site_code = character(), n = integer())
   }
 
+  # ---- build m-array ------
+
+  m_array <- build_marray(ch_data)
+
   # ---- return ----
   list(
     ch_data         = ch_data,
     ch_freq         = ch_freq,
+    m_array         = m_array,
     mapping         = tibble::as_tibble(mapping),
     dropped_summary = dropped_summary
   )

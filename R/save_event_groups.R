@@ -28,6 +28,7 @@ save_event_groups <- function(events,
                               out_dir = NULL,
                               remove_blank_tags = TRUE,
                               save_TagIds = TRUE,
+                              max_tags = 15000,
                               unique_tags = TRUE) {
   if (is.null(events) || !length(events) > 1) {
     stop("`events` must be a non-empty object.", call. = FALSE)
@@ -81,9 +82,37 @@ save_event_groups <- function(events,
     file_stub <- paste(x[group_cols], collapse = "_")
 
     if (save_TagIds) {
-      tag_file_name <- paste0(file_stub, "_TagIds.txt")
-      tag_file_path <- file.path(file_path, "TagIds", tag_file_name)
-      write_lines(pit_tags, tag_file_path)
+
+      dir.create(file.path(file_path, "TagIds"), showWarnings = FALSE, recursive = TRUE)
+
+      max_tags <- max_tags
+      n_files <- ceiling(length(pit_tags) / max_tags)
+
+      # helper to generate A, B, ..., Z, AA, AB, ...
+      make_suffix <- function(i) {
+        s <- ""
+        while (i > 0) {
+          i <- i - 1
+          s <- paste0(LETTERS[(i %% 26) + 1], s)
+          i <- i %/% 26
+        }
+        s
+      }
+
+      split_tags <- split(
+        pit_tags,
+        ceiling(seq_along(pit_tags) / max_tags)
+      )
+
+      for (i in seq_along(split_tags)) {
+
+        suffix <- if (n_files > 1) paste0("_", make_suffix(i)) else ""
+
+        tag_file_name <- paste0(file_stub, "_TagIds", suffix, ".txt")
+        tag_file_path <- file.path(file_path, "TagIds", tag_file_name)
+
+        readr::write_lines(split_tags[[i]], tag_file_path)
+      }
     }
 
 

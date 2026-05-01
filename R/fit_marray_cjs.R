@@ -117,12 +117,18 @@ fit_marray_cjs <- function(m_array,
 
   beta <- fit$par
 
+  n_S <- n_sites - 2
+  n_p <- n_sites - 2
+  n_lambda <- 1
+
+  param_labels <- c(
+    paste0("S_", seq_len(n_S)),
+    paste0("p_", 2:(n_sites - 1)),
+    paste0("lambda_", n_sites - 1)
+  )
+
   estimates <- data.frame(
-    # parameter = c(
-    #   paste0("S_", 1:(n_sites - 2)),
-    #   paste0("p_", 2:(n_sites - 1)),
-    #   paste0("lambda_", n_sites - 1)
-    # ),
+    parameter = param_labels,
     beta = beta,
     se_beta = se_beta,
     estimate = stats::plogis(beta),
@@ -131,19 +137,23 @@ fit_marray_cjs <- function(m_array,
     stringsAsFactors = FALSE
   )
 
-  phi_df <- estimates[grepl("^S_", estimates$parameter), ]
+  phi_idx <- seq_len(n_S)
+  p_idx <- n_S + seq_len(n_p)
+  lambda_idx <- n_S + n_p + seq_len(n_lambda)
+
+  phi_df <- estimates[phi_idx, ]
   phi_df$interval <- seq_len(nrow(phi_df))
-  phi_df <- phi_df[, c("interval", "estimate", "se_beta", "lcl", "ucl")]
+  phi_df <- phi_df[, c("interval", "estimate", "se_beta", "lcl", "ucl", "parameter")]
   names(phi_df)[names(phi_df) == "se_beta"] <- "se"
 
-  p_df <- estimates[grepl("^p_", estimates$parameter), ]
-  p_df$interval <- seq_len(nrow(p_df))
-  p_df <- p_df[, c("interval", "estimate", "se_beta", "lcl", "ucl")]
+  p_df <- estimates[p_idx, ]
+  p_df$interval <- 2:(n_sites - 1)
+  p_df <- p_df[, c("interval", "estimate", "se_beta", "lcl", "ucl", "parameter")]
   names(p_df)[names(p_df) == "se_beta"] <- "se"
 
-  lambda_df <- estimates[grepl("^lambda_", estimates$parameter), ]
+  lambda_df <- estimates[lambda_idx, ]
   lambda_df$interval <- n_sites - 1
-  lambda_df <- lambda_df[, c("interval", "estimate", "se_beta", "lcl", "ucl")]
+  lambda_df <- lambda_df[, c("interval", "estimate", "se_beta", "lcl", "ucl", "parameter")]
   names(lambda_df)[names(lambda_df) == "se_beta"] <- "se"
 
   vcov_phi <- if (!is.null(vcov_beta) && nrow(phi_df)) {

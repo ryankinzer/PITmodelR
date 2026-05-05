@@ -11,6 +11,7 @@ save_event_groups(
   out_dir = NULL,
   remove_blank_tags = TRUE,
   save_TagIds = TRUE,
+  max_tags = 15000,
   unique_tags = TRUE
 )
 }

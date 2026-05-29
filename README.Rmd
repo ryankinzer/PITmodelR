@@ -14,6 +14,7 @@ knitr::opts_chunk$set(
 # PITmodelR <img src="man/figures/pitmodelr_logo.png" align="right" width="110">
 
 ---
+testing a commit and push.
 
 **PITmodelR** is an R package for retrieving, organizing, and modeling Passive Integrated Transponder (PIT) tag mark and observation data from [PTAGIS](https://www.ptagis.org/). It provides tools to streamline compiling tag data, building capture histories, and estimating survival and migration timing metrics. Although designed with juvenile salmonids in mind, many tools are broadly applicable to other PIT-tagged fish populations.
 

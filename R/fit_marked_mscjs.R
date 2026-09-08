@@ -23,7 +23,7 @@
 #' @export
 fit_marked_mscjs <- function(ms_data,
                              s_formula   = ~ time,
-                             p_formula   = ~ time,
+                             p_formula   = ~ stratum:time,
                              psi_formula = ~ -1 + stratum:tostratum,
                              hessian     = TRUE,
                              conf_level  = 0.95,
@@ -44,7 +44,7 @@ fit_marked_mscjs <- function(ms_data,
   ddl <- marked::make.design.data(proc)
 
   ddl$p$fix <- NA
-  ddl$p$fix[ddl$p$stratum == "C"] <- 0
+  ddl$p$fix[ddl$p$stratum == "C" & ddl$p$occ == max(ddl$p$occ)] <- 1
 
   ddl$Psi$fix <- NA
   ddl$Psi$fix[ddl$Psi$stratum == "C" & ddl$Psi$tostratum == "A"] <- 0

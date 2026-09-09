@@ -1,4 +1,4 @@
-@title Fit a Multistate CJS Model Using `marked`
+#' @title Fit a Multistate CJS Model Using `marked`
 #'
 #' @description
 #' Fits a multistate CJS model for multiple release groups using \code{marked::crm()} with

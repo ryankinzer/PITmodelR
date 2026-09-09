@@ -18,7 +18,7 @@
 #'   \code{plots}, and \code{covariance_mode}.
 #'
 #' @author Ryan N. Kinzer
-#' @authur Michelle A. Briggs
+#' @author Michelle A. Briggs
 #'
 #' @export
 fit_marked_cjs_multiple <- function(ch_data,

@@ -41,7 +41,7 @@ fit_marked_mscjs_multiple <- function(ms_data,
   stopifnot(is.data.frame(ms_data), all(c("tag_code", "ch") %in% names(ms_data)))
 
   proc <- marked::process.data(
-    marked_ch,
+    ms_data,
     model = "hmmMSCJS",
     groups = "release_group",
     strata.labels = c("A", "C")

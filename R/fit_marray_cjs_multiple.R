@@ -211,7 +211,7 @@ fit_marray_cjs_multiple <- function(marray_list) {
   colnames(phi_id) <- marray_list$release_group
 
   phi_id <- phi_id %>%
-    dplyr::pivot_longer(cols = 1:dim(phi_id)[2], names_to = "release_group", values_to = "to_site", cols_vary = "slowest") %>%
+    tidyr::pivot_longer(cols = 1:dim(phi_id)[2], names_to = "release_group", values_to = "to_site", cols_vary = "slowest") %>%
     dplyr::filter(!is.na(to_site))
 
   phi <- cbind(phi_id, fit[[1]]$phi, fit[[1]]$logit_phi, fit[[2]]$logit_phi) %>%

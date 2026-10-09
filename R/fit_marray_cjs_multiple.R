@@ -58,7 +58,8 @@ fit_marray_cjs_multiple <- function(marray_list, shared_p, shared_phi) {
 
   #lists of sites and release groups
   site_lists <- lapply(marray_list$m_array, function(df) df$site[-1])
-  release_group_list <- lapply(marray_list$m_array, function(df) df$site[1])
+  #release_group_list <- lapply(marray_list$m_array, function(df) df$site[1])
+  release_group_vec <- marray_list$release_group
 
   #matrix number of detection sites x release groups
   max_len <- max(sapply(site_lists, length))
@@ -69,7 +70,7 @@ fit_marray_cjs_multiple <- function(marray_list, shared_p, shared_phi) {
     x
   })
 
-  colnames(site_mat) <- release_group_list
+  colnames(site_mat) <- release_group_vec
 
   #number of unique detection sites
   n_sites = length(unique(unlist(site_lists)))
@@ -94,7 +95,7 @@ fit_marray_cjs_multiple <- function(marray_list, shared_p, shared_phi) {
                           byrow = TRUE, dimnames = dimnames(site_mat))
   }
 
-  colnames(p_index_mat) <- unlist(release_group_list)
+  colnames(p_index_mat) <- release_group_vec
 
   # df to identify which parameter goes with which detection site and release group
   p_param_map <- as.data.frame(cbind(
@@ -122,12 +123,12 @@ fit_marray_cjs_multiple <- function(marray_list, shared_p, shared_phi) {
 
     phi_index_mat <- matrix(NA_integer_, nrow = nrow(site_mat), ncol = ncol(site_mat))
     phi_index_mat[!is.na(site_mat)] <- matrix(seq_len(sum(!is.na(site_mat))))
-    colnames(phi_index_mat) <- unlist(release_group_list)
+    colnames(phi_index_mat) <- release_group_vec
 
   } else {
 
     phi_index_mat <- matrix(NA_integer_, nrow = nrow(site_mat), ncol = ncol(site_mat))
-    colnames(phi_index_mat) <- unlist(release_group_list)
+    colnames(phi_index_mat) <- release_group_vec
     phi_index_mat[!is.na(site_mat)] <- matrix(seq_len(sum(!is.na(site_mat))))
 
     #function to re-number phi_index for shared values

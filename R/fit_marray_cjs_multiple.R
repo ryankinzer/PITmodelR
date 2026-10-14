@@ -23,6 +23,8 @@
 #'
 #' @export
 
+
+
 fit_marray_cjs_multiple <- function(marray_list, shared_p, shared_phi) {
 
   #compile the m-array data
@@ -160,12 +162,14 @@ fit_marray_cjs_multiple <- function(marray_list, shared_p, shared_phi) {
 
   #df to identify which parameters correspond to release groups and intervals
   from_site <- lapply(marray_list$m_array, function(df) df$site[-length(df$site)])
+  interval <- lapply(from_site, seq_along)
   phi_param_map <- as.data.frame(cbind(unlist(from_site),
                                        as.vector(site_mat)[!is.na(as.vector(site_mat))],
+                                       unlist(interval),
                                        as.vector(phi_index_mat)[!is.na(as.vector(phi_index_mat))],
                                        colnames(phi_index_mat)[col(phi_index_mat)[!is.na(phi_index_mat)]]
   ))
-  colnames(phi_param_map) <- c("from_site", "to_site", "phi_idx", "release_group")
+  colnames(phi_param_map) <- c("from_site", "to_site", "interval", "phi_idx", "release_group")
 
 
 
@@ -319,12 +323,25 @@ fit_marray_cjs_multiple <- function(marray_list, shared_p, shared_phi) {
                   ucl = plogis(logit_ucl)) %>%
     rownames_to_column(var = "phi_idx") %>%
     dplyr::left_join(phi_param_map, by = "phi_idx") %>%
-    dplyr::select(release_group, from_site, to_site, phi, lcl, ucl)
+    dplyr::select(release_group, from_site, to_site, interval, phi, lcl, ucl)
+
+  phi_df <- phi %>%
+    rename(estimate = phi) %>%
+    arrange(release_group, interval)
+
+  cum_phi <- phi_df %>%
+    split(.$release_group) %>%
+    map(~compute_cum_survival(phi_df = .x, vcov_beta = NULL, conf_level = 0.95)) %>%
+    map("cum_phi") %>%
+    list_rbind(names_to = "release_group") %>%
+    left_join(phi %>% select(release_group, from_site, to_site, interval),
+              by = c("release_group", "interval"))
 
   #list of output
   marray_output <- list(
     p = p,
     phi = phi,
+    cum_phi = cum_phi,
     fit = rep,
     st_err = st_err)
   marray_output

@@ -1,10 +1,10 @@
-#' @title Retrieve File Info for Project Code and Year
+#' @title Retrieve File Info for Project Code and Calendar Year
 #'
 #' @description
 #' Retrieve file information submitted by a
-#' mark-recapture-recovery (MRR) project code within a given year.
+#' mark-recapture-recovery (MRR) project code within a given calendar year.
 #'
-#' @param year A four digit year as an integer.
+#' @param year A four digit calendar year as an integer.
 #'
 #' @inheritParams get_site_observations
 #' @inheritParams get_project_years
@@ -27,19 +27,21 @@ get_mrr_files <- function(code,
   if (missing(code) || length(code) != 1 || !is.character(code) || is.na(code)) {
     stop("`code` must be a single, non-missing character string.", call. = FALSE)
   }
+
   code <- toupper(trimws(code))
+
   if (nchar(code) != 3) {
     stop("`code` must be exactly 3 characters (e.g., 'LGR').", call. = FALSE)
   }
 
   # ---- validate year ----
-  if (!is.null(year)) {
-    if (!is.numeric(year) || length(year) != 1L || is.na(year) ||
-        nchar(as.character(as.integer(year))) != 4) {
-      stop("`year` must be a single four-digit integer (e.g., 2024) or NULL.", call. = FALSE)
-    }
-    year <- as.integer(year)
+  if (is.null(year) || !is.numeric(year) || length(year) != 1L || is.na(year) ||
+      !is.finite(year) || year != trunc(year) || year < 1000 || year > 9999) {
+    stop("`year` must be a single four-digit integer (e.g., 2024).",
+         call. = FALSE)
   }
+
+  year <- as.integer(year)
 
   # ---- validate pagination controls ----
   if (!is.logical(all_pages) || length(all_pages) != 1L || is.na(all_pages)) {
@@ -52,8 +54,11 @@ get_mrr_files <- function(code,
     stop("`page_size` must be a single positive integer.", call. = FALSE)
   }
 
+  page      <- as.integer(page)
+  page_size <- as.integer(page_size)
+
   # ---- message ----
-  message("Downloading tag file information for project ", code,
+  message("Downloading MRR file information for project ", code,
           " and year ", year, " from PTAGIS...")
 
   # ---- construct URL and query parameters ----
@@ -63,11 +68,29 @@ get_mrr_files <- function(code,
     pageNumber = page
   )
 
-  # ---- fetch content ----
-  content <- ptagis_GET(url, params)
+  # ---- retrieve file information ----
+  results <- list()
 
-  # ---- coerce to tibble ----
-  tmp <- as_tibble_safely(content$model)
+  repeat {
 
-  return(tmp)
+    content <- ptagis_GET(url, params)
+
+    tmp <- as_tibble_safely(content$model)
+
+    results[[length(results) + 1L]] <- tmp
+
+    # stop if retrieving only one page, or if the final
+    # page contains fewer records than requested.
+    if (!all_pages || nrow(tmp) < page_size) {
+      break
+    }
+
+    # advance to next page
+    params$pageNumber <- params$pageNumber + 1L
+  }
+
+  # ---- combine pages ----
+  all_files <- dplyr::bind_rows(results)
+
+  return(all_files)
 }

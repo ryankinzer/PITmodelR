@@ -12,7 +12,7 @@
 #'
 #' @return `out` with updated `sessions`/`events`. `pdv_map` is preserved.
 #'
-#' @keywords internal
+#' @export
 map_pdvs_to_cols <- function(out) {
 
   # if pdv_map isn't present, do nothing
